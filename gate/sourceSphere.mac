@@ -10,9 +10,9 @@
 /gate/source/Na22_Z0_X0/gps/angtype iso
 
 
-#/gate/source/Na22/gps/mintheta 0. deg
-#/gate/source/Na22/gps/maxtheta 180. deg
-#/gate/source/Na22/gps/minphi -3. deg
-#/gate/source/Na22/gps/maxphi 3. deg
+/gate/source/Na22_Z0_X0/gps/mintheta 60. deg
+/gate/source/Na22_Z0_X0/gps/maxtheta 120. deg
+/gate/source/Na22_Z0_X0/gps/minphi 0. deg
+/gate/source/Na22_Z0_X0/gps/maxphi 360. deg
 
 #/gate/source/Na22_Z0_X0/visualize 1000 red 2

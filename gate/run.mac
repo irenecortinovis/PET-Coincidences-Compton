@@ -1,12 +1,12 @@
-#/vis/disable
-/control/execute ./visu.mac
+/vis/disable
+#/control/execute ./visu.mac
 #/gate/random/setEngineName JamesRandom
 /gate/random/setEngineSeed auto
 /gate/geometry/setMaterialDatabase ./GateMaterials.db
 /control/execute ./physics_7.mac
 
-/control/execute ./geometry_close.mac           # one ring new clearpem
-#/control/execute ./geometry.mac           # one ring new clearpem
+#/control/execute ./geometry_close.mac           # one ring new clearpem
+/control/execute ./geometry.mac           # one ring new clearpem
 #/control/execute ./geometry-complete.mac  # n plates clearpem
 
 #/control/execute ./phantomSphere.mac
@@ -16,23 +16,28 @@
 # INITIALIZE
 /gate/run/initialize
 
-/control/execute ./sourceLines.mac
+#/control/execute ./sourceLines.mac
 #/control/execute ./sourceCylinder.mac
 
-#/control/execute ./sourceSphere.mac
+/control/execute ./sourceSphere.mac
 #/control/execute ./sourceSphere_multiple.mac
 
 /control/execute ./sourceLu.mac
 
-
+# source Cylinder
 #/gate/source/sourceNa22/setActivity 1500000 becquerel
-/gate/source/line1/setActivity 1500000 becquerel
-/gate/source/line2/setActivity 1500000 becquerel
-/gate/source/line3/setActivity 1500000 becquerel
-/gate/source/line4/setActivity 1500000 becquerel
-/gate/source/line5/setActivity 1500000 becquerel
 
+# source Lines
+#/gate/source/line1/setActivity 1500000 becquerel
+#/gate/source/line2/setActivity 1500000 becquerel
+#/gate/source/line3/setActivity 1500000 becquerel
+#/gate/source/line4/setActivity 1500000 becquerel
+#/gate/source/line5/setActivity 1500000 becquerel
 
+# source Sphere
+/gate/source/Na22_Z0_X0/setActivity 1500000 becquerel
+
+#source Sphere multiple
 #/gate/source/Na22_Z0_X0/setActivity 1500000 becquerel
 #/gate/source/Na22_Z0_X1/setActivity 1500000 becquerel
 #/gate/source/Na22_Z0_X2/setActivity 1500000 becquerel
@@ -49,12 +54,14 @@
 
 # ROOT Output format
 /gate/output/root/enable
-/gate/output/root/setFileName test_200_125_0ns
+/gate/output/root/setFileName setTimeStart1
 /gate/output/root/setRootSinglesFlag 1
+/gate/output/root/setRootHitFlag 1
 /gate/output/root/setRootCoincidencesFlag 1
 
-/gate/application/setTimeSlice     4  s
+/gate/application/setTimeSlice     0.2  s
 /gate/application/setTimeStart     0. s
-/gate/application/setTimeStop      4  s
+/gate/application/setTimeStop      0.2  s
+
 # S T A R T  the A C Q U I S I T I O N
-#/gate/application/startDAQ
+/gate/application/startDAQ

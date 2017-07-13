@@ -1,4 +1,5 @@
 /gate/digitizer/Singles/insert adder
+#/gate/digitizer/Singles/insert adderCompton
 /gate/digitizer/Singles/insert readout
 /gate/digitizer/Singles/readout/setDepth 1
 
