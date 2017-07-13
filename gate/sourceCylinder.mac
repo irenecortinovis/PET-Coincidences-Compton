@@ -1,0 +1,27 @@
+# this is the cylinder
+/gate/source/addSource sourceNa22
+/gate/source/sourceNa22/setType backtoback
+/gate/source/sourceNa22/gps/centre 0. 0. 0. mm
+/gate/source/sourceNa22/gps/particle gamma
+/gate/source/sourceNa22/gps/energytype Mono
+/gate/source/sourceNa22/gps/monoenergy 0.511 MeV
+/gate/source/sourceNa22/gps/type Volume
+/gate/source/sourceNa22/gps/shape Cylinder
+/gate/source/sourceNa22/gps/radius 15 mm
+/gate/source/sourceNa22/gps/halfz 6.4 mm
+/gate/source/sourceNa22/gps/angtype iso
+
+
+# this is the planar source
+#/gate/source/addSource sourceNa22
+#/gate/source/sourceNa22/setType backtoback
+#/gate/source/sourceNa22/gps/centre 0. 0. 0. mm
+#/gate/source/sourceNa22/gps/particle gamma
+#/gate/source/sourceNa22/gps/energytype Mono
+#/gate/source/sourceNa22/gps/monoenergy 0.511 MeV
+#/gate/source/sourceNa22/gps/type Plane
+#/gate/source/sourceNa22/gps/shape Rectangle
+#/gate/source/sourceNa22/gps/halfx 6.3 mm
+#/gate/source/sourceNa22/gps/halfy 6.3 mm
+#/gate/source/sourceNa22/gps/setRotationAxis 1 0 0
+#/gate/source/sourceNa22/gps/setRotationAngle 90 deg

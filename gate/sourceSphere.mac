@@ -1,0 +1,18 @@
+/gate/source/addSource Na22_Z0_X0
+/gate/source/Na22_Z0_X0/setType backtoback
+/gate/source/Na22_Z0_X0/gps/centre 0. 0. 0. mm
+/gate/source/Na22_Z0_X0/gps/particle gamma
+/gate/source/Na22_Z0_X0/gps/energytype Mono
+/gate/source/Na22_Z0_X0/gps/monoenergy 0.511 MeV
+/gate/source/Na22_Z0_X0/gps/type Volume
+/gate/source/Na22_Z0_X0/gps/shape Sphere
+/gate/source/Na22_Z0_X0/gps/radius 1 mm
+/gate/source/Na22_Z0_X0/gps/angtype iso
+
+
+#/gate/source/Na22/gps/mintheta 0. deg
+#/gate/source/Na22/gps/maxtheta 180. deg
+#/gate/source/Na22/gps/minphi -3. deg
+#/gate/source/Na22/gps/maxphi 3. deg
+
+#/gate/source/Na22_Z0_X0/visualize 1000 red 2

@@ -1,0 +1,12 @@
+# PHANTOM cylinder
+
+/gate/world/daughters/name cylinder
+/gate/world/daughters/insert cylinder
+/gate/cylinder/setMaterial Air
+/gate/cylinder/geometry/setRmax 100 mm
+/gate/cylinder/geometry/setHeight 15 mm
+#/gate/cylinder/placement/setTranslation 0. 0. 29. mm
+/gate/cylinder/vis/setColor blue
+#/gate/cylinder/vis/forceWireframe
+/gate/cylinder/vis/forceSolid
+/gate/cylinder/vis/setVisible 1

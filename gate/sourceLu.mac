@@ -1,0 +1,33 @@
+/gate/source/addSource LUsource_A
+/gate/source/LUsource_A/gps/particle ion
+/gate/source/LUsource_A/gps/ion 71 176
+/gate/source/LUsource_A/setForcedUnstableFlag true
+/gate/source/LUsource_A/setForcedHalfLife 360806000000 s
+/gate/source/LUsource_A/gps/angtype iso
+/gate/source/LUsource_A/gps/energytype Mono
+/gate/source/LUsource_A/gps/monoenergy 0. MeV
+/gate/source/LUsource_A/setActivity 680 becquerel
+/gate/source/LUsource_A/attachTo rsector
+/gate/source/LUsource_A/gps/type Volume
+/gate/source/LUsource_A/gps/shape Para
+/gate/source/LUsource_A/gps/halfx 7.5 mm
+/gate/source/LUsource_A/gps/halfy 6.4 mm
+/gate/source/LUsource_A/gps/halfz 6.4 mm
+#/gate/source/LUsource_A/gps/centre 0.1 0 0 mm
+
+/gate/source/addSource LUsource_B
+/gate/source/LUsource_B/gps/particle ion
+/gate/source/LUsource_B/gps/ion 71 176
+/gate/source/LUsource_B/setForcedUnstableFlag true
+/gate/source/LUsource_B/setForcedHalfLife 360806000000 s
+/gate/source/LUsource_B/gps/angtype iso
+/gate/source/LUsource_B/gps/energytype Mono
+/gate/source/LUsource_B/gps/monoenergy 0. MeV
+/gate/source/LUsource_B/setActivity 680 becquerel
+/gate/source/LUsource_B/attachTo rsector
+/gate/source/LUsource_B/gps/type Volume
+/gate/source/LUsource_B/gps/shape Para
+/gate/source/LUsource_B/gps/halfx 7.5 mm
+/gate/source/LUsource_B/gps/halfy 6.4 mm
+/gate/source/LUsource_B/gps/halfz 6.4 mm
+/gate/source/LUsource_B/gps/centre -50.2 0 0 mm

@@ -1,0 +1,102 @@
+# W O R L D
+
+/gate/world/geometry/setXLength 60. cm
+/gate/world/geometry/setYLength 60. cm
+/gate/world/geometry/setZLength 60. cm
+
+
+# geometry like newclearpem
+/gate/world/daughters/name cylindricalPET
+/gate/world/daughters/insert cylinder
+/gate/cylindricalPET/setMaterial Air
+# crystal z = 15mm, internal radius 130 mm -> ext radius 145 mm
+/gate/cylindricalPET/geometry/setRmax 121.44 mm
+/gate/cylindricalPET/geometry/setRmin 100 mm
+# crystal 1.53x1.53x15 mm + 0.07 mm vikuiti in between.
+# matrix 8x8 crystals -> size 12.8x12.8 mm
+# 62 matrix per full ring
+#/gate/cylindricalPET/geometry/setHeight 13 mm
+/gate/cylindricalPET/geometry/setHeight 208 mm
+
+/gate/cylindricalPET/vis/forceWireframe
+
+# R S E C T O R
+/gate/cylindricalPET/daughters/name rsector
+/gate/cylindricalPET/daughters/insert box
+/gate/rsector/placement/setTranslation 107.5 0 0 mm
+/gate/rsector/geometry/setXLength 15. mm
+/gate/rsector/geometry/setYLength 78 mm
+/gate/rsector/geometry/setZLength 208 mm
+#/gate/rsector/geometry/setZLength 13 mm
+/gate/rsector/setMaterial Air
+/gate/rsector/vis/forceWireframe
+
+
+# M O D U L E
+/gate/rsector/daughters/name module
+/gate/rsector/daughters/insert box
+/gate/module/geometry/setXLength 15. mm
+/gate/module/geometry/setYLength 13 mm
+/gate/module/geometry/setZLength 13 mm
+#temp material BaSO4 -> define Vikuiti
+/gate/module/setMaterial BaSO4
+/gate/module/vis/forceSolid
+/gate/module/vis/setColor gray
+
+# S U B M O D U L E
+/gate/module/daughters/name submodule
+/gate/module/daughters/insert box
+/gate/submodule/geometry/setXLength 15. mm
+/gate/submodule/geometry/setYLength 3.2 mm
+/gate/submodule/geometry/setZLength 3.2 mm
+#temp material BaSO4 -> define Vikuiti
+/gate/submodule/setMaterial BaSO4
+/gate/submodule/vis/forceWireframe
+/gate/submodule/vis/setColor green
+/gate/submodule/vis/setVisible 0
+
+# C R Y S T A L
+/gate/submodule/daughters/name crystal
+/gate/submodule/daughters/insert box
+/gate/crystal/geometry/setXLength 15. mm
+/gate/crystal/geometry/setYLength 1.53 mm
+/gate/crystal/geometry/setZLength 1.53 mm
+#temp material LSO -> define LYSO
+/gate/crystal/setMaterial LSO
+/gate/crystal/vis/forceWireframe
+/gate/crystal/vis/setColor magenta
+/gate/crystal/repeaters/insert cubicArray
+/gate/crystal/vis/setVisible 0
+
+
+# L A Y E R
+/gate/crystal/daughters/name LSO
+/gate/crystal/daughters/insert box
+/gate/LSO/geometry/setXLength 15. mm
+/gate/LSO/geometry/setYLength 1.53 mm
+/gate/LSO/geometry/setZLength 1.53 mm
+/gate/LSO/placement/setTranslation 0 0 0 mm
+/gate/LSO/setMaterial LSO
+/gate/LSO/vis/setColor yellow
+/gate/LSO/vis/setVisible 0
+
+# R E P E A T C R Y S T A L
+/gate/crystal/cubicArray/setRepeatNumberY 2
+/gate/crystal/cubicArray/setRepeatNumberZ 2
+/gate/crystal/cubicArray/setRepeatVector 0. 1.6 1.6 mm
+
+# R E P E A T S U B M O D U L E
+/gate/submodule/repeaters/insert cubicArray
+/gate/submodule/cubicArray/setRepeatNumberY 4
+/gate/submodule/cubicArray/setRepeatNumberZ 4
+/gate/submodule/cubicArray/setRepeatVector 0. 3.2 3.2 mm
+
+# R E P E A T M O D U L E
+/gate/module/repeaters/insert cubicArray
+/gate/module/cubicArray/setRepeatNumberZ 16
+/gate/module/cubicArray/setRepeatNumberY 6
+/gate/module/cubicArray/setRepeatVector 0. 13. 13. mm
+
+# R E P E A T R S E C T O R
+/gate/rsector/repeaters/insert ring
+/gate/rsector/ring/setRepeatNumber 8

@@ -1,0 +1,166 @@
+# W O R L D
+
+/gate/world/geometry/setXLength 60. cm
+/gate/world/geometry/setYLength 60. cm
+/gate/world/geometry/setZLength 60. cm
+
+
+# geometry like newclearpem
+/gate/world/daughters/name cylindricalPET
+/gate/world/daughters/insert cylinder
+/gate/cylindricalPET/setMaterial Air
+# crystal z = 15mm, internal radius 130 mm -> ext radius 145 mm
+/gate/cylindricalPET/geometry/setRmax 34.8 mm
+/gate/cylindricalPET/geometry/setRmin 16.4 mm
+# crystal 1.53x1.53x15 mm + 0.07 mm vikuiti in between.
+# matrix 8x8 crystals -> size 12.8x12.8 mm
+# 62 matrix per full ring
+/gate/cylindricalPET/geometry/setHeight 14.8 mm
+#/gate/cylindricalPET/geometry/setHeight 208 mm
+
+/gate/cylindricalPET/vis/forceWireframe
+
+# R S E C T O R
+/gate/cylindricalPET/daughters/name rsector
+/gate/cylindricalPET/daughters/insert box
+/gate/rsector/placement/setTranslation 25.1 0 0 mm
+/gate/rsector/geometry/setXLength 17.4 mm
+/gate/rsector/geometry/setYLength 14.8 mm
+#/gate/rsector/geometry/setZLength 208 mm
+/gate/rsector/geometry/setZLength 14.8 mm
+/gate/rsector/setMaterial Air
+/gate/rsector/vis/forceWireframe
+/gate/rsector/vis/setColor yellow
+
+#GLASS LAYER
+/gate/rsector/daughters/name layer
+/gate/rsector/daughters/insert box
+/gate/layer/geometry/setXLength 1. mm
+/gate/layer/geometry/setYLength 12.8 mm
+/gate/layer/geometry/setZLength 12.8 mm
+/gate/layer/setMaterial Glass
+#/gate/layer/vis/forceWireframe
+/gate/layer/vis/setColor blue
+/gate/layer/placement/setTranslation -8.1 0 0 mm
+
+#VIKUITI LAYER
+/gate/rsector/daughters/name mirror
+/gate/rsector/daughters/insert box
+/gate/mirror/geometry/setXLength 0.1 mm
+/gate/mirror/geometry/setYLength 12.8 mm
+/gate/mirror/geometry/setZLength 12.8 mm
+/gate/mirror/setMaterial BaSO4
+#/gate/mirror/vis/forceWireframe
+/gate/mirror/vis/setColor red
+/gate/mirror/placement/setTranslation -8.65 0 0 mm
+
+#SIMIL MPPC
+/gate/rsector/daughters/name MPPCGlass
+/gate/rsector/daughters/insert box
+/gate/MPPCGlass/geometry/setXLength 0.1 mm
+/gate/MPPCGlass/geometry/setYLength 12.8 mm
+/gate/MPPCGlass/geometry/setZLength 12.8 mm
+/gate/MPPCGlass/setMaterial Epoxy
+#/gate/MPPCGlass/vis/forceWireframe
+/gate/MPPCGlass/vis/setColor blue
+/gate/MPPCGlass/placement/setTranslation 7.55 0 0 mm
+
+/gate/rsector/daughters/name MPPC
+/gate/rsector/daughters/insert box
+/gate/MPPC/geometry/setXLength 0.2 mm
+/gate/MPPC/geometry/setYLength 12.8 mm
+/gate/MPPC/geometry/setZLength 12.8 mm
+/gate/MPPC/setMaterial Silicon
+#/gate/MPPC/vis/forceWireframe
+/gate/MPPC/vis/setColor grey
+/gate/MPPC/placement/setTranslation 7.7 0 0 mm
+
+#HOLDER
+/gate/rsector/daughters/name holder1
+/gate/rsector/daughters/insert box
+/gate/holder1/geometry/setXLength 16 mm
+/gate/holder1/geometry/setYLength 14.8 mm
+/gate/holder1/geometry/setZLength 1. mm
+/gate/holder1/setMaterial PMMA
+#/gate/holder1/vis/forceWireframe
+/gate/holder1/vis/setColor magenta
+/gate/holder1/placement/setTranslation 0.7 0 6.9 mm
+
+/gate/rsector/daughters/name holder2
+/gate/rsector/daughters/insert box
+/gate/holder2/geometry/setXLength 1 mm
+/gate/holder2/geometry/setYLength 12.8 mm
+/gate/holder2/geometry/setZLength 12.8 mm
+/gate/holder2/setMaterial PMMA
+#/gate/holder2/vis/forceWireframe
+/gate/holder2/vis/setColor magenta
+/gate/holder2/placement/setTranslation 8.3 0 0 mm
+
+/gate/rsector/daughters/name holder3
+/gate/rsector/daughters/insert box
+/gate/holder3/geometry/setXLength 16 mm
+/gate/holder3/geometry/setYLength 14.8 mm
+/gate/holder3/geometry/setZLength 1. mm
+/gate/holder3/setMaterial PMMA
+#/gate/holder3/vis/forceWireframe
+/gate/holder3/vis/setColor magenta
+/gate/holder3/placement/setTranslation 0.7 0 -6.9 mm
+
+/gate/rsector/daughters/name holder4
+/gate/rsector/daughters/insert box
+/gate/holder4/geometry/setXLength 16 mm
+/gate/holder4/geometry/setYLength 1 mm
+/gate/holder4/geometry/setZLength 12.8 mm
+/gate/holder4/setMaterial PMMA
+#/gate/holder4/vis/forceWireframe
+/gate/holder4/vis/setColor magenta
+/gate/holder4/placement/setTranslation 0.7 -6.9 0 mm
+
+/gate/rsector/daughters/name holder5
+/gate/rsector/daughters/insert box
+/gate/holder5/geometry/setXLength 16 mm
+/gate/holder5/geometry/setYLength 1 mm
+/gate/holder5/geometry/setZLength 12.8 mm
+/gate/holder5/setMaterial PMMA
+#/gate/holder5/vis/forceWireframe
+/gate/holder5/vis/setColor magenta
+/gate/holder5/placement/setTranslation 0.7 6.9 0 mm
+
+# C R Y S T A L
+/gate/rsector/daughters/name crystal
+/gate/rsector/daughters/insert box
+/gate/crystal/geometry/setXLength 15. mm
+/gate/crystal/geometry/setYLength 1.53 mm
+/gate/crystal/geometry/setZLength 1.53 mm
+#temp material LSO -> define LYSO
+/gate/crystal/setMaterial BaSO4
+/gate/crystal/vis/forceWireframe
+/gate/crystal/vis/setColor magenta
+/gate/crystal/repeaters/insert cubicArray
+# R E P E A T C R Y S T A L
+/gate/crystal/cubicArray/setRepeatNumberY 8
+/gate/crystal/cubicArray/setRepeatNumberZ 8
+/gate/crystal/cubicArray/setRepeatVector 0. 1.6 1.6 mm
+
+# L A Y E R
+/gate/crystal/daughters/name LYSO
+/gate/crystal/daughters/insert box
+/gate/LYSO/geometry/setXLength 15. mm
+/gate/LYSO/geometry/setYLength 1.53 mm
+/gate/LYSO/geometry/setZLength 1.53 mm
+/gate/LYSO/placement/setTranslation 0 0 0 mm
+/gate/LYSO/setMaterial LYSO
+/gate/LYSO/vis/setColor yellow
+
+# R E P E A T R S E C T O R
+/gate/rsector/repeaters/insert ring
+/gate/rsector/ring/setRepeatNumber 2
+
+#this is for the planar normalization
+#/gate/cylindricalPET/placement/setRotationAxis        0 1 0
+#/gate/cylindricalPET/placement/setRotationAngle       90 deg
+
+/gate/cylindricalPET/moves/insert rotation
+/gate/cylindricalPET/rotation/setSpeed 15 deg/s
+#/gate/cylindricalPET/rotation/setSpeed 3.75 deg/s
+#/gate/cylindricalPET/orbiting/setSpeed .1875 deg/s

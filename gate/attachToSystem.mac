@@ -1,0 +1,19 @@
+# A T T A C H S Y S T E M
+/gate/systems/cylindricalPET/rsector/attach rsector
+#/gate/systems/cylindricalPET/module/attach module
+#/gate/systems/cylindricalPET/submodule/attach submodule
+/gate/systems/cylindricalPET/crystal/attach crystal
+/gate/systems/cylindricalPET/layer0/attach LYSO
+
+# A T T A C H L A Y E R SD
+/gate/LYSO/attachCrystalSD
+#/gate/phantom_Z0_X0/attachPhantomSD
+/gate/holder1/attachPhantomSD
+/gate/holder2/attachPhantomSD
+/gate/holder3/attachPhantomSD
+/gate/holder4/attachPhantomSD
+/gate/holder5/attachPhantomSD
+
+/gate/MPPCGlass/attachPhantomSD
+/gate/MPPC/attachPhantomSD
+/gate/layer/attachPhantomSD

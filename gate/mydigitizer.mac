@@ -1,0 +1,27 @@
+/gate/digitizer/Singles/insert adder
+/gate/digitizer/Singles/insert readout
+/gate/digitizer/Singles/readout/setDepth 1
+
+/gate/digitizer/Singles/insert blurring
+/gate/digitizer/Singles/blurring/setResolution 0.12
+/gate/digitizer/Singles/blurring/setEnergyOfReference 511. keV
+
+#/gate/digitizer/Singles/insert deadtime
+#/gate/digitizer/Singles/deadtime/setDeadTime 200 ns
+#/gate/digitizer/Singles/deadtime/setMode paralysable
+#/gate/digitizer/Singles/deadtime/chooseDTVolume rsector
+
+/gate/digitizer/Coincidences/setInputName Singles
+/gate/digitizer/Coincidences/setWindow 6. ns
+/gate/digitizer/Coincidences/minSectorDifference 1
+#/gate/digitizer/Coincidences/MultiplesPolicy killAll
+/gate/digitizer/Coincidences/MultiplesPolicy takeAllGoods
+
+/gate/digitizer/name realCoincidences
+/gate/digitizer/insert coincidenceChain
+/gate/digitizer/realCoincidences/addInputName Coincidences
+/gate/digitizer/realCoincidences/usePriority true
+/gate/digitizer/realCoincidences/insert deadtime
+/gate/digitizer/realCoincidences/deadtime/setDeadTime 0 ns
+/gate/digitizer/realCoincidences/deadtime/setMode paralysable
+/gate/digitizer/realCoincidences/deadtime/conserveAllEvent false
