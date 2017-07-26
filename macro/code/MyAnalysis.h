@@ -97,6 +97,11 @@ public :
    TBranch        *b_RayleighVolName;   //!
 
 
+   //Useful variables for the analysis
+
+
+
+
 
 
    MyAnalysis(TTree *tree=0);
