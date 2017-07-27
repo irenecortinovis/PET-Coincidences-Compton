@@ -4,8 +4,8 @@
 // from TChain Hits/
 //////////////////////////////////////////////////////////
 
-#ifndef MyAnalysis_h
-#define MyAnalysis_h
+#ifndef Hits_h
+#define Hits_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -15,7 +15,7 @@
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
-class MyAnalysis{
+class Hits{
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -98,21 +98,61 @@ public :
 
 
 
-   MyAnalysis(TTree *tree=0);
-   virtual ~MyAnalysis();
+   //struct for Compton analysis
+   struct Event
+   {
+     Int_t                        eventID;
+     std::vector<Int_t>           v_PDGEncoding;
+     std::vector<Float_t>         v_edep;
+     std::vector<Double_t>        v_time;
+     std::vector<Int_t>           v_crystalID;
+     std::vector<Int_t>           v_rsectorID;
+     std::vector<Char_t*>         v_processName;
+     std::vector<Int_t>           v_nPhantomCompton;
+     std::vector<Float_t>         v_posX;
+     std::vector<Float_t>         v_posY;
+     //vector Float?
+     Float_t                      rotationAngle;
+     Int_t                        ndiffCrystals;
+   };
+   
+
+   //struct for CoincidenceEvent
+   struct CoincidenceEvent
+   {
+     Int_t                         crystalID1;
+     Int_t                         crystalID2;
+     Int_t                         comptonPhantom1;
+     Int_t                         comptonPhantom2;
+     Float_t                       energy1;
+     Float_t                       energy2;
+     Int_t                         eventID1;
+     Int_t                         eventID2;
+     Float_t                       globalPosX1;
+     Float_t                       globalPosX2;
+     Float_t                       globalPosY1;
+     Float_t                       globalPosY2;
+     Float_t                       rotationAngle;
+   };
+
+
+
+
+   Hits(TTree *tree=0);
+   virtual ~Hits();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop();
+   virtual std::vector<CoincidenceEvent>  Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
 
 #endif
 
-#ifdef MyAnalysis_cxx
-MyAnalysis::MyAnalysis(TTree *tree) : fChain(0)
+#ifdef Hits_cxx
+Hits::Hits(TTree *tree) : fChain(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -140,19 +180,19 @@ MyAnalysis::MyAnalysis(TTree *tree) : fChain(0)
    Init(tree);
 }
 
-MyAnalysis::~MyAnalysis()
+Hits::~Hits()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t MyAnalysis::GetEntry(Long64_t entry)
+Int_t Hits::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t MyAnalysis::LoadTree(Long64_t entry)
+Long64_t Hits::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -165,7 +205,7 @@ Long64_t MyAnalysis::LoadTree(Long64_t entry)
    return centry;
 }
 
-void MyAnalysis::Init(TTree *tree)
+void Hits::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -220,7 +260,7 @@ void MyAnalysis::Init(TTree *tree)
    Notify();
 }
 
-Bool_t MyAnalysis::Notify()
+Bool_t Hits::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -231,14 +271,14 @@ Bool_t MyAnalysis::Notify()
    return kTRUE;
 }
 
-void MyAnalysis::Show(Long64_t entry)
+void Hits::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t MyAnalysis::Cut(Long64_t entry)
+Int_t Hits::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
@@ -246,4 +286,4 @@ Int_t MyAnalysis::Cut(Long64_t entry)
    return 1;
 }
 
-#endif // #ifdef MyAnalysis_cxx
+#endif // #ifdef Hits_cxx

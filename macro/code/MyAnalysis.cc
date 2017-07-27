@@ -5,51 +5,17 @@
 
 
 
-#define MyAnalysis_cxx
-#include "MyAnalysis.h"
+#define Hits_cxx
+#include "Hits.h"
+#define Coincidences_cxx
+#include "Coincidences.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <iostream>
 
-//struct for Compton analysis
-struct Event
-{
-  Int_t                        eventID;
-  std::vector<Int_t>           v_PDGEncoding;
-  std::vector<Float_t>         v_edep;
-  std::vector<Double_t>        v_time;
-  std::vector<Int_t>           v_crystalID;
-  std::vector<Int_t>           v_rsectorID;
-  std::vector<Char_t*>         v_processName;
-  std::vector<Int_t>           v_nPhantomCompton;
-  std::vector<Float_t>         v_posX;
-  std::vector<Float_t>         v_posY;
-  //vector Float?
-  Float_t                      rotationAngle;
-  Int_t                        ndiffCrystals;
-};
 
-//struct for CoincidenceEvent
-struct CoincidenceEvent
-{
-  Int_t                         crystalID1;
-  Int_t                         crystalID2;
-  Int_t                         comptonPhantom1;
-  Int_t                         comptonPhantom2;
-  Float_t                       energy1;
-  Float_t                       energy2;
-  Int_t                         eventID1;
-  Int_t                         eventID2;
-  Float_t                       globalPosX1;
-  Float_t                       globalPosX2;
-  Float_t                       globalPosY1;
-  Float_t                       globalPosY2;
-  Float_t                       rotationAngle;
-};
-
-
-void PrintEvent(Event this_event)
+void PrintEvent(Hits::Event this_event)
 {
   std::cout << "\neventID " << this_event.eventID <<
                "\nrotationAngle " << this_event.rotationAngle <<
@@ -95,7 +61,7 @@ bool ComptonFilter(Char_t* processName, Int_t PDGEncoding, Float_t edep)
 
 //compare crystalID with ones in the same event
 //to see if the gamma hits a new crystal
-bool isDiffCrystal(Event this_event, Int_t crystalID)
+bool isDiffCrystal(Hits::Event this_event, Int_t crystalID)
 {
   bool isDiffCrystal = true;
   //loop to compare with all crystalIDs in the event (except the last one)
@@ -111,7 +77,7 @@ bool isDiffCrystal(Event this_event, Int_t crystalID)
 
 
 //function that looks for inter crystal compton effect
-bool ComptonCheck(Event this_event)
+bool ComptonCheck(Hits::Event this_event)
 {
   bool isCompton = false;
   if(this_event.ndiffCrystals > 2)
@@ -129,124 +95,11 @@ bool ComptonCheck(Event this_event)
   */
 
 
-//function to create the inter-crystals compton coincidences tree
-TTree* CreateICcoincidencesTree()
-{
-  // Declaration of leaf types
-  Int_t           runID;
-  Float_t         axialPos;
-  Float_t         rotationAngle;
-  Int_t           eventID1;
-  Int_t           sourceID1;
-  Float_t         sourcePosX1;
-  Float_t         sourcePosY1;
-  Float_t         sourcePosZ1;
-  Double_t        time1;
-  Float_t         energy1;
-  Float_t         globalPosX1;
-  Float_t         globalPosY1;
-  Float_t         globalPosZ1;
-  Int_t           gantryID1;
-  Int_t           rsectorID1;
-  Int_t           moduleID1;
-  Int_t           submoduleID1;
-  Int_t           crystalID1;
-  Int_t           layerID1;
-  Int_t           comptonPhantom1;
-  Int_t           comptonCrystal1;
-  Int_t           RayleighPhantom1;
-  Int_t           RayleighCrystal1;
-  Int_t           eventID2;
-  Int_t           sourceID2;
-  Float_t         sourcePosX2;
-  Float_t         sourcePosY2;
-  Float_t         sourcePosZ2;
-  Double_t        time2;
-  Float_t         energy2;
-  Float_t         globalPosX2;
-  Float_t         globalPosY2;
-  Float_t         globalPosZ2;
-  Int_t           gantryID2;
-  Int_t           rsectorID2;
-  Int_t           moduleID2;
-  Int_t           submoduleID2;
-  Int_t           crystalID2;
-  Int_t           layerID2;
-  Int_t           comptonPhantom2;
-  Int_t           comptonCrystal2;
-  Int_t           RayleighPhantom2;
-  Int_t           RayleighCrystal2;
-  Float_t         sinogramTheta;
-  Float_t         sinogramS;
-  Char_t          comptVolName1[15];
-  Char_t          comptVolName2[13];
-  Char_t          RayleighVolName1[5];
-  Char_t          RayleighVolName2[5];
-
-  //create the tree
-  TTree* t1 = new TTree("realCoincidences","realCoincidences");
-
-  // Set branches
-  t1->Branch("runID", &runID, "runID/I");
-  t1->Branch("axialPos", &axialPos, "axialPos/F");
-  t1->Branch("rotationAngle", &rotationAngle, "rotationAngle/F");
-  t1->Branch("eventID1", &eventID1, "eventID1/I");
-  t1->Branch("sourceID1", &sourceID1, "sourceID1/I");
-  t1->Branch("sourcePosX1", &sourcePosX1, "sourcePosX1/F");
-  t1->Branch("sourcePosY1", &sourcePosY1, "sourcePosY1/F");
-  t1->Branch("sourcePosZ1", &sourcePosZ1, "sourcePosZ1/F");
-  t1->Branch("time1", &time1, "time1/D");
-  t1->Branch("energy1", &energy1, "energy1/F");
-  t1->Branch("globalPosX1", &globalPosX1, "globalPosX1/F");
-  t1->Branch("globalPosY1", &globalPosY1, "globalPosY1/F");
-  t1->Branch("globalPosZ1", &globalPosZ1, "globalPosZ1/F");
-  t1->Branch("gantryID1", &gantryID1, "gantryID1/I");
-  t1->Branch("rsectorID1", &rsectorID1, "rsectorID1/I");
-  t1->Branch("moduleID1", &moduleID1, "moduleID1/I");
-  t1->Branch("submoduleID1", &submoduleID1, "submoduleID1/I");
-  t1->Branch("crystalID1", &crystalID1, "crystalID1/I");
-  t1->Branch("layerID1", &layerID1, "layerID1/I");
-  t1->Branch("comptonPhantom1", &comptonPhantom1, "comptonPhantom1/I");
-  t1->Branch("comptonCrystal1", &comptonCrystal1, "comptonCrystal1/I");
-  t1->Branch("RayleighPhantom1", &RayleighPhantom1, "RayleighPhantom1/I");
-  t1->Branch("RayleighCrystal1", &RayleighCrystal1, "RayleighCrystal1/I");
-  t1->Branch("eventID2", &eventID2, "eventID2/I");
-  t1->Branch("sourceID2", &sourceID2, "sourceID2/I");
-  t1->Branch("sourcePosX2", &sourcePosX2, "sourcePosX2/F");
-  t1->Branch("sourcePosY2", &sourcePosY2, "sourcePosY2/F");
-  t1->Branch("sourcePosZ2", &sourcePosZ2, "sourcePosZ2/F");
-  t1->Branch("time2", &time2, "time2/D");
-  t1->Branch("energy2", &energy2, "energy2/F");
-  t1->Branch("globalPosX2", &globalPosX2, "globalPosX2/F");
-  t1->Branch("globalPosY2", &globalPosY2, "globalPosY2/F");
-  t1->Branch("globalPosZ2", &globalPosZ2, "globalPosZ2/F");
-  t1->Branch("gantryID2", &gantryID2, "gantryID2/I");
-  t1->Branch("rsectorID2", &rsectorID2, "rsectorID2/I");
-  t1->Branch("moduleID2", &moduleID2, "moduleID2/I");
-  t1->Branch("submoduleID2", &submoduleID2, "submoduleID2/I");
-  t1->Branch("crystalID2", &crystalID2, "crystalID2/I");
-  t1->Branch("layerID2", &layerID2, "layerID2/I");
-  t1->Branch("comptonPhantom2", &comptonPhantom2, "comptonPhantom2/I");
-  t1->Branch("comptonCrystal2", &comptonCrystal2, "comptonCrystal2/I");
-  t1->Branch("RayleighPhantom2", &RayleighPhantom2, "RayleighPhantom2/I");
-  t1->Branch("RayleighCrystal2", &RayleighCrystal2, "RayleighCrystal2/I");
-  t1->Branch("sinogramTheta", &sinogramTheta, "sinogramTheta/F");
-  t1->Branch("sinogramS", &sinogramS, "sinogramS/F");
-  t1->Branch("comptVolName1", comptVolName1, "comptVolName1/B");
-  t1->Branch("comptVolName2", comptVolName2, "comptVolName2/B");
-  t1->Branch("RayleighVolName1", RayleighVolName1, "RayleighVolName1/B");
-  t1->Branch("RayleighVolName2", RayleighVolName2, "RayleighVolName2/B");
-
-  return(t1);
-}
-
-
 
 
 //loop on all the entries
-void MyAnalysis::Loop()
+std::vector<Hits::CoincidenceEvent> Hits::Loop()
 {
-   if (fChain == 0) return;
 
    //////////////////////////////////////////////
    /////////////// INITIALIZATION ///////////////
@@ -256,7 +109,7 @@ void MyAnalysis::Loop()
    std::cout << "Number of entries:\t" << nentries << std::endl;
 
    //stdvector of struct for each event
-   std::vector<Event> events_vector;
+   std::vector<Hits::Event> events_vector;
    //initialize vector
    for (int i=0; i<nentries; i++)
    {
@@ -334,17 +187,6 @@ void MyAnalysis::Loop()
 
 
 
-   ///////////////////////////////////////////////////////////////////////////////
-   /////////////// CREATE INTER-CRYSTAL COMPTON COINCIDENCES TTREE ///////////////
-   ///////////////////////////////////////////////////////////////////////////////
-
-   std::string outFile = "realCoincidencesCompton.root";
-   TFile* fOut = new TFile(outFile.c_str(),"recreate");
-
-
-   TTree* ICcoincidencesTree = CreateICcoincidencesTree();
-
-
    ////////////////////////////////////////////////////////////////////
    /////////////// LOOP ON INTER-CRYSTAL COMPTON EVENTS ///////////////
    ////////////////////////////////////////////////////////////////////
@@ -352,7 +194,7 @@ void MyAnalysis::Loop()
    for (int i=0; i<ICcomptonEvents_vector.size(); i++)
    {
      //event with inter crystal compton effect(s)
-     Event ICCevent = events_vector[ICcomptonEvents_vector[i]];
+     Hits::Event ICCevent = events_vector[ICcomptonEvents_vector[i]];
 
      //coincidence event struct
      CoincidenceEvent this_coincidence;
@@ -434,29 +276,39 @@ void MyAnalysis::Loop()
        //fill coincidence event, if it passes the filter
        coincidences_vector.push_back(this_coincidence);
      }
-
    }
 
    /////////////////////////////////////////////////////
    /////////////// PRINT OUT THE RESULTS ///////////////
    /////////////////////////////////////////////////////
 
-   ICcoincidencesTree->Write();
 
    std::cout << "Number of events: " << counterEvents << std::endl;
    std::cout << "Number of inter-crystals Compton events: " << counterICCompton << std::endl;
    std::cout << "Number of added coincidences: " << coincidences_vector.size() << std::endl;
+
+   return coincidences_vector;
+
 }
 
 
 
 int main(int argc, char const *argv[]) {
 
-  //istansiate object
-  MyAnalysis* tree = new MyAnalysis();
+  //istansiate Hits object
+  Hits* treeHits = new Hits();
 
-  //Loop
-  tree->Loop();
+  //Loop (TODO: change name)
+  treeHits->Loop();
+
+  //istansiate Coincidences object
+  Coincidences* treeCoincidences = new Coincidences();
+  treeCoincidences->PrintTree();
+
+
+
+
+
 
 
   return 0;
