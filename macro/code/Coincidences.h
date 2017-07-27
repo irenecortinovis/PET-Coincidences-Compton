@@ -74,7 +74,9 @@ public :
    Coincidences();
    virtual ~Coincidences();
    virtual void     Init(TTree *tree);
-   virtual void     PrintTree();
+   virtual void     FillICCompton(std::vector<Hits::CoincidenceEvent> cvector);
+   virtual void     WriteTree();
+
 };
 
 #endif
@@ -161,7 +163,7 @@ void Coincidences::Init(TTree *tree)
 
 
 
-void Coincidences::PrintTree()
+void Coincidences::WriteTree()
 {
   std::string outFile = "realCoincidencesCompton.root";
   TFile* fOut = new TFile(outFile.c_str(),"recreate");

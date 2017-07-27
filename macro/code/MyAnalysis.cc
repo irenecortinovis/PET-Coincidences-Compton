@@ -9,9 +9,6 @@
 #include "Hits.h"
 #define Coincidences_cxx
 #include "Coincidences.h"
-#include <TH2.h>
-#include <TStyle.h>
-#include <TCanvas.h>
 #include <iostream>
 
 
@@ -35,8 +32,6 @@ void PrintEvent(Hits::Event this_event)
                 "\nv_nPhantomCompton " << this_event.v_nPhantomCompton[i] << std::endl;
   }
 }
-
-
 
 
 
@@ -76,29 +71,15 @@ bool isDiffCrystal(Hits::Event this_event, Int_t crystalID)
 
 
 
-//function that looks for inter crystal compton effect
-bool ComptonCheck(Hits::Event this_event)
-{
-  bool isCompton = false;
-  if(this_event.ndiffCrystals > 2)
-  {
-    isCompton = true;
-  }
-  return isCompton;
-}
-
-
-
-
-//function that checks whether the two hits are considered a coincidence
+//function that checks whether the two hits are already considered a coincidence
   /* by eventID
   */
 
 
 
 
-//loop on all the entries
-std::vector<Hits::CoincidenceEvent> Hits::Loop()
+//loop on all the Hit entries to find the Coincidences with inter-crystal compton effect
+std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
 {
 
    //////////////////////////////////////////////
@@ -132,6 +113,8 @@ std::vector<Hits::CoincidenceEvent> Hits::Loop()
    Int_t counterEvents = 1;
    //set time window for coincidences
    Double_t timeWindow = 6e-9; //seconds
+   //default value for a hit being inter crystal compton
+   bool isICCompton = false;
 
 
 
@@ -173,8 +156,15 @@ std::vector<Hits::CoincidenceEvent> Hits::Loop()
       if(previousEventID != eventID && previousEventID != -1)
       {
         counterEvents ++;
+
         //perform inter-crystals compton check
-        if (ComptonCheck(events_vector[previousEventID]))
+        isICCompton = false;
+        if((events_vector[previousEventID]).ndiffCrystals > 2)
+        {
+          isICCompton = true;
+        }
+
+        if (isICCompton)
         {
           counterICCompton ++;
           ICcomptonEvents_vector.push_back(previousEventID);
@@ -261,16 +251,16 @@ std::vector<Hits::CoincidenceEvent> Hits::Loop()
        this_coincidence.crystalID2 = (ICCevent.v_crystalID).at(min_i2);
 
        //positions
-       this_coincidence.globalPosX1 = (ICCevent.v_crystalID).at(min_i1);
-       this_coincidence.globalPosY1 = (ICCevent.v_crystalID).at(min_i1);
-       this_coincidence.globalPosX2 = (ICCevent.v_crystalID).at(min_i2);
-       this_coincidence.globalPosY2 = (ICCevent.v_crystalID).at(min_i2);
+       this_coincidence.globalPosX1 = (ICCevent.v_posX).at(min_i1);
+       this_coincidence.globalPosY1 = (ICCevent.v_posY).at(min_i1);
+       this_coincidence.globalPosX2 = (ICCevent.v_posX).at(min_i2);
+       this_coincidence.globalPosY2 = (ICCevent.v_posY).at(min_i2);
      }
 
 
      /////////////// FILTER AND FILL COINCIDENCE VECTOR ///////////////
 
-     //TODO: filter this_coincidence to check if it is ok, && not already considered as a coincidence
+     //TODO: filter this_coincidence to check if it is ok (energy cuts), && not already considered as a coincidence
      if((fabs(minTime2 - minTime1) <= timeWindow))
      {
        //fill coincidence event, if it passes the filter
@@ -293,17 +283,92 @@ std::vector<Hits::CoincidenceEvent> Hits::Loop()
 
 
 
+
+void Coincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector)
+{
+  for(int i=0; i<cvector.size(); i++)
+  {
+    //TODO check if it is not already a Coincidence
+    //fill the thing using default values for useless, and cvector values for useful
+
+    rotationAngle = cvector[i].rotationAngle;
+    eventID1 = cvector[i].eventID1;
+    energy1 = cvector[i].energy1;
+    globalPosX1 = cvector[i].globalPosX1;
+    globalPosY1 = cvector[i].globalPosY1;
+    crystalID1 = cvector[i].crystalID1;
+    comptonPhantom1 = cvector[i].comptonPhantom1;
+    eventID2 = cvector[i].eventID2;
+    energy2 = cvector[i].energy2;
+    globalPosX2 = cvector[i].globalPosX2;
+    globalPosY2 = cvector[i].globalPosY2;
+    crystalID2 = cvector[i].crystalID2;
+    comptonPhantom2 = cvector[i].comptonPhantom2;
+    //TODO add time, might be useful in the future
+
+
+    //default values - not used in recostruction
+    runID = 0;
+    axialPos = 0;
+    sourceID1 = 0;
+    sourcePosX1 = 0;
+    sourcePosY1 = 0;
+    sourcePosZ1 = 0;
+    time1 = 0;
+    globalPosZ1 = 0;
+    gantryID1 = 0;
+    rsectorID1 = 0;
+    moduleID1 = 0;
+    submoduleID1 = 0;
+    layerID1 = 0;
+    comptonCrystal1 = 0;
+    RayleighPhantom1 = 0;
+    RayleighCrystal1 = 0;
+    sourceID2 = 0;
+    sourcePosX2 = 0;
+    sourcePosY2 = 0;
+    sourcePosZ2 = 0;
+    time2 = 0;
+    globalPosZ2 = 0;
+    gantryID2 = 0;
+    rsectorID2 = 0;
+    moduleID2 = 0;
+    submoduleID2 = 0;
+    layerID2 = 0;
+    comptonCrystal2 = 0;
+    RayleighPhantom2 = 0;
+    RayleighCrystal2 = 0;
+    sinogramTheta = 0;
+    sinogramS = 0;
+    comptVolName1[15] = '0';
+    comptVolName2[13] = '0';
+    RayleighVolName1[5] = '0';
+    RayleighVolName2[5] = '0';
+
+    //fill entry
+    fChainCoincidences->Fill();
+  }
+  return;
+}
+
+
+
+
 int main(int argc, char const *argv[]) {
 
   //istansiate Hits object
   Hits* treeHits = new Hits();
 
-  //Loop (TODO: change name)
-  treeHits->Loop();
+  //Loop to find inter-crystals compton coincidences
+  std::vector<Hits::CoincidenceEvent> coincidences_vector = treeHits->FindICcoincidences();
 
   //istansiate Coincidences object
   Coincidences* treeCoincidences = new Coincidences();
-  treeCoincidences->PrintTree();
+
+  //Fill realCoincidences tree with the inter-crystals compton coincidences
+  treeCoincidences->FillICCompton(coincidences_vector);
+
+  treeCoincidences->WriteTree();
 
 
 
