@@ -15,7 +15,7 @@
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
-class MyAnalysis {
+class MyAnalysis{
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -95,12 +95,6 @@ public :
    TBranch        *b_processName;   //!
    TBranch        *b_comptVolName;   //!
    TBranch        *b_RayleighVolName;   //!
-
-
-   //Useful variables for the analysis
-
-
-
 
 
 
