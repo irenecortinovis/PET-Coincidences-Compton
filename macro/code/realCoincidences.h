@@ -66,10 +66,10 @@ public :
    Int_t           RayleighCrystal2;
    Float_t         sinogramTheta;
    Float_t         sinogramS;
-   Char_t          comptVolName1[15];
-   Char_t          comptVolName2[13];
-   Char_t          RayleighVolName1[5];
-   Char_t          RayleighVolName2[5];
+   Char_t          comptVolName1[30];
+   Char_t          comptVolName2[30];
+   Char_t          RayleighVolName1[30];
+   Char_t          RayleighVolName2[30];
 
    // List of branches
    TBranch        *b_runID;   //!
@@ -156,7 +156,7 @@ realCoincidences::realCoincidences(TTree *tree) : fChain(0)
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("realCoincidences","");
-      chain->Add("/home/irene/Documents/CERN/programs/PET-Coincidences-Compton/gate_40x40/setTimeStart1.root/realCoincidences");
+      chain->Add("/home/irene/Documents/CERN/programs/PET-Coincidences-Compton/gate_40x40/setTimeStart2.root/realCoincidences");
       tree = chain;
 #endif // SINGLE_TREE
 

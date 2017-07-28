@@ -57,10 +57,10 @@ public :
    Int_t           RayleighCrystal2;
    Float_t         sinogramTheta;
    Float_t         sinogramS;
-   Char_t          comptVolName1[15];
-   Char_t          comptVolName2[13];
-   Char_t          RayleighVolName1[5];
-   Char_t          RayleighVolName2[5];
+   Char_t          comptVolName1[30];
+   Char_t          comptVolName2[30];
+   Char_t          RayleighVolName1[30];
+   Char_t          RayleighVolName2[30];
 
 
 

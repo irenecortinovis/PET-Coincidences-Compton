@@ -17,6 +17,7 @@
 
 class Hits{
 public :
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -53,10 +54,10 @@ public :
    Int_t           runID;
    Float_t         axialPos;
    Float_t         rotationAngle;
-   Int_t           volumeID[10];
-   Char_t          processName[19];
-   Char_t          comptVolName[15];
-   Char_t          RayleighVolName[5];
+   Int_t           volumeID[30];
+   Char_t          processName[30];
+   Char_t          comptVolName[30];
+   Char_t          RayleighVolName[30];
 
    // List of branches
    TBranch        *b_PDGEncoding;   //!
@@ -133,6 +134,8 @@ public :
      Float_t                       globalPosY1;
      Float_t                       globalPosY2;
      Float_t                       rotationAngle;
+     Float_t                       totenergy1;
+     Float_t                       totenergy2;
    };
 
 
@@ -171,8 +174,8 @@ Hits::Hits(TTree *tree) : fChain(0)
 
       // The following code should be used if you want this class to access a chain
       // of trees.
-      TChain * chain = new TChain("Hits","");
-      chain->Add("/home/irene/Documents/CERN/programs/PET-Coincidences-Compton/gate_40x40/setTimeStart1.root/Hits");
+      TChain * chain = new TChain("Hits");
+      chain->Add("/home/irene/Documents/CERN/programs/PET-Coincidences-Compton/gate_40x40/setTimeStart2.root") ;
       tree = chain;
 #endif // SINGLE_TREE
 
