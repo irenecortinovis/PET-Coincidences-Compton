@@ -7,6 +7,7 @@
 #ifndef Hits_h
 #define Hits_h
 
+#include <string>
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -141,7 +142,7 @@ public :
 
 
 
-   Hits(TTree *tree=0);
+   Hits(std::string filename="", TTree *tree=0);
    virtual ~Hits();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -155,7 +156,7 @@ public :
 #endif
 
 #ifdef Hits_cxx
-Hits::Hits(TTree *tree) : fChain(0)
+Hits::Hits(std::string filename, TTree *tree) : fChain(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -175,7 +176,7 @@ Hits::Hits(TTree *tree) : fChain(0)
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("Hits");
-      chain->Add("/home/irene/Documents/CERN/programs/PET-Coincidences-Compton/gate_40x40/setTimeStart2.root") ;
+      chain->Add(filename.c_str()) ;
       tree = chain;
 #endif // SINGLE_TREE
 

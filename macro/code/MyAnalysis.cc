@@ -1,4 +1,10 @@
-//g++ -o MyAnalysis ../code/MyAnalysis.cc `root-config --cflags --glibs`
+/*
+compile:
+g++ -o MyAnalysis ../code/MyAnalysis.cc `root-config --cflags --glibs`
+
+run:
+./MyAnalysis path_to_filename.root
+*/
 
 
 #define Hits_cxx
@@ -433,16 +439,20 @@ void ICCoincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, 
 
 
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[])
+{
+  std::string inputfilename = argv[1];
+
 
   //istansiate Hits object
-  Hits* treeHits = new Hits();
+  Hits* treeHits = new Hits(inputfilename);
   //Loop to find inter-crystals compton coincidences
   //output a vector of CoincidenceEvent struct
   std::vector<Hits::CoincidenceEvent> coincidences_vector = treeHits->FindICcoincidences();
 
+
   //istansiate realCoincidences object
-  realCoincidences* treerealCoincidences = new realCoincidences();
+  realCoincidences* treerealCoincidences = new realCoincidences(inputfilename);
   //retrieve vector of events IDs of the realCoincidences
   std::vector<Int_t> realCoincidencesIDvector = treerealCoincidences->FindIDs();
 

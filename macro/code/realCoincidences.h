@@ -7,6 +7,7 @@
 #ifndef realCoincidences_h
 #define realCoincidences_h
 
+#include <string>
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -122,7 +123,7 @@ public :
    TBranch        *b_RayleighVolName1;   //!
    TBranch        *b_RayleighVolName2;   //!
 
-   realCoincidences(TTree *tree=0);
+   realCoincidences(std::string filename="", TTree *tree=0);
    virtual ~realCoincidences();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -136,7 +137,7 @@ public :
 #endif
 
 #ifdef realCoincidences_cxx
-realCoincidences::realCoincidences(TTree *tree) : fChain(0)
+realCoincidences::realCoincidences(std::string filename, TTree *tree) : fChain(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -155,8 +156,8 @@ realCoincidences::realCoincidences(TTree *tree) : fChain(0)
 
       // The following code should be used if you want this class to access a chain
       // of trees.
-      TChain * chain = new TChain("realCoincidences","");
-      chain->Add("/home/irene/Documents/CERN/programs/PET-Coincidences-Compton/gate_40x40/setTimeStart2.root/realCoincidences");
+      TChain * chain = new TChain("realCoincidences");
+      chain->Add(filename.c_str()) ;
       tree = chain;
 #endif // SINGLE_TREE
 
