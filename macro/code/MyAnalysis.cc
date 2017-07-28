@@ -113,6 +113,10 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
    Long64_t counterEvents = 1;
    //set time window for coincidences
    Double_t timeWindow = 6e-9; //seconds
+   //set max time
+   //HARDCODING but way out the range of possible times of arrival
+   Double_t maxTime = 1000; //seconds
+   //energy cuts for total energy deposited in one rsector
    Float_t minTotEnergy = 0.35; //MeV
    Float_t maxTotEnergy = 0.65; //MeV
 
@@ -160,11 +164,6 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
       ((events_vector.at(eventID)).v_posX).push_back(posX);
       ((events_vector.at(eventID)).v_posY).push_back(posY);
       ((events_vector.at(eventID)).rotationAngle) = rotationAngle;
-
-
-
-
-
 
 
       /////////////// FILTER FOR POSSIBLE INTER CRYSTAL COMPTON ///////////////
@@ -252,9 +251,8 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
 
 
      //find first interaction per sector
-     //HARDCODING: FIXME
-     Float_t minTime1 = 1000;
-     Float_t minTime2 = 1000;
+     Float_t minTime1 = maxTime;
+     Float_t minTime2 = maxTime;
      Int_t min_i1 = -1;
      Int_t min_i2 = -1;
 
@@ -278,6 +276,9 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
        }
      }
 
+     this_coincidence.time1 = minTime1;
+     this_coincidence.time2 = minTime2;
+
      //crystal ID and positions of the first interaction in the rsector
      if(min_i1 != -1 && min_i2 != -1)
      {
@@ -294,11 +295,11 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
 
 
      /////////////// FILTER AND FILL COINCIDENCE VECTOR ///////////////
-
-     if((fabs(minTime2 - minTime1) <= timeWindow)
-        &&  (min_i1 != -1 && min_i2 != -1)
-        && (this_coincidence.totenergy1 < maxTotEnergy && this_coincidence.totenergy1 > minTotEnergy)
-        && (this_coincidence.totenergy2 < maxTotEnergy && this_coincidence.totenergy2 > minTotEnergy))
+     if((minTime1 != maxTime && minTime2 != maxTime)
+       && (fabs(minTime2 - minTime1) <= timeWindow)
+       &&  (min_i1 != -1 && min_i2 != -1)
+       && (this_coincidence.totenergy1 < maxTotEnergy && this_coincidence.totenergy1 > minTotEnergy)
+       && (this_coincidence.totenergy2 < maxTotEnergy && this_coincidence.totenergy2 > minTotEnergy))
      {
        //fill coincidence event, if it passes the filter
        coincidences_vector.push_back(this_coincidence);
@@ -382,8 +383,8 @@ void ICCoincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, 
       globalPosY2 = (cvector.at(i)).globalPosY2;
       crystalID2 = (cvector.at(i)).crystalID2;
       comptonPhantom2 = (cvector.at(i)).comptonPhantom2;
-      //TODO add time, might be useful in the future
-
+      time1 = (cvector.at(i)).time1;
+      time2 = (cvector.at(i)).time2;
 
       //default values - not used in recostruction
       runID = 0;
@@ -392,7 +393,6 @@ void ICCoincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, 
       sourcePosX1 = 0;
       sourcePosY1 = 0;
       sourcePosZ1 = 0;
-      time1 = 0;
       globalPosZ1 = 0;
       gantryID1 = 0;
       rsectorID1 = 0;
@@ -406,7 +406,6 @@ void ICCoincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, 
       sourcePosX2 = 0;
       sourcePosY2 = 0;
       sourcePosZ2 = 0;
-      time2 = 0;
       globalPosZ2 = 0;
       gantryID2 = 0;
       rsectorID2 = 0;

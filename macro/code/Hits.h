@@ -128,6 +128,8 @@ public :
      Int_t                         comptonPhantom2;
      Float_t                       energy1;
      Float_t                       energy2;
+     Double_t                      time1;
+     Double_t                      time2;
      Int_t                         eventID1;
      Int_t                         eventID2;
      Float_t                       globalPosX1;
