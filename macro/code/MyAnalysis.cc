@@ -15,6 +15,8 @@ run:
 #include "realCoincidences.h"
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
+
 
 
 
@@ -22,27 +24,42 @@ void PrintEvent(Hits::Event this_event)
 {
   std::cout << "\neventID " << this_event.eventID <<
                "\nrotationAngle " << this_event.rotationAngle <<
-               "\nndiffCrystals " << this_event.ndiffCrystals << std::endl;
+               "\nndiffCrystals " << this_event.ndiffCrystals;
 
+  std::cout << "\nv_PDGEncoding ";
+  for(int i=0; i<this_event.v_PDGEncoding.size(); i++)
+    std::cout << this_event.v_PDGEncoding.at(i) << "\t";
+  std::cout << "\nv_edep ";
   for(int i=0; i<this_event.v_edep.size(); i++)
-  {  std::cout << "v_PDGEncoding " << this_event.v_PDGEncoding.at(i) <<
-                "\nv_edep " << this_event.v_edep.at(i) <<
-                "\nv_time " << this_event.v_time.at(i) <<
-                "\nv_crystalID " << this_event.v_crystalID.at(i) <<
-                "\nv_rsectorID " << this_event.v_rsectorID.at(i) <<
-                "\nv_processName " << this_event.v_processName.at(i) <<
-                "\nv_nPhantomCompton " << this_event.v_nPhantomCompton.at(i) <<
-                "\nv_posX " << this_event.v_posX.at(i) <<
-                "\nv_posY " << this_event.v_posY.at(i) <<
-                "\nv_nPhantomCompton " << this_event.v_nPhantomCompton.at(i) <<
-                "\nv_nPhantomCompton " << this_event.v_nPhantomCompton.at(i) << std::endl;
-  }
+    std::cout << this_event.v_edep.at(i) << "\t";
+  std::cout << "\nv_time ";
+  for(int i=0; i<this_event.v_time.size(); i++)
+    std::cout << this_event.v_time.at(i) << "\t";
+  std::cout << "\nv_crystalID ";
+  for(int i=0; i<this_event.v_crystalID.size(); i++)
+    std::cout << this_event.v_crystalID.at(i) << "\t";
+  std::cout << "\nv_rsectorID ";
+  for(int i=0; i<this_event.v_rsectorID.size(); i++)
+    std::cout << this_event.v_rsectorID.at(i) << "\t";
+  std::cout << "\nv_processName ";
+  for(int i=0; i<this_event.v_processName.size(); i++)
+    std::cout << this_event.v_processName.at(i) << "\t";
+  std::cout << "\nv_nPhantomCompton ";
+  for(int i=0; i<this_event.v_nPhantomCompton.size(); i++)
+    std::cout << this_event.v_nPhantomCompton.at(i) << "\t";
+  std::cout << "\nv_posX ";
+  for(int i=0; i<this_event.v_posX.size(); i++)
+    std::cout << this_event.v_posX.at(i) << "\t";
+  std::cout << "\nv_posY ";
+  for(int i=0; i<this_event.v_posY.size(); i++)
+    std::cout << this_event.v_posY.at(i) << "\t";
+  std::cout << std::endl;
 }
 
 
 
 //function that filters event by processName and PDGEncoding
-bool ComptonFilter(Char_t* processName, Int_t PDGEncoding, Float_t edep)
+bool ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Float_t single_edep_min)
 {
   //TODO compt vs Compton, phot vs PhotoElectric
   bool isComptonOrPhotoelectric = false;
@@ -52,7 +69,7 @@ bool ComptonFilter(Char_t* processName, Int_t PDGEncoding, Float_t edep)
     {isComptonOrPhotoelectric = true;}
 
   //filter gamma rays, compton and photoelectric
-  if(isComptonOrPhotoelectric == true && PDGEncoding == 22 && edep > 0)
+  if(isComptonOrPhotoelectric == true && PDGEncoding == 22 && edep > single_edep_min)
     {return true;}
   else
     {return false;}
@@ -111,6 +128,10 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
    Long64_t counterICCompton = 0;
    //counter total events
    Long64_t counterEvents = 1;
+
+
+   //
+   Float_t single_edep_min = 0;
    //set time window for coincidences
    Double_t timeWindow = 6e-9; //seconds
    //set max time
@@ -120,8 +141,10 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
    Float_t minTotEnergy = 0.35; //MeV
    Float_t maxTotEnergy = 0.65; //MeV
 
-   //default value for a hit being inter crystal compton
-   bool isICCompton = false;
+   //default values for a hit being inter crystal, compton, photoelectric process
+   bool isInterCrystal = false;
+   bool isComptonProcess = false;
+   bool isPhotoelectricProcess = false;
 
 
 
@@ -132,19 +155,17 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++)
    {
-
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);
       nbytes += nb;
-
 
       //if eventID is > than nentries and the size of events_vector
       //push_back events until the n of eventID
       if(eventID >= events_vector.size())
       {
         //std::cout << eventID << std::endl;
-        for (Long64_t i=events_vector.size()-1; i<eventID; i++)
+        for (Long64_t i=events_vector.size(); i<eventID+1; i++)
         {
           Event this_event;
           this_event.ndiffCrystals = 0;
@@ -159,16 +180,20 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
       ((events_vector.at(eventID)).v_edep).push_back(edep);
       ((events_vector.at(eventID)).v_crystalID).push_back(crystalID);
       ((events_vector.at(eventID)).v_rsectorID).push_back(rsectorID);
-      ((events_vector.at(eventID)).v_processName).push_back(processName);
+      std::string s_processName(processName);
+      ((events_vector.at(eventID)).v_processName).push_back(s_processName);
       ((events_vector.at(eventID)).v_nPhantomCompton).push_back(nPhantomCompton);
       ((events_vector.at(eventID)).v_posX).push_back(posX);
       ((events_vector.at(eventID)).v_posY).push_back(posY);
       ((events_vector.at(eventID)).rotationAngle) = rotationAngle;
 
 
+
+
+
       /////////////// FILTER FOR POSSIBLE INTER CRYSTAL COMPTON ///////////////
       //filter by processName, gamma, energy deposited
-      if(ComptonFilter(processName, PDGEncoding, edep) == true)
+      if(ComptonFilter(processName, PDGEncoding, edep, single_edep_min) == true)
        {
          //increase number of different crystals if it is a new crystalID
          ((events_vector.at(eventID)).ndiffCrystals) += isDiffCrystal(events_vector.at(eventID), crystalID);
@@ -180,24 +205,48 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
       {
         counterEvents ++;
 
-        //perform inter-crystals compton check
-        isICCompton = false;
+        //inter-crystals compton check
+        isInterCrystal = false;
         if((events_vector.at(previousEventID)).ndiffCrystals > 2)
         {
-          isICCompton = true;
+          isInterCrystal = true;
         }
 
-        if (isICCompton)
+        //processName compton && photoelectric check
+        isComptonProcess = false;
+        isPhotoelectricProcess = false;
+        for(int k=0; k<events_vector.at(previousEventID).v_processName.size(); k++)
+        {
+          //cut on energy as in ndiffCrystals count
+          if((events_vector.at(previousEventID)).v_edep.at(k) > single_edep_min)
+          {
+            if(strcmp((events_vector.at(previousEventID)).v_processName.at(k).c_str(),"Compton")==0
+            || strcmp((events_vector.at(previousEventID)).v_processName.at(k).c_str(),"compt")==0)
+            {isComptonProcess = true;}
+
+            else if(strcmp((events_vector.at(previousEventID)).v_processName.at(k).c_str(),"PhotoElectric")==0
+            || strcmp((events_vector.at(previousEventID)).v_processName.at(k).c_str(),"phot")==0)
+            {isPhotoelectricProcess = true;}
+          }
+        }
+
+        //if (isInterCrystal && isComptonProcess && isPhotoelectricProcess)
+        if (isInterCrystal)
         {
           counterICCompton ++;
           ICcomptonEvents_vector.push_back(previousEventID);
         }
       }
 
+
       //set variable for the next entry
       previousEventID = eventID;
 
+
    }
+
+
+
 
 
 
@@ -251,12 +300,12 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
 
 
      //find first interaction per sector
-     Float_t minTime1 = maxTime;
-     Float_t minTime2 = maxTime;
+     Double_t minTime1 = maxTime;
+     Double_t minTime2 = maxTime;
      Int_t min_i1 = -1;
      Int_t min_i2 = -1;
 
-     for(int i=0; i<(ICCevent.v_edep).size(); i++)
+     for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
      {
        if((ICCevent.v_rsectorID).at(i) == 0)
        {
@@ -294,12 +343,16 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
      }
 
 
+
+
+
      /////////////// FILTER AND FILL COINCIDENCE VECTOR ///////////////
      if((minTime1 != maxTime && minTime2 != maxTime)
        && (fabs(minTime2 - minTime1) <= timeWindow)
        &&  (min_i1 != -1 && min_i2 != -1)
        && (this_coincidence.totenergy1 < maxTotEnergy && this_coincidence.totenergy1 > minTotEnergy)
-       && (this_coincidence.totenergy2 < maxTotEnergy && this_coincidence.totenergy2 > minTotEnergy))
+       && (this_coincidence.totenergy2 < maxTotEnergy && this_coincidence.totenergy2 > minTotEnergy)
+       && ((ICCevent.v_edep).at(min_i1) > single_edep_min) && ((ICCevent.v_edep).at(min_i2) > single_edep_min))
      {
        //fill coincidence event, if it passes the filter
        coincidences_vector.push_back(this_coincidence);

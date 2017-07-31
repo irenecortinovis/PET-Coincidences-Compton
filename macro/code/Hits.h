@@ -55,7 +55,7 @@ public :
    Int_t           runID;
    Float_t         axialPos;
    Float_t         rotationAngle;
-   Int_t           volumeID[30];
+   Char_t          volumeID[30];
    Char_t          processName[30];
    Char_t          comptVolName[30];
    Char_t          RayleighVolName[30];
@@ -109,7 +109,7 @@ public :
      std::vector<Double_t>        v_time;
      std::vector<Int_t>           v_crystalID;
      std::vector<Int_t>           v_rsectorID;
-     std::vector<Char_t*>         v_processName;
+     std::vector<std::string>     v_processName;
      std::vector<Int_t>           v_nPhantomCompton;
      std::vector<Float_t>         v_posX;
      std::vector<Float_t>         v_posY;
@@ -227,6 +227,8 @@ void Hits::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
+   //b_processName->SetAutoDelete(kTRUE);
+
    fChain->SetBranchAddress("PDGEncoding", &PDGEncoding, &b_PDGEncoding);
    fChain->SetBranchAddress("trackID", &trackID, &b_trackID);
    fChain->SetBranchAddress("parentID", &parentID, &b_parentID);
@@ -259,10 +261,10 @@ void Hits::Init(TTree *tree)
    fChain->SetBranchAddress("runID", &runID, &b_runID);
    fChain->SetBranchAddress("axialPos", &axialPos, &b_axialPos);
    fChain->SetBranchAddress("rotationAngle", &rotationAngle, &b_rotationAngle);
-   fChain->SetBranchAddress("volumeID", volumeID, &b_volumeID);
-   fChain->SetBranchAddress("processName", processName, &b_processName);
-   fChain->SetBranchAddress("comptVolName", comptVolName, &b_comptVolName);
-   fChain->SetBranchAddress("RayleighVolName", RayleighVolName, &b_RayleighVolName);
+   fChain->SetBranchAddress("volumeID", &volumeID, &b_volumeID);
+   fChain->SetBranchAddress("processName", &processName, &b_processName);
+   fChain->SetBranchAddress("comptVolName", &comptVolName, &b_comptVolName);
+   fChain->SetBranchAddress("RayleighVolName", &RayleighVolName, &b_RayleighVolName);
    Notify();
 }
 
