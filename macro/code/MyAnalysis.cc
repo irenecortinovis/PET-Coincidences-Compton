@@ -3,7 +3,7 @@ compile:
 g++ -o MyAnalysis ../code/MyAnalysis.cc `root-config --cflags --glibs`
 
 run:
-./MyAnalysis path_to_filename.root
+./MyAnalysis path_to_filename.root single_edep_min
 */
 
 
@@ -16,6 +16,9 @@ run:
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
+
+#include <TApplication.h>
+
 
 
 
@@ -96,7 +99,7 @@ bool isDiffCrystal(Hits::Event this_event, Int_t crystalID)
 
 
 //loop on all the Hit entries to find the Coincidences with inter-crystal compton effect
-std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
+std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences(Float_t single_edep_min)
 {
 
    //////////////////////////////////////////////
@@ -130,8 +133,6 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
    Long64_t counterEvents = 1;
 
 
-   //
-   Float_t single_edep_min = 0;
    //set time window for coincidences
    Double_t timeWindow = 6e-9; //seconds
    //set max time
@@ -207,7 +208,7 @@ std::vector<Hits::CoincidenceEvent> Hits::FindICcoincidences()
 
         //inter-crystals compton check
         isInterCrystal = false;
-        if((events_vector.at(previousEventID)).ndiffCrystals > 2)
+        if((events_vector.at(previousEventID)).ndiffCrystals == 2)
         {
           isInterCrystal = true;
         }
@@ -493,14 +494,21 @@ void ICCoincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, 
 
 int main(int argc, char const *argv[])
 {
-  std::string inputfilename = argv[1];
 
+  std::cout << "First argument: input filename" << std::endl;
+  std::cout << "Second argument: single_edep_min [MeV]" << std::endl;
+
+  std::string inputfilename = argv[1];
+  Float_t single_edep_min = atof(argv[2]);
+
+
+  TApplication * MyApp = new TApplication("", 0, NULL);
 
   //istansiate Hits object
   Hits* treeHits = new Hits(inputfilename);
   //Loop to find inter-crystals compton coincidences
   //output a vector of CoincidenceEvent struct
-  std::vector<Hits::CoincidenceEvent> coincidences_vector = treeHits->FindICcoincidences();
+  std::vector<Hits::CoincidenceEvent> coincidences_vector = treeHits->FindICcoincidences(single_edep_min);
 
 
   //istansiate realCoincidences object
