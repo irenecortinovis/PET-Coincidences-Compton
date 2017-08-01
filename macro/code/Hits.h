@@ -115,30 +115,31 @@ public :
      std::vector<Float_t>         v_posY;
      //vector Float?
      Float_t                      rotationAngle;
-     Int_t                        ndiffCrystals;
+     Int_t                        ndiffCrystals0;
+     Int_t                        ndiffCrystals1;
    };
 
 
    //struct for CoincidenceEvent
    struct CoincidenceEvent
    {
-     Int_t                         crystalID1;
-     Int_t                         crystalID2;
-     Int_t                         comptonPhantom1;
-     Int_t                         comptonPhantom2;
-     Float_t                       energy1;
-     Float_t                       energy2;
-     Double_t                      time1;
-     Double_t                      time2;
      Int_t                         eventID1;
      Int_t                         eventID2;
+     Float_t                       rotationAngle;
+     Float_t                       energy1;
+     Float_t                       energy2;
+     Int_t                         comptonPhantom1;
+     Int_t                         comptonPhantom2;
+     Float_t                       totenergy1;
+     Float_t                       totenergy2;
+     Int_t                         crystalID1;
+     Int_t                         crystalID2;
+     Double_t                      time1;
+     Double_t                      time2;
      Float_t                       globalPosX1;
      Float_t                       globalPosX2;
      Float_t                       globalPosY1;
      Float_t                       globalPosY2;
-     Float_t                       rotationAngle;
-     Float_t                       totenergy1;
-     Float_t                       totenergy2;
    };
 
 
