@@ -44,10 +44,11 @@ Struct ``CoincidenceEvent`` contains all the info needed to the reconstruction a
 **Loop on entries (****Hits****):**
 
 ANALYSE A SINGLE ``HIT``
+* Pushback a new struct ``Event`` if the Hit has a new eventID
 
-* Pushback current ``Hit`` info to the vectors of the struct at the position "eventID" of the vector of structs
+* Pushback current ``Hit`` info to the vectors in the struct of the current event
 
-* increase number of different crystals in each rsector if
+* Increase number of different crystals in each rsector if
 
     * processName is compton OR photoelectric
 
@@ -55,13 +56,13 @@ ANALYSE A SINGLE ``HIT``
 
     * energy deposited is > threshold
 
-    * New crystalID in the event
+    * Nnw crystalID in the event
 
 ANALYSE A FINISHED EVENT
 
 * When an event is finished, pushback its eventID in the ``ICcomptonEvents_vector`` if
 
-    * when PDGEncoding == 22 and energy deposited is > threshold, the event has
+    * When PDGEncoding == 22 and energy deposited is > threshold, the event has
 
         * Exactly 2 different crystals in at one rsector, and 1 or 2 in the other rsector
 
@@ -71,19 +72,19 @@ ANALYSE A FINISHED EVENT
 
 * Fill ``CoincidenceEvent`` struct (``this_coincidence``) with
 
-    * eventIDs
+    * EventIDs
 
-    * rotation angle
+    * Rotation angle
 
     * Energy deposited in crystal 0.511 MeV
 
-    * N of Compton Phantom 
+    * N of Compton phantom 
 
     * Total energy deposited for each rsector
 
     * Find first interaction per sector and fill with
 
-        * Their times 
+        * Their times
 
         * Their crystal IDs
 
