@@ -47,7 +47,7 @@ ANALYSE A SINGLE ``HIT``
 
 * Pushback current ``Hit`` info to the vectors of the struct at the position "eventID" of the vector of structs
 
-* increase number of different crystals if
+* increase number of different crystals in each rsector if
 
     * processName is compton OR photoelectric
 
@@ -63,13 +63,13 @@ ANALYSE A FINISHED EVENT
 
     * when PDGEncoding == 22 and energy deposited is > threshold, the event has
 
-        * Exactly 2 different crystals
+        * Exactly 2 different crystals in at one rsector, and 1 or 2 in the other rsector
 
         * processNames are Compton AND photoelectric
 
 ****Loop on inter-crystals compton events:****
 
-* Fill ``CoincidenceEvent`` struct with
+* Fill ``CoincidenceEvent`` struct (``this_coincidence``) with
 
     * eventIDs
 
@@ -89,14 +89,16 @@ ANALYSE A FINISHED EVENT
 
         * Their X and Y positions
 
-    * TODO: same with second interaction per sector
+* Fill another ``CoincidenceEvent`` struct (``this_coincidence_incorrect``) with the same info but for one of the two rsectors use info on second interaction (in different crystal, with energy deposited > threshold) instead of first, if, for ``this_coincidence``:
 
-* Pushback ``CoincidenceEvent`` struct to ``coincidences_vector`` if:
+    * Difference of times of interaction is < timeWindow
 
-    * Difference of time of interaction is < timeWindow
-
-    * Total energy deposited in each rsector 0.511 +- sigma
+    * Total energy deposited in each rsector is 0.511 +- sigma
 
     * Energy deposited in first interaction in each rsector is > threshold
+
+* Pushback ``this_coincidence`` struct to ``coincidences_vector`` and ``this_coincidence_incorrect`` struct to ``incorrect_coincidences_vector`` if ``this_coincidence_incorrect`` satisfies the same conditions just stated before
+
+
 
 **Return ``coincidences_vector``**
