@@ -8,7 +8,7 @@
 
 class ICCoincidences{
 public :
-   TTree          *fChainICCoincidences;   //!pointer to the analyzed TTree or TChain
+   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
@@ -68,7 +68,9 @@ public :
    ICCoincidences();
    virtual ~ICCoincidences();
    virtual void     Init(TTree *tree);
+   virtual Long64_t LoadTree(Long64_t entry);
    virtual void     FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, std::vector<Int_t> rcIDvector);
+   virtual std::vector<Int_t> FindIDs();
    virtual void     WriteTree();
 
 };
@@ -79,7 +81,7 @@ public :
 
 
 #ifdef ICCoincidences_cxx
-ICCoincidences::ICCoincidences() : fChainICCoincidences(0)
+ICCoincidences::ICCoincidences() : fChain(0)
 {
   TTree * tree = new TTree("realCoincidences","realCoincidences");
   Init(tree);
@@ -88,71 +90,84 @@ ICCoincidences::ICCoincidences() : fChainICCoincidences(0)
 
 ICCoincidences::~ICCoincidences()
 {
-   if (!fChainICCoincidences) return;
-   delete fChainICCoincidences->GetCurrentFile();
+   if (!fChain) return;
+   delete fChain->GetCurrentFile();
 }
 
 
 
 void ICCoincidences::Init(TTree *tree)
 {
-  fChainICCoincidences = tree;
+  fChain = tree;
 
-  fChainICCoincidences->SetName("realCoincidences");
-  fChainICCoincidences->SetTitle("realCoincidences");
+  fChain->SetName("realCoincidences");
+  fChain->SetTitle("realCoincidences");
 
   // Set branches
-  fChainICCoincidences->Branch("runID", &runID, "runID/I");
-  fChainICCoincidences->Branch("axialPos", &axialPos, "axialPos/F");
-  fChainICCoincidences->Branch("rotationAngle", &rotationAngle, "rotationAngle/F");
-  fChainICCoincidences->Branch("eventID1", &eventID1, "eventID1/I");
-  fChainICCoincidences->Branch("sourceID1", &sourceID1, "sourceID1/I");
-  fChainICCoincidences->Branch("sourcePosX1", &sourcePosX1, "sourcePosX1/F");
-  fChainICCoincidences->Branch("sourcePosY1", &sourcePosY1, "sourcePosY1/F");
-  fChainICCoincidences->Branch("sourcePosZ1", &sourcePosZ1, "sourcePosZ1/F");
-  fChainICCoincidences->Branch("time1", &time1, "time1/D");
-  fChainICCoincidences->Branch("energy1", &energy1, "energy1/F");
-  fChainICCoincidences->Branch("globalPosX1", &globalPosX1, "globalPosX1/F");
-  fChainICCoincidences->Branch("globalPosY1", &globalPosY1, "globalPosY1/F");
-  fChainICCoincidences->Branch("globalPosZ1", &globalPosZ1, "globalPosZ1/F");
-  fChainICCoincidences->Branch("gantryID1", &gantryID1, "gantryID1/I");
-  fChainICCoincidences->Branch("rsectorID1", &rsectorID1, "rsectorID1/I");
-  fChainICCoincidences->Branch("moduleID1", &moduleID1, "moduleID1/I");
-  fChainICCoincidences->Branch("submoduleID1", &submoduleID1, "submoduleID1/I");
-  fChainICCoincidences->Branch("crystalID1", &crystalID1, "crystalID1/I");
-  fChainICCoincidences->Branch("layerID1", &layerID1, "layerID1/I");
-  fChainICCoincidences->Branch("comptonPhantom1", &comptonPhantom1, "comptonPhantom1/I");
-  fChainICCoincidences->Branch("comptonCrystal1", &comptonCrystal1, "comptonCrystal1/I");
-  fChainICCoincidences->Branch("RayleighPhantom1", &RayleighPhantom1, "RayleighPhantom1/I");
-  fChainICCoincidences->Branch("RayleighCrystal1", &RayleighCrystal1, "RayleighCrystal1/I");
-  fChainICCoincidences->Branch("eventID2", &eventID2, "eventID2/I");
-  fChainICCoincidences->Branch("sourceID2", &sourceID2, "sourceID2/I");
-  fChainICCoincidences->Branch("sourcePosX2", &sourcePosX2, "sourcePosX2/F");
-  fChainICCoincidences->Branch("sourcePosY2", &sourcePosY2, "sourcePosY2/F");
-  fChainICCoincidences->Branch("sourcePosZ2", &sourcePosZ2, "sourcePosZ2/F");
-  fChainICCoincidences->Branch("time2", &time2, "time2/D");
-  fChainICCoincidences->Branch("energy2", &energy2, "energy2/F");
-  fChainICCoincidences->Branch("globalPosX2", &globalPosX2, "globalPosX2/F");
-  fChainICCoincidences->Branch("globalPosY2", &globalPosY2, "globalPosY2/F");
-  fChainICCoincidences->Branch("globalPosZ2", &globalPosZ2, "globalPosZ2/F");
-  fChainICCoincidences->Branch("gantryID2", &gantryID2, "gantryID2/I");
-  fChainICCoincidences->Branch("rsectorID2", &rsectorID2, "rsectorID2/I");
-  fChainICCoincidences->Branch("moduleID2", &moduleID2, "moduleID2/I");
-  fChainICCoincidences->Branch("submoduleID2", &submoduleID2, "submoduleID2/I");
-  fChainICCoincidences->Branch("crystalID2", &crystalID2, "crystalID2/I");
-  fChainICCoincidences->Branch("layerID2", &layerID2, "layerID2/I");
-  fChainICCoincidences->Branch("comptonPhantom2", &comptonPhantom2, "comptonPhantom2/I");
-  fChainICCoincidences->Branch("comptonCrystal2", &comptonCrystal2, "comptonCrystal2/I");
-  fChainICCoincidences->Branch("RayleighPhantom2", &RayleighPhantom2, "RayleighPhantom2/I");
-  fChainICCoincidences->Branch("RayleighCrystal2", &RayleighCrystal2, "RayleighCrystal2/I");
-  fChainICCoincidences->Branch("sinogramTheta", &sinogramTheta, "sinogramTheta/F");
-  fChainICCoincidences->Branch("sinogramS", &sinogramS, "sinogramS/F");
-  fChainICCoincidences->Branch("comptVolName1", comptVolName1, "comptVolName1/B");
-  fChainICCoincidences->Branch("comptVolName2", comptVolName2, "comptVolName2/B");
-  fChainICCoincidences->Branch("RayleighVolName1", RayleighVolName1, "RayleighVolName1/B");
-  fChainICCoincidences->Branch("RayleighVolName2", RayleighVolName2, "RayleighVolName2/B");
+  fChain->Branch("runID", &runID, "runID/I");
+  fChain->Branch("axialPos", &axialPos, "axialPos/F");
+  fChain->Branch("rotationAngle", &rotationAngle, "rotationAngle/F");
+  fChain->Branch("eventID1", &eventID1, "eventID1/I");
+  fChain->Branch("sourceID1", &sourceID1, "sourceID1/I");
+  fChain->Branch("sourcePosX1", &sourcePosX1, "sourcePosX1/F");
+  fChain->Branch("sourcePosY1", &sourcePosY1, "sourcePosY1/F");
+  fChain->Branch("sourcePosZ1", &sourcePosZ1, "sourcePosZ1/F");
+  fChain->Branch("time1", &time1, "time1/D");
+  fChain->Branch("energy1", &energy1, "energy1/F");
+  fChain->Branch("globalPosX1", &globalPosX1, "globalPosX1/F");
+  fChain->Branch("globalPosY1", &globalPosY1, "globalPosY1/F");
+  fChain->Branch("globalPosZ1", &globalPosZ1, "globalPosZ1/F");
+  fChain->Branch("gantryID1", &gantryID1, "gantryID1/I");
+  fChain->Branch("rsectorID1", &rsectorID1, "rsectorID1/I");
+  fChain->Branch("moduleID1", &moduleID1, "moduleID1/I");
+  fChain->Branch("submoduleID1", &submoduleID1, "submoduleID1/I");
+  fChain->Branch("crystalID1", &crystalID1, "crystalID1/I");
+  fChain->Branch("layerID1", &layerID1, "layerID1/I");
+  fChain->Branch("comptonPhantom1", &comptonPhantom1, "comptonPhantom1/I");
+  fChain->Branch("comptonCrystal1", &comptonCrystal1, "comptonCrystal1/I");
+  fChain->Branch("RayleighPhantom1", &RayleighPhantom1, "RayleighPhantom1/I");
+  fChain->Branch("RayleighCrystal1", &RayleighCrystal1, "RayleighCrystal1/I");
+  fChain->Branch("eventID2", &eventID2, "eventID2/I");
+  fChain->Branch("sourceID2", &sourceID2, "sourceID2/I");
+  fChain->Branch("sourcePosX2", &sourcePosX2, "sourcePosX2/F");
+  fChain->Branch("sourcePosY2", &sourcePosY2, "sourcePosY2/F");
+  fChain->Branch("sourcePosZ2", &sourcePosZ2, "sourcePosZ2/F");
+  fChain->Branch("time2", &time2, "time2/D");
+  fChain->Branch("energy2", &energy2, "energy2/F");
+  fChain->Branch("globalPosX2", &globalPosX2, "globalPosX2/F");
+  fChain->Branch("globalPosY2", &globalPosY2, "globalPosY2/F");
+  fChain->Branch("globalPosZ2", &globalPosZ2, "globalPosZ2/F");
+  fChain->Branch("gantryID2", &gantryID2, "gantryID2/I");
+  fChain->Branch("rsectorID2", &rsectorID2, "rsectorID2/I");
+  fChain->Branch("moduleID2", &moduleID2, "moduleID2/I");
+  fChain->Branch("submoduleID2", &submoduleID2, "submoduleID2/I");
+  fChain->Branch("crystalID2", &crystalID2, "crystalID2/I");
+  fChain->Branch("layerID2", &layerID2, "layerID2/I");
+  fChain->Branch("comptonPhantom2", &comptonPhantom2, "comptonPhantom2/I");
+  fChain->Branch("comptonCrystal2", &comptonCrystal2, "comptonCrystal2/I");
+  fChain->Branch("RayleighPhantom2", &RayleighPhantom2, "RayleighPhantom2/I");
+  fChain->Branch("RayleighCrystal2", &RayleighCrystal2, "RayleighCrystal2/I");
+  fChain->Branch("sinogramTheta", &sinogramTheta, "sinogramTheta/F");
+  fChain->Branch("sinogramS", &sinogramS, "sinogramS/F");
+  fChain->Branch("comptVolName1", comptVolName1, "comptVolName1/B");
+  fChain->Branch("comptVolName2", comptVolName2, "comptVolName2/B");
+  fChain->Branch("RayleighVolName1", RayleighVolName1, "RayleighVolName1/B");
+  fChain->Branch("RayleighVolName2", RayleighVolName2, "RayleighVolName2/B");
 
   return;
+}
+
+
+Long64_t ICCoincidences::LoadTree(Long64_t entry)
+{
+// Set the environment to read one entry
+   if (!fChain) return -5;
+   Long64_t centry = fChain->LoadTree(entry);
+   if (centry < 0) return centry;
+   if (fChain->GetTreeNumber() != fCurrent) {
+      fCurrent = fChain->GetTreeNumber();
+   }
+   return centry;
 }
 
 
@@ -162,7 +177,7 @@ void ICCoincidences::WriteTree()
   std::string outFile = "realICCoincidencesCompton.root";
   TFile* fOut = new TFile(outFile.c_str(),"recreate");
 
-  fChainICCoincidences->Write();
+  fChain->Write();
 }
 
 

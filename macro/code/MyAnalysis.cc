@@ -555,12 +555,6 @@ void ICCoincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, 
 
   for(int i=0; i<cvector.size(); i++)
   {
-    //Check whether the inter-crystals compton event is already counted as realCoincidence
-    //Check if rcIDvector cointains the element cvector.at(i).eventID1
-    //if(!(std::find(rcIDvector.begin(), rcIDvector.end(), cvector.at(i).eventID1) != rcIDvector.end()))
-    //{
-      //rcIDvector does not contain cvector.at(i).eventID1
-
       //fill the thing using default values for useless, and cvector values for useful
       rotationAngle = (cvector.at(i)).rotationAngle;
       eventID1 = (cvector.at(i)).eventID1;
@@ -618,15 +612,323 @@ void ICCoincidences::FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, 
       addedCounter++;
 
       //fill entry
-      fChainICCoincidences->Fill();
-    //}
+      fChain->Fill();
   }
   std::cout << "Number of added realCoincidences: " << addedCounter << std::endl;
-
 
   return;
 }
 
+
+
+//function that retrieves all the compton realCoincidence eventIDs
+std::vector<Int_t> ICCoincidences::FindIDs()
+{
+  Long64_t nentries = fChain->GetEntries();
+
+  std::vector<Int_t> v_ComptRealCoincidencesID;
+
+  Long64_t nbytes = 0, nb = 0;
+  for (Long64_t jentry=0; jentry<nentries;jentry++)
+  {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0) break;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
+
+    //fill vector with eventID1 (which is == eventID2)
+    v_ComptRealCoincidencesID.push_back(eventID1);
+  }
+
+  return v_ComptRealCoincidencesID;
+}
+
+
+
+
+
+
+
+
+
+
+
+TTree* MergeTTrees(TTree* T_realCoincidences, TTree* T_comptCoincidences, std::vector<int> v_comptID)
+{
+  Int_t           runID;
+  Float_t         axialPos;
+  Float_t         rotationAngle;
+  Int_t           eventID1;
+  Int_t           sourceID1;
+  Float_t         sourcePosX1;
+  Float_t         sourcePosY1;
+  Float_t         sourcePosZ1;
+  Double_t        time1;
+  Float_t         energy1;
+  Float_t         globalPosX1;
+  Float_t         globalPosY1;
+  Float_t         globalPosZ1;
+  Int_t           gantryID1;
+  Int_t           rsectorID1;
+  Int_t           moduleID1;
+  Int_t           submoduleID1;
+  Int_t           crystalID1;
+  Int_t           layerID1;
+  Int_t           comptonPhantom1;
+  Int_t           comptonCrystal1;
+  Int_t           RayleighPhantom1;
+  Int_t           RayleighCrystal1;
+  Int_t           eventID2;
+  Int_t           sourceID2;
+  Float_t         sourcePosX2;
+  Float_t         sourcePosY2;
+  Float_t         sourcePosZ2;
+  Double_t        time2;
+  Float_t         energy2;
+  Float_t         globalPosX2;
+  Float_t         globalPosY2;
+  Float_t         globalPosZ2;
+  Int_t           gantryID2;
+  Int_t           rsectorID2;
+  Int_t           moduleID2;
+  Int_t           submoduleID2;
+  Int_t           crystalID2;
+  Int_t           layerID2;
+  Int_t           comptonPhantom2;
+  Int_t           comptonCrystal2;
+  Int_t           RayleighPhantom2;
+  Int_t           RayleighCrystal2;
+  Float_t         sinogramTheta;
+  Float_t         sinogramS;
+  Char_t          comptVolName1[30];
+  Char_t          comptVolName2[30];
+  Char_t          RayleighVolName1[30];
+  Char_t          RayleighVolName2[30];
+
+  Int_t           c_runID;
+  Float_t         c_axialPos;
+  Float_t         c_rotationAngle;
+  Int_t           c_eventID1;
+  Int_t           c_sourceID1;
+  Float_t         c_sourcePosX1;
+  Float_t         c_sourcePosY1;
+  Float_t         c_sourcePosZ1;
+  Double_t        c_time1;
+  Float_t         c_energy1;
+  Float_t         c_globalPosX1;
+  Float_t         c_globalPosY1;
+  Float_t         c_globalPosZ1;
+  Int_t           c_gantryID1;
+  Int_t           c_rsectorID1;
+  Int_t           c_moduleID1;
+  Int_t           c_submoduleID1;
+  Int_t           c_crystalID1;
+  Int_t           c_layerID1;
+  Int_t           c_comptonPhantom1;
+  Int_t           c_comptonCrystal1;
+  Int_t           c_RayleighPhantom1;
+  Int_t           c_RayleighCrystal1;
+  Int_t           c_eventID2;
+  Int_t           c_sourceID2;
+  Float_t         c_sourcePosX2;
+  Float_t         c_sourcePosY2;
+  Float_t         c_sourcePosZ2;
+  Double_t        c_time2;
+  Float_t         c_energy2;
+  Float_t         c_globalPosX2;
+  Float_t         c_globalPosY2;
+  Float_t         c_globalPosZ2;
+  Int_t           c_gantryID2;
+  Int_t           c_rsectorID2;
+  Int_t           c_moduleID2;
+  Int_t           c_submoduleID2;
+  Int_t           c_crystalID2;
+  Int_t           c_layerID2;
+  Int_t           c_comptonPhantom2;
+  Int_t           c_comptonCrystal2;
+  Int_t           c_RayleighPhantom2;
+  Int_t           c_RayleighCrystal2;
+  Float_t         c_sinogramTheta;
+  Float_t         c_sinogramS;
+  Char_t          c_comptVolName1[30];
+  Char_t          c_comptVolName2[30];
+  Char_t          c_RayleighVolName1[30];
+  Char_t          c_RayleighVolName2[30];
+
+
+  //clone the compton coincidences in a new tree
+  TTree* tree = T_comptCoincidences->CloneTree();
+  //TODO diverse percentuali
+
+  tree->SetBranchAddress("runID", &c_runID);
+  tree->SetBranchAddress("axialPos", &c_axialPos);
+  tree->SetBranchAddress("rotationAngle", &rotationAngle);
+  tree->SetBranchAddress("eventID1", &eventID1);
+  tree->SetBranchAddress("sourceID1", &sourceID1);
+  tree->SetBranchAddress("sourcePosX1", &c_sourcePosX1);
+  tree->SetBranchAddress("sourcePosY1", &c_sourcePosY1);
+  tree->SetBranchAddress("sourcePosZ1", &c_sourcePosZ1);
+  tree->SetBranchAddress("time1", &c_time1);
+  tree->SetBranchAddress("energy1", &c_energy1);
+  tree->SetBranchAddress("globalPosX1", &c_globalPosX1);
+  tree->SetBranchAddress("globalPosY1", &c_globalPosY1);
+  tree->SetBranchAddress("globalPosZ1", &c_globalPosZ1);
+  tree->SetBranchAddress("gantryID1", &c_gantryID1);
+  tree->SetBranchAddress("rsectorID1", &c_rsectorID1);
+  tree->SetBranchAddress("moduleID1", &c_moduleID1);
+  tree->SetBranchAddress("submoduleID1", &c_submoduleID1);
+  tree->SetBranchAddress("crystalID1", &c_crystalID1);
+  tree->SetBranchAddress("layerID1", &c_layerID1);
+  tree->SetBranchAddress("comptonPhantom1", &c_comptonPhantom1);
+  tree->SetBranchAddress("comptonCrystal1", &c_comptonCrystal1);
+  tree->SetBranchAddress("RayleighPhantom1", &c_RayleighPhantom1);
+  tree->SetBranchAddress("RayleighCrystal1", &c_RayleighCrystal1);
+  tree->SetBranchAddress("eventID2", &c_eventID2);
+  tree->SetBranchAddress("sourceID2", &c_sourceID2);
+  tree->SetBranchAddress("sourcePosX2", &c_sourcePosX2);
+  tree->SetBranchAddress("sourcePosY2", &c_sourcePosY2);
+  tree->SetBranchAddress("sourcePosZ2", &c_sourcePosZ2);
+  tree->SetBranchAddress("time2", &c_time2);
+  tree->SetBranchAddress("energy2", &c_energy2);
+  tree->SetBranchAddress("globalPosX2", &c_globalPosX2);
+  tree->SetBranchAddress("globalPosY2", &c_globalPosY2);
+  tree->SetBranchAddress("globalPosZ2", &c_globalPosZ2);
+  tree->SetBranchAddress("gantryID2", &c_gantryID2);
+  tree->SetBranchAddress("rsectorID2", &c_rsectorID2);
+  tree->SetBranchAddress("moduleID2", &c_moduleID2);
+  tree->SetBranchAddress("submoduleID2", &c_submoduleID2);
+  tree->SetBranchAddress("crystalID2", &c_crystalID2);
+  tree->SetBranchAddress("layerID2", &c_layerID2);
+  tree->SetBranchAddress("comptonPhantom2", &c_comptonPhantom2);
+  tree->SetBranchAddress("comptonCrystal2", &c_comptonCrystal2);
+  tree->SetBranchAddress("RayleighPhantom2", &c_RayleighPhantom2);
+  tree->SetBranchAddress("RayleighCrystal2", &c_RayleighCrystal2);
+  tree->SetBranchAddress("sinogramTheta", &c_sinogramTheta);
+  tree->SetBranchAddress("sinogramS", &c_sinogramS);
+  tree->SetBranchAddress("comptVolName1", c_comptVolName1);
+  tree->SetBranchAddress("comptVolName2", c_comptVolName2);
+  tree->SetBranchAddress("RayleighVolName1", c_RayleighVolName1);
+  tree->SetBranchAddress("RayleighVolName2", c_RayleighVolName2);
+
+
+
+  Long64_t ientry;
+  //loop on entries of the original real coincidences, add event if new eventID
+  Long64_t nentries = T_realCoincidences->GetEntries();
+
+  T_realCoincidences->SetBranchAddress("runID", &runID);
+  T_realCoincidences->SetBranchAddress("axialPos", &axialPos);
+  T_realCoincidences->SetBranchAddress("rotationAngle", &rotationAngle);
+  T_realCoincidences->SetBranchAddress("eventID1", &eventID1);
+  T_realCoincidences->SetBranchAddress("sourceID1", &sourceID1);
+  T_realCoincidences->SetBranchAddress("sourcePosX1", &sourcePosX1);
+  T_realCoincidences->SetBranchAddress("sourcePosY1", &sourcePosY1);
+  T_realCoincidences->SetBranchAddress("sourcePosZ1", &sourcePosZ1);
+  T_realCoincidences->SetBranchAddress("time1", &time1);
+  T_realCoincidences->SetBranchAddress("energy1", &energy1);
+  T_realCoincidences->SetBranchAddress("globalPosX1", &globalPosX1);
+  T_realCoincidences->SetBranchAddress("globalPosY1", &globalPosY1);
+  T_realCoincidences->SetBranchAddress("globalPosZ1", &globalPosZ1);
+  T_realCoincidences->SetBranchAddress("gantryID1", &gantryID1);
+  T_realCoincidences->SetBranchAddress("rsectorID1", &rsectorID1);
+  T_realCoincidences->SetBranchAddress("moduleID1", &moduleID1);
+  T_realCoincidences->SetBranchAddress("submoduleID1", &submoduleID1);
+  T_realCoincidences->SetBranchAddress("crystalID1", &crystalID1);
+  T_realCoincidences->SetBranchAddress("layerID1", &layerID1);
+  T_realCoincidences->SetBranchAddress("comptonPhantom1", &comptonPhantom1);
+  T_realCoincidences->SetBranchAddress("comptonCrystal1", &comptonCrystal1);
+  T_realCoincidences->SetBranchAddress("RayleighPhantom1", &RayleighPhantom1);
+  T_realCoincidences->SetBranchAddress("RayleighCrystal1", &RayleighCrystal1);
+  T_realCoincidences->SetBranchAddress("eventID2", &eventID2);
+  T_realCoincidences->SetBranchAddress("sourceID2", &sourceID2);
+  T_realCoincidences->SetBranchAddress("sourcePosX2", &sourcePosX2);
+  T_realCoincidences->SetBranchAddress("sourcePosY2", &sourcePosY2);
+  T_realCoincidences->SetBranchAddress("sourcePosZ2", &sourcePosZ2);
+  T_realCoincidences->SetBranchAddress("time2", &time2);
+  T_realCoincidences->SetBranchAddress("energy2", &energy2);
+  T_realCoincidences->SetBranchAddress("globalPosX2", &globalPosX2);
+  T_realCoincidences->SetBranchAddress("globalPosY2", &globalPosY2);
+  T_realCoincidences->SetBranchAddress("globalPosZ2", &globalPosZ2);
+  T_realCoincidences->SetBranchAddress("gantryID2", &gantryID2);
+  T_realCoincidences->SetBranchAddress("rsectorID2", &rsectorID2);
+  T_realCoincidences->SetBranchAddress("moduleID2", &moduleID2);
+  T_realCoincidences->SetBranchAddress("submoduleID2", &submoduleID2);
+  T_realCoincidences->SetBranchAddress("crystalID2", &crystalID2);
+  T_realCoincidences->SetBranchAddress("layerID2", &layerID2);
+  T_realCoincidences->SetBranchAddress("comptonPhantom2", &comptonPhantom2);
+  T_realCoincidences->SetBranchAddress("comptonCrystal2", &comptonCrystal2);
+  T_realCoincidences->SetBranchAddress("RayleighPhantom2", &RayleighPhantom2);
+  T_realCoincidences->SetBranchAddress("RayleighCrystal2", &RayleighCrystal2);
+  T_realCoincidences->SetBranchAddress("sinogramTheta", &sinogramTheta);
+  T_realCoincidences->SetBranchAddress("sinogramS", &sinogramS);
+  T_realCoincidences->SetBranchAddress("comptVolName1", comptVolName1);
+  T_realCoincidences->SetBranchAddress("comptVolName2", comptVolName2);
+  T_realCoincidences->SetBranchAddress("RayleighVolName1", RayleighVolName1);
+  T_realCoincidences->SetBranchAddress("RayleighVolName2", RayleighVolName2);
+
+  for(int jentry=0; jentry < nentries; jentry++)
+  {
+    ientry = T_realCoincidences->GetEntry(jentry);
+    //if eventID1 is not in the compton coincidences eventsIDs
+    if(find(v_comptID.begin(), v_comptID.end(), eventID1) == v_comptID.end())
+    {
+      //std::cout << eventID1 << std::endl;
+      c_runID = runID;
+      c_axialPos = axialPos;
+      c_rotationAngle = rotationAngle;
+      c_eventID1 = eventID1;
+      c_sourceID1 = sourceID1;
+      c_sourcePosX1 = sourcePosX1;
+      c_sourcePosY1 = sourcePosY1;
+      c_sourcePosZ1 = sourcePosZ1;
+      c_time1 = time1;
+      c_energy1 = energy1;
+      c_globalPosX1 = globalPosX1;
+      c_globalPosY1 = globalPosY1;
+      c_globalPosZ1 = globalPosZ1;
+      c_gantryID1 = gantryID1;
+      c_rsectorID1 = rsectorID1;
+      c_moduleID1 = moduleID1;
+      c_submoduleID1 = submoduleID1;
+      c_crystalID1 = crystalID1;
+      c_layerID1 = layerID1;
+      c_comptonPhantom1 = comptonPhantom1;
+      c_comptonCrystal1 = comptonCrystal1;
+      c_RayleighPhantom1 = RayleighPhantom1;
+      c_RayleighCrystal1 = RayleighCrystal1;
+      c_eventID2 = eventID2;
+      c_sourceID2 = sourceID2;
+      c_sourcePosX2 = sourcePosX2;
+      c_sourcePosY2 = sourcePosY2;
+      c_sourcePosZ2 = sourcePosZ2;
+      c_time2 = time2;
+      c_energy2 = energy2;
+      c_globalPosX2 = globalPosX2;
+      c_globalPosY2 = globalPosY2;
+      c_globalPosZ2 = globalPosZ2;
+      c_gantryID2 = gantryID2;
+      c_rsectorID2 = rsectorID2;
+      c_moduleID2 = moduleID2;
+      c_submoduleID2 = submoduleID2;
+      c_crystalID2 = crystalID2;
+      c_layerID2 = layerID2;
+      c_comptonPhantom2 = comptonPhantom2;
+      c_comptonCrystal2 = comptonCrystal2;
+      c_RayleighPhantom2 = RayleighPhantom2;
+      c_RayleighCrystal2 = RayleighCrystal2;
+      c_sinogramTheta = sinogramTheta;
+      c_sinogramS = sinogramS;
+      c_comptVolName1[30] = '0';
+      c_comptVolName2[30] = '0';
+      c_RayleighVolName1[30] = '0';
+      c_RayleighVolName2[30] = '0';
+
+      tree->Fill();
+    }
+  }
+
+  return tree;
+}
 
 
 
@@ -659,8 +961,17 @@ int main(int argc, char const *argv[])
   ICCoincidences* treeICCoincidences = new ICCoincidences();
   //Fill realCoincidences tree with the inter-crystals compton coincidences, if not already counted as realCoincidences
   treeICCoincidences->FillICCompton(coincidences_vector, realCoincidencesIDvector);
-  //Write TTree on file
-  treeICCoincidences->WriteTree();
+  //retrieve vector of events IDs of the inter-crystals compton realCoincidences
+  std::vector<Int_t> ComptonRealCoincidencesIDvector = treeICCoincidences->FindIDs();
+
+  //merge the realCoincidences TTree and the ICCCoincidences TTree
+  TTree* finalTTree = MergeTTrees(treerealCoincidences->fChain, treeICCoincidences->fChain, ComptonRealCoincidencesIDvector);
+  //write final TTree on file
+  std::string outFile = "outCompt1.root";
+  TFile* fOut = new TFile(outFile.c_str(),"recreate");
+  finalTTree->Write();
+
+
 
   return 0;
 }
