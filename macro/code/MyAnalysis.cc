@@ -967,7 +967,7 @@ int main(int argc, char const *argv[])
   //merge the realCoincidences TTree and the ICCCoincidences TTree
   TTree* finalTTree = MergeTTrees(treerealCoincidences->fChain, treeICCoincidences->fChain, ComptonRealCoincidencesIDvector);
   //write final TTree on file
-  std::string outFile = "outCompt1.root";
+  std::string outFile = "compt" + inputfilename;
   TFile* fOut = new TFile(outFile.c_str(),"recreate");
   finalTTree->Write();
 
