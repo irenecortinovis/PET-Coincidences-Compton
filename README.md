@@ -14,6 +14,11 @@ Macro to analyse Gate simulation output and find new realCoincidences from inter
 
 Script to find the optimal energy threshold for inter-crystal Compton events, to maximise ratio added/orginal realCoincidences
 
+### **macro/code/scriptReconstruction.py**
+
+Script to run MyAnalysis on all out.root files in given directory
+
+
 **________________________________________**
 
 ### **geant4**
