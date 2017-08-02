@@ -15,6 +15,7 @@ print("Starting the code")
 
 #threshold for minimum single energy deposited
 single_edep_min = 0.065
+percentage = 100
 
 path = sys.argv[1]
 for filename in os.listdir(path):
@@ -23,4 +24,4 @@ for filename in os.listdir(path):
         print(filename)
         executable = "./MyAnalysis"
         #execute MyAnalysis
-        subprocess.call([executable, filename, str(single_edep_min)])
+        subprocess.call([executable, filename, str(single_edep_min), str(percentage)])

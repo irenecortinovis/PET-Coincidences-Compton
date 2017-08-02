@@ -69,7 +69,7 @@ public :
    virtual ~ICCoincidences();
    virtual void     Init(TTree *tree);
    virtual Long64_t LoadTree(Long64_t entry);
-   virtual void     FillICCompton(std::vector<Hits::CoincidenceEvent> cvector, std::vector<Int_t> rcIDvector);
+   virtual void     FillICCompton(Float_t percentage, std::vector<std::vector<Hits::CoincidenceEvent> > cvector);
    virtual std::vector<Int_t> FindIDs();
    virtual void     WriteTree();
 
