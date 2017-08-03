@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <iostream>
 
 // Header file for the classes stored in the TTree if any.
 
@@ -151,9 +152,11 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual std::vector<std::vector<CoincidenceEvent> > FindICcoincidences(Float_t single_edep_min);
+   virtual std::vector<std::vector<CoincidenceEvent> > FindICcoincidences(Float_t single_edep_min, std::vector<Int_t>* IDsvector);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+   virtual void     PrintEvent(Event this_event);
+
 };
 
 #endif
@@ -294,5 +297,44 @@ Int_t Hits::Cut(Long64_t entry)
 // returns -1 otherwise.
    return 1;
 }
+
+
+void Hits::PrintEvent(Event this_event)
+{
+  std::cout << "\neventID " << this_event.eventID <<
+               "\nrotationAngle " << this_event.rotationAngle <<
+               "\nndiffCrystals in rsector 0 " << this_event.ndiffCrystals0 <<
+               "\nndiffCrystals in rsector 1 " << this_event.ndiffCrystals1;
+
+  std::cout << "\nv_PDGEncoding ";
+  for(int i=0; i<this_event.v_PDGEncoding.size(); i++)
+    std::cout << this_event.v_PDGEncoding.at(i) << "\t";
+  std::cout << "\nv_edep ";
+  for(int i=0; i<this_event.v_edep.size(); i++)
+    std::cout << this_event.v_edep.at(i) << "\t";
+  std::cout << "\nv_time ";
+  for(int i=0; i<this_event.v_time.size(); i++)
+    std::cout << this_event.v_time.at(i) << "\t";
+  std::cout << "\nv_crystalID ";
+  for(int i=0; i<this_event.v_crystalID.size(); i++)
+    std::cout << this_event.v_crystalID.at(i) << "\t";
+  std::cout << "\nv_rsectorID ";
+  for(int i=0; i<this_event.v_rsectorID.size(); i++)
+    std::cout << this_event.v_rsectorID.at(i) << "\t";
+  std::cout << "\nv_processName ";
+  for(int i=0; i<this_event.v_processName.size(); i++)
+    std::cout << this_event.v_processName.at(i) << "\t";
+  std::cout << "\nv_nPhantomCompton ";
+  for(int i=0; i<this_event.v_nPhantomCompton.size(); i++)
+    std::cout << this_event.v_nPhantomCompton.at(i) << "\t";
+  std::cout << "\nv_posX ";
+  for(int i=0; i<this_event.v_posX.size(); i++)
+    std::cout << this_event.v_posX.at(i) << "\t";
+  std::cout << "\nv_posY ";
+  for(int i=0; i<this_event.v_posY.size(); i++)
+    std::cout << this_event.v_posY.at(i) << "\t";
+  std::cout << std::endl;
+}
+
 
 #endif // #ifdef Hits_cxx

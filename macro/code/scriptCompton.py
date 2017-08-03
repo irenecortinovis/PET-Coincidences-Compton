@@ -21,9 +21,9 @@ single_edep_min = []
 #ærray for percentage of added realCoincidences
 perc_added_realCoincidences = []
 
-minenergy = 0
-maxenergy = 0.520
-step = 0.01
+minenergy = 0.06
+maxenergy = 0.072
+step = 0.002
 
 
 
@@ -43,7 +43,7 @@ for x in np.arange(minenergy, maxenergy, step):
 
     #fill the arrays
     single_edep_min.append(x)
-    perc_added_realCoincidences.append(outputnumbers[4]/outputnumbers[3]*100)
+    perc_added_realCoincidences.append(outputnumbers[3]/outputnumbers[4]*100)
 
 
 #plot %added realCoincidences vs energy

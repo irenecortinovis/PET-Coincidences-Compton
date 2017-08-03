@@ -22,47 +22,6 @@ run:
 
 
 
-
-
-void PrintEvent(Hits::Event this_event)
-{
-  std::cout << "\neventID " << this_event.eventID <<
-               "\nrotationAngle " << this_event.rotationAngle <<
-               "\nndiffCrystals in rsector 0 " << this_event.ndiffCrystals0 <<
-               "\nndiffCrystals in rsector 1 " << this_event.ndiffCrystals1;
-
-  std::cout << "\nv_PDGEncoding ";
-  for(int i=0; i<this_event.v_PDGEncoding.size(); i++)
-    std::cout << this_event.v_PDGEncoding.at(i) << "\t";
-  std::cout << "\nv_edep ";
-  for(int i=0; i<this_event.v_edep.size(); i++)
-    std::cout << this_event.v_edep.at(i) << "\t";
-  std::cout << "\nv_time ";
-  for(int i=0; i<this_event.v_time.size(); i++)
-    std::cout << this_event.v_time.at(i) << "\t";
-  std::cout << "\nv_crystalID ";
-  for(int i=0; i<this_event.v_crystalID.size(); i++)
-    std::cout << this_event.v_crystalID.at(i) << "\t";
-  std::cout << "\nv_rsectorID ";
-  for(int i=0; i<this_event.v_rsectorID.size(); i++)
-    std::cout << this_event.v_rsectorID.at(i) << "\t";
-  std::cout << "\nv_processName ";
-  for(int i=0; i<this_event.v_processName.size(); i++)
-    std::cout << this_event.v_processName.at(i) << "\t";
-  std::cout << "\nv_nPhantomCompton ";
-  for(int i=0; i<this_event.v_nPhantomCompton.size(); i++)
-    std::cout << this_event.v_nPhantomCompton.at(i) << "\t";
-  std::cout << "\nv_posX ";
-  for(int i=0; i<this_event.v_posX.size(); i++)
-    std::cout << this_event.v_posX.at(i) << "\t";
-  std::cout << "\nv_posY ";
-  for(int i=0; i<this_event.v_posY.size(); i++)
-    std::cout << this_event.v_posY.at(i) << "\t";
-  std::cout << std::endl;
-}
-
-
-
 //function that filters event by processName and PDGEncoding
 bool ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Float_t single_edep_min)
 {
@@ -100,7 +59,7 @@ bool isDiffCrystal(Hits::Event this_event, Int_t crystalID)
 
 
 //loop on all the Hit entries to find the Coincidences with inter-crystal compton effect
-std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float_t single_edep_min)
+std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float_t single_edep_min, std::vector<Int_t>* IDsvector)
 {
 
    //////////////////////////////////////////////
@@ -444,6 +403,8 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
                //fill coincidence vector with correct and incorrect coincidence
                coincidences_vector.push_back(coincidences_pair);
 
+               //fill IDs vector with eventID
+               IDsvector->push_back(this_coincidence.eventID1);
              }
            }
          }
@@ -507,6 +468,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
                //fill coincidence vector with correct and incorrect coincidence
                coincidences_vector.push_back(coincidences_pair);
+
+               //fill IDs vector with eventID
+               IDsvector->push_back(this_coincidence.eventID1);
              }
            }
          }
@@ -523,53 +487,23 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    std::cout << "Number of inter-crystals Compton events: " << counterICCompton << std::endl;
 
    return coincidences_vector;
-   //TODO return also incorrect_coincidences_vector
 
  }
 
 
-
-
-
-
-
-
-//function that retrieves all the realCoincidence eventIDs
-std::vector<Int_t> realCoincidences::FindIDs()
-{
-  Long64_t nentries = fChain->GetEntries();
-  std::cout << "Number of original realCoincidences:\t" << nentries << std::endl;
-
-
-
-  std::vector<Int_t> v_realCoincidencesID;
-
-  Long64_t nbytes = 0, nb = 0;
-  for (Long64_t jentry=0; jentry<nentries;jentry++)
-  {
-    Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);
-    nbytes += nb;
-
-    //fill vector with eventID1 (which is == eventID2)
-    v_realCoincidencesID.push_back(eventID1);
-  }
-
-  return v_realCoincidencesID;
-}
-
-
-
-
-
-
-
 void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<Hits::CoincidenceEvent> > cvector)
 {
+  /////////////////////////////////////////////////////////////////////////////
+  //                                                                         //
+  //         FILL TTREE WITH THE INTER-CRYSTALS COMPTON COINCIDENCES         //
+  //                                                                         //
+  /////////////////////////////////////////////////////////////////////////////
+
+
   //0 if correct coincidence, 1 if incorrect coincidence
   bool index = 0;
 
+  std::cout << "Number of added realCoincidences: " << cvector.size() << std::endl;
   Int_t x = round(percentage * cvector.size() / 100.);
 
   for(Long64_t i=0; i<cvector.size(); i++)
@@ -633,43 +567,9 @@ void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<H
     //fill entry
     fChain->Fill();
   }
-  std::cout << "Number of added realCoincidences: " << cvector.size() << std::endl;
 
   return;
 }
-
-
-
-//function that retrieves all the compton realCoincidence eventIDs
-std::vector<Int_t> ICCoincidences::FindIDs()
-{
-  Long64_t nentries = fChain->GetEntries();
-
-  std::vector<Int_t> v_ComptRealCoincidencesID;
-
-  Long64_t nbytes = 0, nb = 0;
-  for (Long64_t jentry=0; jentry<nentries;jentry++)
-  {
-    Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);
-    nbytes += nb;
-
-    //fill vector with eventID1 (which is == eventID2)
-    v_ComptRealCoincidencesID.push_back(eventID1);
-  }
-
-  return v_ComptRealCoincidencesID;
-}
-
-
-
-
-
-
-
-
-
 
 
 TTree* MergeTTrees(TTree* T_realCoincidences, TTree* T_comptCoincidences, std::vector<int> v_comptID)
@@ -777,7 +677,6 @@ TTree* MergeTTrees(TTree* T_realCoincidences, TTree* T_comptCoincidences, std::v
 
   //clone the compton coincidences in a new tree
   TTree* tree = T_comptCoincidences->CloneTree();
-  //TODO diverse percentuali
 
   tree->SetBranchAddress("runID", &c_runID);
   tree->SetBranchAddress("axialPos", &c_axialPos);
@@ -834,6 +733,8 @@ TTree* MergeTTrees(TTree* T_realCoincidences, TTree* T_comptCoincidences, std::v
   Long64_t ientry;
   //loop on entries of the original real coincidences, add event if new eventID
   Long64_t nentries = T_realCoincidences->GetEntries();
+
+  std::cout << "Number of original realCoincidences: "	<< nentries << std::endl;
 
   T_realCoincidences->SetBranchAddress("runID", &runID);
   T_realCoincidences->SetBranchAddress("axialPos", &axialPos);
@@ -965,25 +866,29 @@ int main(int argc, char const *argv[])
 
   TApplication * MyApp = new TApplication("", 0, NULL);
 
+
   //istansiate Hits object
   Hits* treeHits = new Hits(inputfilename);
+  //create vector to store events IDs of the inter-crystals compton realCoincidences
+  std::vector<Int_t> ComptonRealCoincidencesIDvector;
+
   //Loop to find inter-crystals compton coincidences
-  //output a vector of CoincidenceEvent struct
-  std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = treeHits->FindICcoincidences(single_edep_min);
+  //output a vector of pairs of CoincidenceEvent structs: first one is correct prediction, second one is incorrect prediction
+  //fill also the the eventIDs in the just created vector
+  std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = treeHits->FindICcoincidences(single_edep_min, &ComptonRealCoincidencesIDvector);
 
-
-  //istansiate realCoincidences object
-  realCoincidences* treerealCoincidences = new realCoincidences(inputfilename);
-  //retrieve vector of events IDs of the realCoincidences
-  std::vector<Int_t> realCoincidencesIDvector = treerealCoincidences->FindIDs();
 
 
   //istansiate ICCoincidences object
   ICCoincidences* treeICCoincidences = new ICCoincidences();
-  //Fill realCoincidences tree with the inter-crystals compton coincidences, if not already counted as realCoincidences
+
+  //Fill realCoincidences tree with the inter-crystals compton coincidences
   treeICCoincidences->FillICCompton(percentage, coincidences_vector);
-  //retrieve vector of events IDs of the inter-crystals compton realCoincidences
-  std::vector<Int_t> ComptonRealCoincidencesIDvector = treeICCoincidences->FindIDs();
+
+
+
+  //istansiate realCoincidences object
+  realCoincidences* treerealCoincidences = new realCoincidences(inputfilename);
 
   //merge the realCoincidences TTree and the ICCCoincidences TTree
   TTree* finalTTree = MergeTTrees(treerealCoincidences->fChain, treeICCoincidences->fChain, ComptonRealCoincidencesIDvector);
