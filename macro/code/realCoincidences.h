@@ -255,6 +255,24 @@ void realCoincidences::Init(TTree *tree)
    fChain->SetBranchAddress("RayleighVolName1", RayleighVolName1, &b_RayleighVolName1);
    fChain->SetBranchAddress("RayleighVolName2", RayleighVolName2, &b_RayleighVolName2);
    Notify();
+
+   fChain->SetBranchStatus("*", 0);
+   fChain->SetBranchStatus("eventID1", 1);
+   fChain->SetBranchStatus("eventID2", 1);
+   fChain->SetBranchStatus("rotationAngle", 1);
+   fChain->SetBranchStatus("energy1", 1);
+   fChain->SetBranchStatus("energy2", 1);
+   fChain->SetBranchStatus("comptonPhantom1", 1);
+   fChain->SetBranchStatus("comptonPhantom2", 1);
+   fChain->SetBranchStatus("crystalID1", 1);
+   fChain->SetBranchStatus("crystalID2", 1);
+   fChain->SetBranchStatus("time1", 1);
+   fChain->SetBranchStatus("time2", 1);
+   fChain->SetBranchStatus("globalPosX1", 1);
+   fChain->SetBranchStatus("globalPosX2", 1);
+   fChain->SetBranchStatus("globalPosY1", 1);
+   fChain->SetBranchStatus("globalPosY2", 1);
+
 }
 
 Bool_t realCoincidences::Notify()

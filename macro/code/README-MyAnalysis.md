@@ -14,7 +14,6 @@ The **aim** is to add the new ``realCoincidences`` to the original ones, analyse
 
 *____________________________________________________*
 
-
 **``Hits::FindICcoincidences``**
 
 *Find new coincidences with inter-crystals Compton effect, analysing the* ``Hits`` *TTree*.
@@ -23,9 +22,9 @@ The **aim** is to add the new ``realCoincidences`` to the original ones, analyse
 
 *Fill a new* ``realCoincidences`` *TTree with the inter-crystals compton coincidences found in* ``FindICcoincidences``.
 
-**``realCoincidences::FindIDs``**
+**``finalCoincidences::MergeTTrees``**
 
-*Retrieve number of original* ``realCoincidences``*, so it is possible to know and maximise the ratio added/original coincidences*
+Merge inter-crystals compton coincidences tree with the original realCoincidences ttree (giving priority to the inter-crystals events)
 
 *____________________________________________________*
 
@@ -78,7 +77,7 @@ ANALYSE A FINISHED EVENT
 
     * Energy deposited in crystal 0.511 MeV
 
-    * N of Compton phantom 
+    * N of Compton phantom
 
     * Total energy deposited for each rsector
 
@@ -99,6 +98,8 @@ ANALYSE A FINISHED EVENT
     * Energy deposited in first interaction in each rsector is > threshold
 
 * Pushback ``this_coincidence`` struct to ``coincidences_vector`` and ``this_coincidence_incorrect`` struct to ``incorrect_coincidences_vector`` if ``this_coincidence_incorrect`` satisfies the same conditions just stated before
+
+* Pushback the eventID in the eventIDs vector
 
 
 

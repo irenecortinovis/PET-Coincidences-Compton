@@ -231,7 +231,6 @@ void Hits::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
-   //b_processName->SetAutoDelete(kTRUE);
 
    fChain->SetBranchAddress("PDGEncoding", &PDGEncoding, &b_PDGEncoding);
    fChain->SetBranchAddress("trackID", &trackID, &b_trackID);
@@ -270,6 +269,21 @@ void Hits::Init(TTree *tree)
    fChain->SetBranchAddress("comptVolName", &comptVolName, &b_comptVolName);
    fChain->SetBranchAddress("RayleighVolName", &RayleighVolName, &b_RayleighVolName);
    Notify();
+
+   fChain->SetBranchStatus("*", 0);
+   fChain->SetBranchStatus("PDGEncoding", 1);
+   fChain->SetBranchStatus("time", 1);
+   fChain->SetBranchStatus("edep", 1);
+   fChain->SetBranchStatus("posX", 1);
+   fChain->SetBranchStatus("posY", 1);
+   fChain->SetBranchStatus("rsectorID", 1);
+   fChain->SetBranchStatus("crystalID", 1);
+   fChain->SetBranchStatus("nPhantomCompton", 1);
+   fChain->SetBranchStatus("eventID", 1);
+   fChain->SetBranchStatus("rotationAngle", 1);
+   fChain->SetBranchStatus("processName", 1);
+
+
 }
 
 Bool_t Hits::Notify()
