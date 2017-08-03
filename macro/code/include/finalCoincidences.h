@@ -1,9 +1,3 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Thu Jul 27 10:39:38 2017 by ROOT version 5.34/36
-// from TChain finalCoincidences/
-//////////////////////////////////////////////////////////
-
 #ifndef finalCoincidences_h
 #define finalCoincidences_h
 

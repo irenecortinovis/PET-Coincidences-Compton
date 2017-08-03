@@ -25,6 +25,8 @@ minenergy = 0.06
 maxenergy = 0.072
 step = 0.002
 
+perc_correct_predictions = 100
+
 
 
 for x in np.arange(minenergy, maxenergy, step):
@@ -35,7 +37,7 @@ for x in np.arange(minenergy, maxenergy, step):
     #execute c++ program with single_edep_min parameter
     executable = "./MyAnalysis"
     rootfile = str(sys.argv[1])
-    output = subprocess.check_output([executable, rootfile, str(x)])
+    output = subprocess.check_output([executable, rootfile, str(x), str(perc_correct_predictions)])
 
     #extract numbers from output
     outputnumbers = [int(s) for s in output.split() if s.isdigit()]

@@ -3,7 +3,7 @@ compile:
 g++ -o MyAnalysis ../code/MyAnalysis.cc `root-config --cflags --glibs`
 
 run:
-./MyAnalysis path_to_filename.root single_edep_min
+./MyAnalysis path_to_filename.root single_edep_min percentage
 */
 
 
@@ -40,8 +40,11 @@ int main(int argc, char const *argv[])
   TApplication * MyApp = new TApplication("", 0, NULL);
 
 
-  //istansiate Hits object
+  //istansiate Hits, ICCoincidences, realCoincidences, finalCoincidences objects
   Hits* treeHits = new Hits(inputfilename);
+  ICCoincidences* treeICCoincidences = new ICCoincidences();
+  realCoincidences* treerealCoincidences = new realCoincidences(inputfilename);
+  finalCoincidences* finalCoinc = new finalCoincidences(treeICCoincidences->fChain);
 
   //create vector to store events IDs of the inter-crystals compton realCoincidences
   std::vector<Int_t> ComptonRealCoincidencesIDvector;
@@ -52,23 +55,13 @@ int main(int argc, char const *argv[])
   std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = treeHits->FindICcoincidences(single_edep_min, &ComptonRealCoincidencesIDvector);
 
 
-
-  //istansiate ICCoincidences object
-  ICCoincidences* treeICCoincidences = new ICCoincidences();
-
-  //Fill realCoincidences tree with the inter-crystals compton coincidences
+  //Fill realCoincidences-like tree with the inter-crystals compton coincidences
   treeICCoincidences->FillICCompton(percentage, coincidences_vector);
 
 
-
-  //istansiate realCoincidences object
-  realCoincidences* treerealCoincidences = new realCoincidences(inputfilename);
-
-  //istansiate finalCoincidences
-  finalCoincidences* finalCoinc = new finalCoincidences(treeICCoincidences->fChain);
-
-  //merge the realCoincidences TTree and the ICCCoincidences TTree
+  //merge the original realCoincidences TTree and the ICCCoincidences TTree, priority to inter-crystals events
   finalCoinc->MergeTTrees(treerealCoincidences, ComptonRealCoincidencesIDvector);
+  
   //write final TTree on file
   std::string outFile = "compt" + inputfilename;
   TFile* fOut = new TFile(outFile.c_str(),"recreate");
