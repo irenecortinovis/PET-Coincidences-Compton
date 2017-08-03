@@ -6,7 +6,7 @@ Gate simulation: 2 plates (40x40 crystals) facing each other and rotating around
 
 Output file contains Hits, Singles and realCoincidences TTrees.
 
-### **macro/code/MyAnalysis.cc + Hits.h, realCoincidences.h, ICCoincidences.h**
+### **macro/code/MyAnalysis.ccp + include/\* + src/\* **
 
 Macro to analyse Gate simulation output and find new realCoincidences from inter-crystal Compton events for the reconstruction algorithm
 
