@@ -156,6 +156,10 @@ public :
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    virtual void     PrintEvent(Event this_event);
+   virtual bool     ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Float_t single_edep_min);
+   virtual bool     isDiffCrystal(Event this_event, Int_t crystalID);
+
+
 
 };
 

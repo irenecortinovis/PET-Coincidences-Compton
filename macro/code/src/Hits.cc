@@ -1,33 +1,14 @@
-/*
-compile:
-g++ -o MyAnalysis ../code/MyAnalysis.cc `root-config --cflags --glibs`
-
-run:
-./MyAnalysis path_to_filename.root single_edep_min
-*/
-
-
-#define Hits_cxx
-#include "Hits.h"
-#define ICCoincidences_cxx
-#include "ICCoincidences.h"
-#define realCoincidences_cxx
-#include "realCoincidences.h"
-#define finalCoincidences_cxx
-#include "finalCoincidences.h"
+#include "../include/Hits.h"
 
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
 #include <math.h>
 
-#include <TApplication.h>
-#include <TTreeIndex.h>
-
 
 
 //function that filters event by processName and PDGEncoding
-bool ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Float_t single_edep_min)
+bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Float_t single_edep_min)
 {
   //TODO compt vs Compton, phot vs PhotoElectric
   bool isComptonOrPhotoelectric = false;
@@ -47,7 +28,7 @@ bool ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Flo
 
 //compare crystalID with ones in the same event
 //to see if the gamma hits a new crystal
-bool isDiffCrystal(Hits::Event this_event, Int_t crystalID)
+bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID)
 {
   bool isDiffCrystal = true;
   //loop to compare with all crystalIDs in the event (except the last one)
@@ -58,6 +39,8 @@ bool isDiffCrystal(Hits::Event this_event, Int_t crystalID)
   }
   return isDiffCrystal;
 }
+
+
 
 
 
@@ -500,224 +483,3 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    return coincidences_vector;
 
  }
-
-
-void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<Hits::CoincidenceEvent> > cvector)
-{
-  /////////////////////////////////////////////////////////////////////////////
-  //                                                                         //
-  //         FILL TTREE WITH THE INTER-CRYSTALS COMPTON COINCIDENCES         //
-  //                                                                         //
-  /////////////////////////////////////////////////////////////////////////////
-
-
-  //0 if correct coincidence, 1 if incorrect coincidence
-  bool index = 0;
-
-  std::cout << "Number of added realCoincidences: " << cvector.size() << std::endl;
-  Int_t x = round(percentage * cvector.size() / 100.);
-
-  for(Long64_t i=0; i<cvector.size(); i++)
-  {
-    if(i>x) index = 1;
-    else index = 0;
-
-    //fill the thing using default values for useless, and cvector values for useful
-    rotationAngle = (cvector.at(i)).at(0).rotationAngle;
-    eventID1 = (cvector.at(i)).at(0).eventID1;
-    energy1 = (cvector.at(i)).at(0).energy1;
-    globalPosX1 = (cvector.at(i)).at(0).globalPosX1;
-    globalPosY1 = (cvector.at(i)).at(0).globalPosY1;
-    crystalID1 = (cvector.at(i)).at(0).crystalID1;
-    comptonPhantom1 = (cvector.at(i)).at(0).comptonPhantom1;
-    eventID2 = (cvector.at(i)).at(0).eventID2;
-    energy2 = (cvector.at(i)).at(0).energy2;
-    globalPosX2 = (cvector.at(i)).at(0).globalPosX2;
-    globalPosY2 = (cvector.at(i)).at(0).globalPosY2;
-    crystalID2 = (cvector.at(i)).at(0).crystalID2;
-    comptonPhantom2 = (cvector.at(i)).at(0).comptonPhantom2;
-    time1 = (cvector.at(i)).at(0).time1;
-    time2 = (cvector.at(i)).at(0).time2;
-
-    //default values - not used in recostruction
-    runID = 0;
-    axialPos = 0;
-    sourceID1 = 0;
-    sourcePosX1 = 0;
-    sourcePosY1 = 0;
-    sourcePosZ1 = 0;
-    globalPosZ1 = 0;
-    gantryID1 = 0;
-    rsectorID1 = 0;
-    moduleID1 = 0;
-    submoduleID1 = 0;
-    layerID1 = 0;
-    comptonCrystal1 = 0;
-    RayleighPhantom1 = 0;
-    RayleighCrystal1 = 0;
-    sourceID2 = 0;
-    sourcePosX2 = 0;
-    sourcePosY2 = 0;
-    sourcePosZ2 = 0;
-    globalPosZ2 = 0;
-    gantryID2 = 0;
-    rsectorID2 = 0;
-    moduleID2 = 0;
-    submoduleID2 = 0;
-    layerID2 = 0;
-    comptonCrystal2 = 0;
-    RayleighPhantom2 = 0;
-    RayleighCrystal2 = 0;
-    sinogramTheta = 0;
-    sinogramS = 0;
-    comptVolName1[30] = '0';
-    comptVolName2[30] = '0';
-    RayleighVolName1[30] = '0';
-    RayleighVolName2[30] = '0';
-
-    //fill entry
-    fChain->Fill();
-  }
-
-  return;
-}
-
-
-void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID)
-{
-  Long64_t ientry;
-  //loop on entries of the original real coincidences, add event if new eventID
-  Long64_t nentries = realCoincidences_obj->fChain->GetEntries();
-
-  //create index on branch eventID1 for the two trees
-  //Long64_t index_entries_real = realCoincidences_obj->fChain->BuildIndex("eventID1");
-  //Long64_t index_entries_final = fChain->BuildIndex("eventID1");
-
-  std::cout << "Number of original realCoincidences: "	<< nentries << std::endl;
-
-  for(Long64_t jentry=0; jentry < nentries; jentry++)
-  {
-    ientry = realCoincidences_obj->fChain->GetEntry(jentry);
-    //if eventID1 is not in the compton coincidences eventsIDs
-    if(find(v_comptID.begin(), v_comptID.end(), realCoincidences_obj->eventID1) == v_comptID.end())
-    {
-      c_runID = 0;
-      c_axialPos = 0;
-      c_rotationAngle = realCoincidences_obj->rotationAngle;
-      c_eventID1 = realCoincidences_obj->eventID1;
-      c_sourceID1 = 0;
-      c_sourcePosX1 = 0;
-      c_sourcePosY1 = 0;
-      c_sourcePosZ1 = 0;
-      c_time1 = realCoincidences_obj->time1;
-      c_energy1 = realCoincidences_obj->energy1;
-      c_globalPosX1 = realCoincidences_obj->globalPosX1;
-      c_globalPosY1 = realCoincidences_obj->globalPosY1;
-      c_globalPosZ1 = 0;
-      c_gantryID1 = 0;
-      c_rsectorID1 = 0;
-      c_moduleID1 = 0;
-      c_submoduleID1 = 0;
-      c_crystalID1 = realCoincidences_obj->crystalID1;
-      c_layerID1 = 0;
-      c_comptonPhantom1 = realCoincidences_obj->comptonPhantom1;
-      c_comptonCrystal1 = 0;
-      c_RayleighPhantom1 = 0;
-      c_RayleighCrystal1 = 0;
-      c_eventID2 = realCoincidences_obj->eventID2;
-      c_sourceID2 = 0;
-      c_sourcePosX2 = 0;
-      c_sourcePosY2 = 0;
-      c_sourcePosZ2 = 0;
-      c_time2 = realCoincidences_obj->time2;
-      c_energy2 = realCoincidences_obj->energy2;
-      c_globalPosX2 = realCoincidences_obj->globalPosX2;
-      c_globalPosY2 = realCoincidences_obj->globalPosY2;
-      c_globalPosZ2 = 0;
-      c_gantryID2 = 0;
-      c_rsectorID2 = 0;
-      c_moduleID2 = 0;
-      c_submoduleID2 = 0;
-      c_crystalID2 = realCoincidences_obj->crystalID2;
-      c_layerID2 = 0;
-      c_comptonPhantom2 = realCoincidences_obj->comptonPhantom2;
-      c_comptonCrystal2 = 0;
-      c_RayleighPhantom2 = 0;
-      c_RayleighCrystal2 = 0;
-      c_sinogramTheta = 0;
-      c_sinogramS = 0;
-      c_comptVolName1[30] = '0';
-      c_comptVolName2[30] = '0';
-      c_RayleighVolName1[30] = '0';
-      c_RayleighVolName2[30] = '0';
-
-      fChain->Fill();
-    }
-
-    int perc = ((100*jentry)/nentries); //should strictly have not decimal part, written like this...
-    if( (perc % 10) == 0 )
-    {
-      std::cout << "\r";
-      std::cout << perc << "% done... ";
-    }
-
-  }
-
-  return;
-}
-
-
-
-int main(int argc, char const *argv[])
-{
-
-  std::cout << "First argument: input filename" << std::endl;
-  std::cout << "Second argument: single_edep_min [MeV]" << std::endl;
-  std::cout << "Third argument: percentage of correct Compton predictions [%]" << std::endl;
-
-  std::string inputfilename = argv[1];
-  Float_t single_edep_min = atof(argv[2]);
-  Float_t percentage = atof(argv[3]);
-
-
-  TApplication * MyApp = new TApplication("", 0, NULL);
-
-
-  //istansiate Hits object
-  Hits* treeHits = new Hits(inputfilename);
-
-  //create vector to store events IDs of the inter-crystals compton realCoincidences
-  std::vector<Int_t> ComptonRealCoincidencesIDvector;
-
-  //Loop to find inter-crystals compton coincidences
-  //output a vector of pairs of CoincidenceEvent structs: first one is correct prediction, second one is incorrect prediction
-  //fill also the the eventIDs in the just created vector
-  std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = treeHits->FindICcoincidences(single_edep_min, &ComptonRealCoincidencesIDvector);
-
-
-
-  //istansiate ICCoincidences object
-  ICCoincidences* treeICCoincidences = new ICCoincidences();
-
-  //Fill realCoincidences tree with the inter-crystals compton coincidences
-  treeICCoincidences->FillICCompton(percentage, coincidences_vector);
-
-
-
-  //istansiate realCoincidences object
-  realCoincidences* treerealCoincidences = new realCoincidences(inputfilename);
-
-  //istansiate finalCoincidences
-  finalCoincidences* finalCoinc = new finalCoincidences(treeICCoincidences->fChain);
-
-  //merge the realCoincidences TTree and the ICCCoincidences TTree
-  finalCoinc->MergeTTrees(treerealCoincidences, ComptonRealCoincidencesIDvector);
-  //write final TTree on file
-  std::string outFile = "compt" + inputfilename;
-  TFile* fOut = new TFile(outFile.c_str(),"recreate");
-  finalCoinc->fChain->Write();
-
-
-
-  return 0;
-}
