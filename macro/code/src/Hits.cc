@@ -54,7 +54,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    //////////////////////////////////////////////
 
    Long64_t nentries = fChain->GetEntries();
-   std::cout << "Number of Hits:\t" << nentries << std::endl;
+   //std::cout << "Number of Hits:\t" << nentries << std::endl;
 
    //stdvector of struct for each event
    std::vector<Hits::Event> events_vector;
@@ -78,7 +78,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
 
    //set time window for coincidences
-   Double_t timeWindow = 6e-9; //seconds
+   Double_t timeWindow = 125e-9; //seconds
    //set max time
    //HARDCODING but way out the range of possible times of arrival
    Double_t maxTime = 1000; //seconds
@@ -98,7 +98,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    /////////////// LOOP ON ENTRIES ///////////////
    ///////////////////////////////////////////////
 
-   std::cout << "Loop on entries" << std::endl;
+   //std::cout << "Loop on entries" << std::endl;
 
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++)
@@ -199,12 +199,12 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
       //set variable for the next entry
       previousEventID = eventID;
 
-      int perc = ((100*jentry)/nentries); //should strictly have not decimal part, written like this...
+      /*int perc = ((100*jentry)/nentries); //should strictly have not decimal part, written like this...
       if( (perc % 10) == 0 )
       {
         std::cout << "\r";
         std::cout << perc << "% done... ";
-      }
+      }*/
    }
 
 
@@ -215,7 +215,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    /////////////// LOOP ON INTER-CRYSTALS COMPTON EVENTS //////////////
    ////////////////////////////////////////////////////////////////////
 
-   std::cout << "Loop on inter-crystals compton events" << std::endl;
+   //std::cout << "Loop on inter-crystals compton events" << std::endl;
 
 
    for (Long64_t i=0; i<ICcomptonEvents_vector.size(); i++)
@@ -477,8 +477,8 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    /////////////////////////////////////////////////////
 
 
-   std::cout << "Number of Hits events: " << counterEvents << std::endl;
-   std::cout << "Number of inter-crystals Compton events: " << counterICCompton << std::endl;
+   //std::cout << "Number of Hits events: " << counterEvents << std::endl;
+   //std::cout << "Number of inter-crystals Compton events: " << counterICCompton << std::endl;
 
    return coincidences_vector;
 

@@ -256,7 +256,7 @@ void realCoincidences::Init(TTree *tree)
    fChain->SetBranchAddress("RayleighVolName2", RayleighVolName2, &b_RayleighVolName2);
    Notify();
 
-   fChain->SetBranchStatus("*", 0);
+   /*fChain->SetBranchStatus("*", 0);
    fChain->SetBranchStatus("eventID1", 1);
    fChain->SetBranchStatus("eventID2", 1);
    fChain->SetBranchStatus("rotationAngle", 1);
@@ -271,7 +271,7 @@ void realCoincidences::Init(TTree *tree)
    fChain->SetBranchStatus("globalPosX1", 1);
    fChain->SetBranchStatus("globalPosX2", 1);
    fChain->SetBranchStatus("globalPosY1", 1);
-   fChain->SetBranchStatus("globalPosY2", 1);
+   fChain->SetBranchStatus("globalPosY2", 1);*/
 
 }
 

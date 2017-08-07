@@ -17,7 +17,7 @@ void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<H
   //0 if correct coincidence, 1 if incorrect coincidence
   bool index = 0;
 
-  std::cout << "Number of added realCoincidences: " << cvector.size() << std::endl;
+  //std::cout << "Number of added realCoincidences: " << cvector.size() << std::endl;
   Int_t x = round(percentage * cvector.size() / 100.);
 
   for(Long64_t i=0; i<cvector.size(); i++)
@@ -26,21 +26,21 @@ void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<H
     else index = 0;
 
     //fill the thing using default values for useless, and cvector values for useful
-    rotationAngle = (cvector.at(i)).at(0).rotationAngle;
-    eventID1 = (cvector.at(i)).at(0).eventID1;
-    energy1 = (cvector.at(i)).at(0).energy1;
-    globalPosX1 = (cvector.at(i)).at(0).globalPosX1;
-    globalPosY1 = (cvector.at(i)).at(0).globalPosY1;
-    crystalID1 = (cvector.at(i)).at(0).crystalID1;
-    comptonPhantom1 = (cvector.at(i)).at(0).comptonPhantom1;
-    eventID2 = (cvector.at(i)).at(0).eventID2;
-    energy2 = (cvector.at(i)).at(0).energy2;
-    globalPosX2 = (cvector.at(i)).at(0).globalPosX2;
-    globalPosY2 = (cvector.at(i)).at(0).globalPosY2;
-    crystalID2 = (cvector.at(i)).at(0).crystalID2;
-    comptonPhantom2 = (cvector.at(i)).at(0).comptonPhantom2;
-    time1 = (cvector.at(i)).at(0).time1;
-    time2 = (cvector.at(i)).at(0).time2;
+    rotationAngle = (cvector.at(i)).at(index).rotationAngle;
+    eventID1 = (cvector.at(i)).at(index).eventID1;
+    energy1 = (cvector.at(i)).at(index).energy1;
+    globalPosX1 = (cvector.at(i)).at(index).globalPosX1;
+    globalPosY1 = (cvector.at(i)).at(index).globalPosY1;
+    crystalID1 = (cvector.at(i)).at(index).crystalID1;
+    comptonPhantom1 = (cvector.at(i)).at(index).comptonPhantom1;
+    eventID2 = (cvector.at(i)).at(index).eventID2;
+    energy2 = (cvector.at(i)).at(index).energy2;
+    globalPosX2 = (cvector.at(i)).at(index).globalPosX2;
+    globalPosY2 = (cvector.at(i)).at(index).globalPosY2;
+    crystalID2 = (cvector.at(i)).at(index).crystalID2;
+    comptonPhantom2 = (cvector.at(i)).at(index).comptonPhantom2;
+    time1 = (cvector.at(i)).at(index).time1;
+    time2 = (cvector.at(i)).at(index).time2;
 
     //default values - not used in recostruction
     runID = 0;

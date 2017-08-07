@@ -19,8 +19,6 @@ import sys
 
 #threshold for minimum single energy deposited
 single_edep_min = 0.065
-#percentage of correct compton predictions
-percentage = 100
 #path to out.root files
 path = sys.argv[1]
 #name of program
@@ -31,17 +29,18 @@ def thread_func():
  while not queue.empty():
     parameter = queue.get()
     print(parameter)
-    subprocess.check_output([executable, parameter, str(single_edep_min), str(percentage)]) # call subprocess
+    subprocess.call([executable, parameter, str(single_edep_min)]) # chiamo il subprocess
+    print("finished process " + parameter)
 
 
 queue = Queue()
 for filename in os.listdir(path):
     #files in directory which contain out but don't contain compt
-    if os.path.isfile(os.path.join(path,filename)) and 'out' in filename and 'compt' not in filename:
+    if os.path.isfile(os.path.join(path,filename)) and 'out' in filename and 'compt' not in filename and 'original' not in filename:
         queue.put(filename) #add filename in queue
 
 
-NUM_THREADS = 4
+NUM_THREADS = 10
 threads = []
 for i in range(NUM_THREADS): # create 4 threads
     new_thread = Thread(target=thread_func) # each thread executes thread_func

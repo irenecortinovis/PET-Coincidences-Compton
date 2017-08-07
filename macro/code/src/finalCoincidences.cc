@@ -1,16 +1,24 @@
 #include "../include/finalCoincidences.h"
 
+#include <sstream>
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
 #include <math.h>
 
-void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID)
+void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, std::string inputfilename, Float_t percentage)
 {
+  //create TFile for final output file
+  std::ostringstream ss;
+  ss << percentage;
+  std::string percentage_string(ss.str());
+  std::string outFile = "compt_" + percentage_string + inputfilename;
+  fOut = new TFile(outFile.c_str(),"recreate");
+
   Long64_t ientry;
   //loop on entries of the original real coincidences, add event if new eventID
   Long64_t nentries = realCoincidences_obj->fChain->GetEntries();
-  std::cout << "Number of original realCoincidences: " << nentries << std::endl;
+  //std::cout << "Number of original realCoincidences: " << nentries << std::endl;
 
   /*DEBUGGING
   std::cout << "B Number of added realCoincidences: " << v_comptID.size() << std::endl;
@@ -75,16 +83,20 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
     }
 
 
-    int perc = ((100*jentry)/nentries); //should strictly have not decimal part, written like this...
+    /*int perc = ((100*jentry)/nentries); //should strictly have not decimal part, written like this...
     if( (perc % 10) == 0 )
     {
       std::cout << "\r";
       std::cout << perc << "% done... ";
-    }
+    }*/
 
   }
 
-  std::cout << "C Number of final ttree entries: " << fChain->GetEntries() << std::endl;
+  fOut->CurrentFile();
+  fChain->Write();
+  fOut->Close();
+
+  //std::cout << "C Number of final ttree entries: " << fChain->GetEntries() << std::endl;
 
 
   return;
