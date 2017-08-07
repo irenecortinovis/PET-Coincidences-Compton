@@ -10,13 +10,11 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
   Long64_t ientry;
   //loop on entries of the original real coincidences, add event if new eventID
   Long64_t nentries = realCoincidences_obj->fChain->GetEntries();
+  std::cout << "Number of original realCoincidences: " << nentries << std::endl;
 
-  //create index on branch eventID1 for the two trees
-  //Long64_t index_entries_real = realCoincidences_obj->fChain->BuildIndex("eventID1");
-  //Long64_t index_entries_final = fChain->BuildIndex("eventID1");
-
-  std::cout << "Number of original realCoincidences: "	<< nentries << std::endl;
-
+  /*DEBUGGING
+  std::cout << "B Number of added realCoincidences: " << v_comptID.size() << std::endl;
+  std::cout << "C Number of cloned ttree entries: " << fChain->GetEntries() << std::endl;*/
   for(Long64_t jentry=0; jentry < nentries; jentry++)
   {
     ientry = realCoincidences_obj->fChain->GetEntry(jentry);
@@ -76,6 +74,7 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
       fChain->Fill();
     }
 
+
     int perc = ((100*jentry)/nentries); //should strictly have not decimal part, written like this...
     if( (perc % 10) == 0 )
     {
@@ -84,6 +83,9 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
     }
 
   }
+
+  std::cout << "C Number of final ttree entries: " << fChain->GetEntries() << std::endl;
+
 
   return;
 }
