@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <iostream>
+#include <iomanip>
 
 // Header file for the classes stored in the TTree if any.
 
@@ -118,6 +119,7 @@ public :
      Float_t                      rotationAngle;
      Int_t                        ndiffCrystals0;
      Int_t                        ndiffCrystals1;
+     std::vector<bool>            v_diffCrystal;
    };
 
 
@@ -157,7 +159,7 @@ public :
    virtual void     Show(Long64_t entry = -1);
    virtual void     PrintEvent(Event this_event);
    virtual bool     ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Float_t single_edep_min);
-   virtual bool     isDiffCrystal(Event this_event, Int_t crystalID);
+   virtual bool     isDiffCrystal(Event this_event, Int_t crystalID, Int_t rsectorID, Float_t single_edep_min);
 
 
 
@@ -332,7 +334,7 @@ void Hits::PrintEvent(Event this_event)
     std::cout << this_event.v_edep.at(i) << "\t";
   std::cout << "\nv_time ";
   for(int i=0; i<this_event.v_time.size(); i++)
-    std::cout << this_event.v_time.at(i) << "\t";
+    std::cout << std::setprecision(15) << this_event.v_time.at(i) << "\t";
   std::cout << "\nv_crystalID ";
   for(int i=0; i<this_event.v_crystalID.size(); i++)
     std::cout << this_event.v_crystalID.at(i) << "\t";
@@ -351,6 +353,10 @@ void Hits::PrintEvent(Event this_event)
   std::cout << "\nv_posY ";
   for(int i=0; i<this_event.v_posY.size(); i++)
     std::cout << this_event.v_posY.at(i) << "\t";
+  std::cout << "\nv_diffCrystal ";
+  for(int i=0; i<this_event.v_diffCrystal.size(); i++)
+    std::cout << this_event.v_diffCrystal.at(i) << "\t";
+
   std::cout << std::endl;
 }
 

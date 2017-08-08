@@ -28,14 +28,17 @@ bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t ede
 
 //compare crystalID with ones in the same event
 //to see if the gamma hits a new crystal
-bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID)
+bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorID, Float_t single_edep_min)
 {
   bool isDiffCrystal = true;
   //loop to compare with all crystalIDs in the event (except the last one)
   for(int i=0; i<(this_event.v_crystalID).size()-1; i++)
   {
-    if (crystalID == (this_event.v_crystalID).at(i))
-      isDiffCrystal = false;
+    if(rsectorID == (this_event.v_rsectorID).at(i) && ComptonFilter((this_event.v_processName).at(i).c_str(), (this_event.v_PDGEncoding).at(i), (this_event.v_edep).at(i), single_edep_min) )
+    {
+      if (crystalID == (this_event.v_crystalID).at(i))
+        isDiffCrystal = false;
+    }
   }
   return isDiffCrystal;
 }
@@ -60,6 +63,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    std::vector<Hits::Event> events_vector;
    //size of events_vector
    Long64_t size = events_vector.size();
+   Int_t sizeEvent;
    //stdvector of IDs of inter-crystals compton events in events_vector
    std::vector<Int_t> ICcomptonEvents_vector;
 
@@ -132,6 +136,10 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
       ((events_vector.at(size)).v_posX).push_back(posX);
       ((events_vector.at(size)).v_posY).push_back(posY);
       ((events_vector.at(size)).rotationAngle) = rotationAngle;
+      ((events_vector.at(size)).v_diffCrystal).push_back(false);
+
+      sizeEvent = ((events_vector.at(size)).v_diffCrystal).size();
+
 
 
 
@@ -143,13 +151,21 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
        {
          if(rsectorID == 0)
          {
-         //increase number of different crystals if it is a new crystalID
-         ((events_vector.at(size)).ndiffCrystals0) += isDiffCrystal(events_vector.at(size), crystalID);
+           //increase number of different crystals if it is a new crystalID
+           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, single_edep_min))
+           {
+             ((events_vector.at(size)).v_diffCrystal).at(sizeEvent-1) = true;
+             ((events_vector.at(size)).ndiffCrystals0) ++;
+           }
          }
          else if(rsectorID == 1)
          {
-         //increase number of different crystals if it is a new crystalID
-         ((events_vector.at(size)).ndiffCrystals1) += isDiffCrystal(events_vector.at(size), crystalID);
+           //increase number of different crystals if it is a new crystalID
+           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, single_edep_min))
+           {
+             ((events_vector.at(size)).v_diffCrystal).at(sizeEvent-1) = true;
+             ((events_vector.at(size)).ndiffCrystals1) ++;
+           }
          }
        }
 
@@ -158,6 +174,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
       if(previousEventID != eventID && previousEventID != -1)
       {
         counterEvents ++;
+
 
         //inter-crystals compton check
         isInterCrystal = false;
@@ -216,6 +233,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    ////////////////////////////////////////////////////////////////////
 
    //std::cout << "Loop on inter-crystals compton events" << std::endl;
+
+   //DEBUGGING
+   Int_t errCoincidences = 0;
 
 
    for (Long64_t i=0; i<ICcomptonEvents_vector.size(); i++)
@@ -320,8 +340,10 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
          && (fabs(minTime2 - minTime1) <= timeWindow)
          && (this_coincidence.totenergy1 < maxTotEnergy && this_coincidence.totenergy1 > minTotEnergy)
          && (this_coincidence.totenergy2 < maxTotEnergy && this_coincidence.totenergy2 > minTotEnergy)
-         && ((ICCevent.v_edep).at(min_i1) > single_edep_min) && ((ICCevent.v_edep).at(min_i2) > single_edep_min))
+         && ((ICCevent.v_edep).at(min_i1) > single_edep_min) && ((ICCevent.v_edep).at(min_i2) > single_edep_min)
+         && ((ICCevent.v_PDGEncoding).at(min_i1) == 22) && ((ICCevent.v_PDGEncoding).at(min_i2) == 22))
        {
+
          //////////////////////////////////////////////////////////////////////
          //   PREPARE THE INCORRECT COINCIDENCE (I.E. SECOND INTERACTION)    //
          //////////////////////////////////////////////////////////////////////
@@ -346,6 +368,8 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
          Double_t t2_minTime2 = maxTime;
          Int_t t2_min_i1 = -1;
          Int_t t2_min_i2 = -1;
+
+
          //if there are 2 interactions in 2 different crystals in rsector 0
          if(ICCevent.ndiffCrystals0 == 2)
          {
@@ -384,8 +408,17 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
              this_coincidence_incorrect.globalPosY2 = (ICCevent.v_posY).at(min_i2);
 
              if((t2_minTime1 != maxTime && minTime2 != maxTime)
-             && (fabs(minTime2 - t2_minTime1) <= timeWindow))
+             && (fabs(minTime2 - t2_minTime1) <= timeWindow)
+             && ((ICCevent.v_diffCrystal).at(min_i1) == true && (ICCevent.v_diffCrystal).at(min_i2) == true && (ICCevent.v_diffCrystal).at(t2_min_i1) == true))
              {
+               /*//DEBUGGING
+               if((ICCevent.v_diffCrystal).at(min_i1) == false || (ICCevent.v_diffCrystal).at(min_i2) == false || (ICCevent.v_diffCrystal).at(t2_min_i1) == false)
+               {
+                 errCoincidences++;
+                 PrintEvent(ICCevent);
+                 std::cout << "min_i1\t" << min_i1 << "\nmin_i2\t" << min_i2 << "\nt2_min_i1\t" << t2_min_i1 << std::endl;
+               }*/
+
                //prepair pair of CoincidenceEvent
                std::vector<CoincidenceEvent> coincidences_pair;
 
@@ -404,7 +437,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
          }
 
          //if there is only 1 different crystal in rsector 0
-         //which means that there are 2 interactions in 2 different crystals in rsector 0
+         //which means that there are 2 interactions in 2 different crystals in rsector 1
          else if(ICCevent.ndiffCrystals0 == 1)
          {
            for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
@@ -439,7 +472,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
              this_coincidence_incorrect.globalPosY2 = (ICCevent.v_posY).at(t2_min_i2);
 
              if((minTime1 != maxTime && t2_minTime2 != maxTime)
-             && (fabs(t2_minTime2 - minTime1) <= timeWindow))
+             && (fabs(t2_minTime2 - minTime1) <= timeWindow)
+             && ((ICCevent.v_diffCrystal).at(min_i1) == true && (ICCevent.v_diffCrystal).at(min_i2) == true && (ICCevent.v_diffCrystal).at(t2_min_i2) == true))
+
              {
                /* //DEBUGGING
                for (int debug = 0; debug<ICCevent.v_rsectorID.size(); debug++)
@@ -450,7 +485,15 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
                }
                std::cout << "min1\t" << min_i1 << "\t" << std::setprecision(12) << minTime1 <<
                             "\nmin2\t" << min_i2 << "\t" << std::setprecision(12) << minTime2 <<
-                            "\nt2_min2\t" << t2_min_i2 << "\t" << std::setprecision(12) << t2_minTime2 << std::endl;*/
+                            "\nt2_min2\t" << t2_min_i2 << "\t" << std::setprecision(12) << t2_minTime2 << std::endl;
+
+               if((ICCevent.v_diffCrystal).at(min_i1) == false || (ICCevent.v_diffCrystal).at(min_i2) == false || (ICCevent.v_diffCrystal).at(t2_min_i2) == false)
+               {
+                 errCoincidences++;
+                 PrintEvent(ICCevent);
+                 std::cout << "min_i1\t" << min_i1 << "\nmin_i2\t" << min_i2 << "\nt2_min_i2\t" << t2_min_i2 << std::endl;
+
+               }*/
 
                //prepair pair of CoincidenceEvent
                std::vector<CoincidenceEvent> coincidences_pair;
@@ -471,6 +514,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
        }
      }
    }
+
+   //DEBUGGING
+   std::cout << " errCoincidences: " << errCoincidences  << std::endl;
 
    /////////////////////////////////////////////////////
    /////////////// PRINT OUT THE RESULTS ///////////////

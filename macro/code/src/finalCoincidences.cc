@@ -18,11 +18,11 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
   Long64_t ientry;
   //loop on entries of the original real coincidences, add event if new eventID
   Long64_t nentries = realCoincidences_obj->fChain->GetEntries();
-  //std::cout << "Number of original realCoincidences: " << nentries << std::endl;
+  std::cout << "Number of original realCoincidences: " << nentries << std::endl;
 
-  /*DEBUGGING
-  std::cout << "B Number of added realCoincidences: " << v_comptID.size() << std::endl;
-  std::cout << "C Number of cloned ttree entries: " << fChain->GetEntries() << std::endl;*/
+  //DEBUGGING
+  std::cout << "Number of added realCoincidences: " << v_comptID.size() << std::endl;
+  //std::cout << "C Number of cloned ttree entries: " << fChain->GetEntries() << std::endl;*/
   for(Long64_t jentry=0; jentry < nentries; jentry++)
   {
     ientry = realCoincidences_obj->fChain->GetEntry(jentry);
