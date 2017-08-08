@@ -4,11 +4,17 @@
 File contains ``Hits``, ``Singles`` and ``realCoincidences`` TTrees.
 
 **Output:**
-``.root`` file with ``realCoincidences`` TTree filled with inter-crystal Compton events coincidences.
+For each percentage of correct inter-crystal events predictions, create a ``.root`` file with ``realCoincidences`` TTree filled with
+
+  * inter-crystal Compton events coincidences, correct or incorrect, according to the percentage
+
+  * the original realCoincidences which are not inter-crystal.
+
+If needed, to save space, it is possible to delete the original file and only save its realCoincidences TTree.
 
 
 
-The **aim** is to add the new ``realCoincidences`` to the original ones, analyse them with the reconstruction algorithm and see the impact on spatial resolution and sensitivity of the reconstructed image of the source.
+The **aim** is to add the new ``realCoincidences`` to the original ones, analyse them with the reconstruction algorithm and see the impact on spatial resolution and sensitivity of the reconstructed image of the source, varying the percentage of correct inter-crystal predictions.
 
 
 
@@ -18,9 +24,10 @@ The **aim** is to add the new ``realCoincidences`` to the original ones, analyse
 
 *Find new coincidences with inter-crystals Compton effect, analysing the* ``Hits`` *TTree*.
 
+
 **``ICCoincidences::FillICCompton``**
 
-*Fill a new* ``realCoincidences`` *TTree with the inter-crystals compton coincidences found in* ``FindICcoincidences``.
+*Fill a new* ``realCoincidences`` *TTree with the inter-crystals compton coincidences found in* ``FindICcoincidences``, according to the percentage.
 
 **``finalCoincidences::MergeTTrees``**
 
@@ -42,12 +49,12 @@ Struct ``CoincidenceEvent`` contains all the info needed to the reconstruction a
 
 **Loop on entries (****Hits****):**
 
-ANALYSE A SINGLE ``HIT``
+ANALYSE A SINGLE HIT
 * Pushback a new struct ``Event`` if the Hit has a new eventID
 
 * Pushback current ``Hit`` info to the vectors in the struct of the current event
 
-* Increase number of different crystals in each rsector if
+* Increase number of different crystals hit in each rsector in the current event if all conditions apply:
 
     * processName is compton OR photoelectric
 
@@ -55,7 +62,8 @@ ANALYSE A SINGLE ``HIT``
 
     * energy deposited is > threshold
 
-    * Nnw crystalID in the event
+    * crystalID is new amongst the hits in the same event which satisfied the conditions before
+
 
 ANALYSE A FINISHED EVENT
 
@@ -79,7 +87,7 @@ ANALYSE A FINISHED EVENT
 
     * N of Compton phantom
 
-    * Total energy deposited for each rsector
+    * Total energy deposited for each rsector (511 keV)
 
     * Find first interaction per sector and fill with
 
@@ -89,17 +97,19 @@ ANALYSE A FINISHED EVENT
 
         * Their X and Y positions
 
-* Fill another ``CoincidenceEvent`` struct (``this_coincidence_incorrect``) with the same info but for one of the two rsectors use info on second interaction (in different crystal, with energy deposited > threshold) instead of first, if, for ``this_coincidence``:
+* Fill another ``CoincidenceEvent`` struct (``this_coincidence_incorrect``) with the same info but for one of the two rsectors use info on second interaction (in different crystal, with energy deposited > threshold) instead of first.
+
+* Check whether for both ``this_coincidence`` and ``this_coincidence_incorrect``:
 
     * Difference of times of interaction is < timeWindow
 
     * Total energy deposited in each rsector is 0.511 +- sigma
 
-    * Energy deposited in first interaction in each rsector is > threshold
+    * The energy depositions considered in the coincidence had increased the number of crystals hit in rsector (see filters before)
 
-* Pushback ``this_coincidence`` struct to ``coincidences_vector`` and ``this_coincidence_incorrect`` struct to ``incorrect_coincidences_vector`` if ``this_coincidence_incorrect`` satisfies the same conditions just stated before
+* If so, pushback ``this_coincidence`` struct to ``coincidences_vector`` and ``this_coincidence_incorrect`` struct to ``incorrect_coincidences_vector``
 
-* Pushback the eventID in the eventIDs vector
+* Pushback eventID in the eventIDs vector
 
 
 
