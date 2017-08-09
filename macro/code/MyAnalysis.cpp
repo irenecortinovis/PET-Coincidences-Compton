@@ -54,7 +54,7 @@ int main(int argc, char const *argv[])
   std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = Hits_obj->FindICcoincidences(single_edep_min, &ComptonRealCoincidencesIDvector);
 
   //percentage of correct compton predictions vector
-  static const Float_t perc_arr[] = {100};
+  static const Float_t perc_arr[] = {40,50,60,70,80,90,100};
   std::vector<Float_t> percentage_vector (perc_arr, perc_arr + sizeof(perc_arr) / sizeof(perc_arr[0]) );
   Float_t percentage;
 
@@ -67,12 +67,23 @@ int main(int argc, char const *argv[])
     //Fill realCoincidences-like tree with the inter-crystals compton coincidences
     ICCoincidences_obj->FillICCompton(percentage, coincidences_vector);
 
+    //create TFile for final output file
+    std::ostringstream ss;
+    ss << percentage;
+    std::string percentage_string(ss.str());
+    std::string outFile = "compt_" + percentage_string + inputfilename;
+    TFile* fOut = new TFile(outFile.c_str(),"recreate");
+
     //instantiate finalCoincidences object
     finalCoincidences* finalCoincidences_obj = new finalCoincidences(ICCoincidences_obj->fChain);
     //merge the original realCoincidences TTree and the ICCCoincidences TTree, priority to inter-crystals events
-    finalCoincidences_obj->MergeTTrees(realCoincidences_obj, ComptonRealCoincidencesIDvector, inputfilename, percentage);
-  }
+    finalCoincidences_obj->MergeTTrees(realCoincidences_obj, ComptonRealCoincidencesIDvector, fOut);
 
+    fOut->Close();
+
+    delete ICCoincidences_obj;
+    delete finalCoincidences_obj;
+  }
 
   //save only realCoincidences TTree from original file
   std::string realoutFile = "original_" + inputfilename;
@@ -89,6 +100,14 @@ int main(int argc, char const *argv[])
   else
     puts( "File successfully deleted" );
   */
+
+  ComptonRealCoincidencesIDvector.clear();
+  coincidences_vector.clear();
+  percentage_vector.clear();
+
+
+  delete Hits_obj;
+  delete realCoincidences_obj;
 
   return 0;
 }

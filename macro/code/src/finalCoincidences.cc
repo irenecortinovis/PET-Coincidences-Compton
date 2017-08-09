@@ -1,20 +1,12 @@
 #include "../include/finalCoincidences.h"
 
-#include <sstream>
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
 #include <math.h>
 
-void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, std::string inputfilename, Float_t percentage)
+void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, TFile* fOut)
 {
-  //create TFile for final output file
-  std::ostringstream ss;
-  ss << percentage;
-  std::string percentage_string(ss.str());
-  std::string outFile = "compt_" + percentage_string + inputfilename;
-  fOut = new TFile(outFile.c_str(),"recreate");
-
   Long64_t ientry;
   //loop on entries of the original real coincidences, add event if new eventID
   Long64_t nentries = realCoincidences_obj->fChain->GetEntries();
@@ -94,7 +86,6 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
 
   fOut->CurrentFile();
   fChain->Write();
-  fOut->Close();
 
   //std::cout << "C Number of final ttree entries: " << fChain->GetEntries() << std::endl;
 

@@ -516,7 +516,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    }
 
    //DEBUGGING
-   std::cout << " errCoincidences: " << errCoincidences  << std::endl;
+   //std::cout << " errCoincidences: " << errCoincidences  << std::endl;
 
    /////////////////////////////////////////////////////
    /////////////// PRINT OUT THE RESULTS ///////////////

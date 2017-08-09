@@ -2,6 +2,7 @@
 #define finalCoincidences_h
 
 #include <string>
+#include <sstream>
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -12,7 +13,7 @@
 
 class finalCoincidences {
 public :
-   TFile          *fOut;
+   //TFile          *fOut;
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -73,7 +74,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, std::string inputfilename, Float_t percentage);
+   virtual void     MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, TFile* fOut);
 
 };
 
@@ -85,8 +86,8 @@ public :
 #ifdef finalCoincidences_cxx
 finalCoincidences::finalCoincidences(TTree *tree_to_clone) : fChain(0)
 {
-   TTree * tree = tree_to_clone->CloneTree();
-   Init(tree);
+  TTree * tree = tree_to_clone->CloneTree();
+  Init(tree);
 }
 
 finalCoincidences::~finalCoincidences()

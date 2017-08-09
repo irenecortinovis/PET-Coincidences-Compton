@@ -17,7 +17,7 @@ Outputs TTrees with the inter-crystals coincidences events (correct predictions 
 To compile: <br>
 ``g++ -o MyAnalysis ../code/MyAnalysis.cpp `root-config --cflags --glibs` `` <br>
 To run: <br>
-`` ./MyAnalysis path_to_filename.root single_edep_min percentage``
+`` ./MyAnalysis path_to_filename.root single_edep_min``
 <br>
 (optimal single_edep_min: 0.065 MeV)
 
