@@ -112,6 +112,7 @@ public :
      std::vector<Int_t>           v_crystalID;
      std::vector<Int_t>           v_rsectorID;
      std::vector<std::string>     v_processName;
+     std::vector<Int_t>           v_trackID;
      std::vector<Int_t>           v_nPhantomCompton;
      std::vector<Float_t>         v_posX;
      std::vector<Float_t>         v_posY;
@@ -119,7 +120,8 @@ public :
      Float_t                      rotationAngle;
      Int_t                        ndiffCrystals0;
      Int_t                        ndiffCrystals1;
-     std::vector<bool>            v_diffCrystal;
+     std::vector<Int_t>           v_diffCrystal0;
+     std::vector<Int_t>           v_diffCrystal1;
    };
 
 
@@ -278,6 +280,7 @@ void Hits::Init(TTree *tree)
 
    fChain->SetBranchStatus("*", 0);
    fChain->SetBranchStatus("PDGEncoding", 1);
+   fChain->SetBranchStatus("trackID", 1);
    fChain->SetBranchStatus("time", 1);
    fChain->SetBranchStatus("edep", 1);
    fChain->SetBranchStatus("posX", 1);
@@ -326,36 +329,42 @@ void Hits::PrintEvent(Event this_event)
                "\nndiffCrystals in rsector 0 " << this_event.ndiffCrystals0 <<
                "\nndiffCrystals in rsector 1 " << this_event.ndiffCrystals1;
 
-  std::cout << "\nv_PDGEncoding ";
+  std::cout << "\nv_PDGEncoding\t";
   for(int i=0; i<this_event.v_PDGEncoding.size(); i++)
     std::cout << this_event.v_PDGEncoding.at(i) << "\t";
-  std::cout << "\nv_edep ";
+  std::cout << "\nv_edep\t\t";
   for(int i=0; i<this_event.v_edep.size(); i++)
     std::cout << this_event.v_edep.at(i) << "\t";
-  std::cout << "\nv_time ";
+  std::cout << "\nv_time\t\t";
   for(int i=0; i<this_event.v_time.size(); i++)
     std::cout << std::setprecision(15) << this_event.v_time.at(i) << "\t";
-  std::cout << "\nv_crystalID ";
+  std::cout << "\nv_crystalID\t";
   for(int i=0; i<this_event.v_crystalID.size(); i++)
     std::cout << this_event.v_crystalID.at(i) << "\t";
-  std::cout << "\nv_rsectorID ";
+  std::cout << "\nv_rsectorID\t";
   for(int i=0; i<this_event.v_rsectorID.size(); i++)
     std::cout << this_event.v_rsectorID.at(i) << "\t";
-  std::cout << "\nv_processName ";
+  std::cout << "\nv_processName\t";
   for(int i=0; i<this_event.v_processName.size(); i++)
     std::cout << this_event.v_processName.at(i) << "\t";
-  std::cout << "\nv_nPhantomCompton ";
+  std::cout << "\nv_trackID\t";
+  for(int i=0; i<this_event.v_trackID.size(); i++)
+    std::cout << this_event.v_trackID.at(i) << "\t";
+  std::cout << "\nv_nPhantomCompton\t";
   for(int i=0; i<this_event.v_nPhantomCompton.size(); i++)
     std::cout << this_event.v_nPhantomCompton.at(i) << "\t";
-  std::cout << "\nv_posX ";
+  std::cout << "\nv_posX\t";
   for(int i=0; i<this_event.v_posX.size(); i++)
     std::cout << this_event.v_posX.at(i) << "\t";
-  std::cout << "\nv_posY ";
+  std::cout << "\nv_posY\t";
   for(int i=0; i<this_event.v_posY.size(); i++)
     std::cout << this_event.v_posY.at(i) << "\t";
-  std::cout << "\nv_diffCrystal ";
-  for(int i=0; i<this_event.v_diffCrystal.size(); i++)
-    std::cout << this_event.v_diffCrystal.at(i) << "\t";
+  std::cout << "\nv_diffCrystal0\t";
+  for(int i=0; i<this_event.v_diffCrystal0.size(); i++)
+    std::cout << this_event.v_diffCrystal0.at(i) << "\t";
+  std::cout << "\nv_diffCrystal1\t";
+  for(int i=0; i<this_event.v_diffCrystal1.size(); i++)
+    std::cout << this_event.v_diffCrystal1.at(i) << "\t";
 
   std::cout << std::endl;
 }
