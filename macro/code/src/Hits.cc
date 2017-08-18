@@ -198,21 +198,25 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
         //processName compton && photoelectric check
         isComptonProcess = false;
         isPhotoelectricProcess = false;
-        for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
+        if(isInterCrystal == true)
         {
-          //cut on energy as in ndiffCrystals count
-          if((events_vector.at(size-1)).v_edep.at(k) > single_edep_min
-              && (events_vector.at(size-1)).v_PDGEncoding.at(k) == 22)
+          for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
           {
-            if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
-            {isComptonProcess = true;}
+            if((events_vector.at(size-1).v_rsectorID.at(k) == 0
+              && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end()))
+             ||(events_vector.at(size-1).v_rsectorID.at(k) == 1
+              && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end())))
+            {
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
+              {isComptonProcess = true;}
 
-            if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
-            {isPhotoelectricProcess = true;}
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
+              {isPhotoelectricProcess = true;}
+            }
           }
         }
 
-        if (isInterCrystal && isComptonProcess && isPhotoelectricProcess)
+        if (isComptonProcess && isPhotoelectricProcess)
         {
           counterICCompton ++;
           ICcomptonEvents_vector.push_back(size-1);
@@ -291,7 +295,6 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
 
      //find first interaction per sector
-     //TODO check if compton?
      Double_t minTime1 = maxTime;
      Double_t minTime2 = maxTime;
      Int_t min_i1 = -1;
