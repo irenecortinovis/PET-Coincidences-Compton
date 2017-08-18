@@ -10,7 +10,7 @@
 
 
 //function that filters event by processName and PDGEncoding
-bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep, Float_t single_edep_min)
+bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep)
 {
   bool isComptonOrPhotoelectric = false;
 
@@ -18,7 +18,7 @@ bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t ede
     {isComptonOrPhotoelectric = true;}
 
   //filter gamma rays, compton and photoelectric
-  if(isComptonOrPhotoelectric == true && PDGEncoding == 22 && edep > single_edep_min)
+  if(isComptonOrPhotoelectric == true && PDGEncoding == 22 && edep > 0)
     {return true;}
   else
     {return false;}
@@ -28,18 +28,33 @@ bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t ede
 
 //compare crystalID with ones in the same event
 //to see if the gamma hits a new crystal
+//only executed if ComptonFilter is true (be careful: no energy threshold on ComptonFilter)
 bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorID, Float_t single_edep_min)
 {
   bool isDiffCrystal = true;
-  //loop to compare with all crystalIDs in the event (except the last one)
-  for(int i=0; i<(this_event.v_crystalID).size()-1; i++)
+
+  //find crystalID in diffCrystal in rsector 0 and 1
+  if(rsectorID == 0)
   {
-    if(rsectorID == (this_event.v_rsectorID).at(i) && ComptonFilter((this_event.v_processName).at(i).c_str(), (this_event.v_PDGEncoding).at(i), (this_event.v_edep).at(i), single_edep_min) )
-    {
-      if (crystalID == (this_event.v_crystalID).at(i))
-        isDiffCrystal = false;
-    }
+    if(find ((this_event.v_diffCrystal0).begin(), (this_event.v_diffCrystal0).end(), crystalID) != (this_event.v_diffCrystal0).end())
+    isDiffCrystal = false;
   }
+  else if(rsectorID == 1)
+  {
+    if(find ((this_event.v_diffCrystal1).begin(), (this_event.v_diffCrystal1).end(), crystalID) != (this_event.v_diffCrystal1).end())
+    isDiffCrystal = false;
+  }
+
+  //if sum energy in crystal so far is < single_edep_min
+  Float_t edep_in_crystal = 0;
+  for(int i=0; i<(this_event.v_edep).size(); i++)
+  {
+    if((this_event.v_rsectorID).at(i) == rsectorID && (this_event.v_crystalID).at(i) == crystalID)
+      edep_in_crystal +=  (this_event.v_edep).at(i);
+  }
+  if(edep_in_crystal < single_edep_min)
+    isDiffCrystal = false;
+
   return isDiffCrystal;
 }
 
@@ -143,7 +158,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
       /////////////// FILTER FOR POSSIBLE INTER CRYSTAL COMPTON ///////////////
       //filter by processName, gamma, energy deposited
-      if(ComptonFilter(processName, PDGEncoding, edep, single_edep_min) == true)
+      if(ComptonFilter(processName, PDGEncoding, edep) == true)
       {
          if(rsectorID == 0)
          {
@@ -399,12 +414,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
              if((t2_minTime1 != maxTime && minTime2 != maxTime)
              && (fabs(minTime2 - t2_minTime1) <= timeWindow)
-             && ((std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(min_i1))) != (ICCevent.v_diffCrystal0).end())
-              || (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(min_i1))) != (ICCevent.v_diffCrystal1).end()))
-             && ((std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(min_i2))) != (ICCevent.v_diffCrystal0).end())
-              || (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(min_i2))) != (ICCevent.v_diffCrystal1).end()))
-             && ((std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(t2_min_i1))) != (ICCevent.v_diffCrystal0).end())
-              || (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(t2_min_i1))) != (ICCevent.v_diffCrystal1).end())))
+             && (std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(min_i1))) != (ICCevent.v_diffCrystal0).end())
+             && (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(min_i2))) != (ICCevent.v_diffCrystal1).end())
+             && (std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(t2_min_i1))) != (ICCevent.v_diffCrystal0).end()))
              {
                //prepair pair of CoincidenceEvent
                std::vector<CoincidenceEvent> coincidences_pair;
@@ -460,13 +472,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
              if((minTime1 != maxTime && t2_minTime2 != maxTime)
              && (fabs(t2_minTime2 - minTime1) <= timeWindow)
-             && ((std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(min_i1))) != (ICCevent.v_diffCrystal0).end())
-              || (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(min_i1))) != (ICCevent.v_diffCrystal1).end()))
-             && ((std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(min_i2))) != (ICCevent.v_diffCrystal0).end())
-              || (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(min_i2))) != (ICCevent.v_diffCrystal1).end()))
-             && ((std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(t2_min_i2))) != (ICCevent.v_diffCrystal0).end())
-              || (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(t2_min_i2))) != (ICCevent.v_diffCrystal1).end())))
-
+             && (std::find((ICCevent.v_diffCrystal0).begin(), (ICCevent.v_diffCrystal0).end(), ((ICCevent.v_crystalID).at(min_i1))) != (ICCevent.v_diffCrystal0).end())
+             && (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(min_i2))) != (ICCevent.v_diffCrystal1).end())
+             && (std::find((ICCevent.v_diffCrystal1).begin(), (ICCevent.v_diffCrystal1).end(), ((ICCevent.v_crystalID).at(t2_min_i2))) != (ICCevent.v_diffCrystal1).end()))
              {
                //prepair pair of CoincidenceEvent
                std::vector<CoincidenceEvent> coincidences_pair;
