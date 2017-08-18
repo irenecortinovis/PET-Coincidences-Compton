@@ -9,8 +9,8 @@
 
 
 
-//function that filters event by processName and PDGEncoding
-bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t edep)
+//function that filters event by processName edep>0
+bool Hits::ComptonFilter(const char* processName, Float_t edep)
 {
   bool isComptonOrPhotoelectric = false;
 
@@ -18,7 +18,7 @@ bool Hits::ComptonFilter(const char* processName, Int_t PDGEncoding, Float_t ede
     {isComptonOrPhotoelectric = true;}
 
   //filter gamma rays, compton and photoelectric
-  if(isComptonOrPhotoelectric == true && PDGEncoding == 22 && edep > 0)
+  if(isComptonOrPhotoelectric == true && edep > 0)
     {return true;}
   else
     {return false;}
@@ -161,7 +161,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
       /////////////// FILTER FOR POSSIBLE INTER CRYSTAL COMPTON ///////////////
       //filter by processName, gamma, energy deposited
-      if(ComptonFilter(processName, PDGEncoding, edep) == true)
+      if(ComptonFilter(processName, edep) == true)
       {
          if(rsectorID == 0)
          {
@@ -192,7 +192,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
         //inter-crystals compton check
         isInterCrystal0 = false;
         isInterCrystal1 = false;
-        
+
         if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
           isInterCrystal0 = true;
         else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
