@@ -4,8 +4,8 @@
 # @ Nikos Efthimiou
 ########################################
 
-/gate/physics/addPhysicsList QGSP_BERT_EMV
-/gate/physics/addPhysicsList emstandard
+#/gate/physics/addPhysicsList QGSP_BERT_EMV
+#/gate/physics/addPhysicsList emstandard
 
 
 /gate/physics/processList Enabled e+
@@ -42,6 +42,3 @@
 /gate/physics/processList Enabled GenericIon
 /gate/physics/addProcess RadioactiveDecay GenericIon
 #/gate/physics/addProcess SingleScattering GenericIon
-
-
-

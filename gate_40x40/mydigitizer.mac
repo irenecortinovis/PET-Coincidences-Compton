@@ -15,8 +15,8 @@
 /gate/digitizer/Coincidences/setInputName Singles
 /gate/digitizer/Coincidences/setWindow 6. ns
 /gate/digitizer/Coincidences/minSectorDifference 1
-#/gate/digitizer/Coincidences/MultiplesPolicy killAll
-/gate/digitizer/Coincidences/MultiplesPolicy takeAllGoods
+/gate/digitizer/Coincidences/MultiplesPolicy killAll
+#/gate/digitizer/Coincidences/MultiplesPolicy takeAllGoods
 
 /gate/digitizer/name realCoincidences
 /gate/digitizer/insert coincidenceChain
