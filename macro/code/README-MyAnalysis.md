@@ -58,22 +58,18 @@ ANALYSE A SINGLE HIT
 
     * processName is compton OR photoelectric
 
-    * PDGEncoding is gamma (22)
+    * energy deposited in crystal so far is > threshold
 
-    * energy deposited is > threshold
-
-    * crystalID is new amongst the hits in the same event which satisfied the conditions before
+    * crystal is not already counted as new crystal
 
 
 ANALYSE A FINISHED EVENT
 
-* When an event is finished, pushback its eventID in the ``ICcomptonEvents_vector`` if
+* When an event is finished, pushback its eventID in the ``ICcomptonEvents_vector`` if the event has
 
-    * When PDGEncoding == 22 and energy deposited is > threshold, the event has
+    * Exactly 2 different crystals in one rsector, and 1 or 2 in the other rsector
 
-        * Exactly 2 different crystals in at one rsector, and 1 or 2 in the other rsector
-
-        * processNames are Compton AND photoelectric
+    * processNames are Compton AND photoelectric in the rsector where the inter-crystal interaction happened
 
 ****Loop on inter-crystals compton events:****
 
