@@ -106,9 +106,12 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    Float_t maxTotEnergy = 0.65; //MeV
 
    //default values for a hit being inter crystal, compton, photoelectric process
-   bool isInterCrystal = false;
-   bool isComptonProcess = false;
-   bool isPhotoelectricProcess = false;
+   bool isInterCrystal0 = false;
+   bool isInterCrystal1 = false;
+   bool isComptonProcess0 = false;
+   bool isComptonProcess1 = false;
+   bool isPhotoelectricProcess0 = false;
+   bool isPhotoelectricProcess1 = false;
 
 
    ///////////////////////////////////////////////
@@ -187,42 +190,64 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
         counterEvents ++;
 
         //inter-crystals compton check
-        isInterCrystal = false;
-        if( (((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
-          || (((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
-          || (((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2)) )
+        isInterCrystal0 = false;
+        isInterCrystal1 = false;
+        
+        if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
+          isInterCrystal0 = true;
+        else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
+          isInterCrystal1 = true;
+        else if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
         {
-          isInterCrystal = true;
+          isInterCrystal0 = true;
+          isInterCrystal1 = true;
         }
 
+
         //processName compton && photoelectric check
-        isComptonProcess = false;
-        isPhotoelectricProcess = false;
-        if(isInterCrystal == true)
+        isComptonProcess0 = false;
+        isPhotoelectricProcess0 = false;
+        isComptonProcess1 = false;
+        isPhotoelectricProcess1 = false;
+
+        if(isInterCrystal0 == true)
         {
           for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
           {
-            if((events_vector.at(size-1).v_rsectorID.at(k) == 0
-              && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end()))
-             ||(events_vector.at(size-1).v_rsectorID.at(k) == 1
-              && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end())))
+            //check in ndiffCrystals0 if there are compton and photoelectric processNames
+            if((events_vector.at(size-1).v_rsectorID.at(k) == 0 && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end())))
             {
               if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
-              {isComptonProcess = true;}
+              {isComptonProcess0 = true;}
 
               if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
-              {isPhotoelectricProcess = true;}
+              {isPhotoelectricProcess0 = true;}
             }
           }
         }
 
-        if (isComptonProcess && isPhotoelectricProcess)
+        if(isInterCrystal1 == true)
+        {
+          for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
+          {
+            //check in ndiffCrystals0 if there are compton and photoelectric processNames
+            if((events_vector.at(size-1).v_rsectorID.at(k) == 1 && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end())))
+            {
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
+              {isComptonProcess1 = true;}
+
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
+              {isPhotoelectricProcess1 = true;}
+            }
+          }
+        }
+
+        if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1))
         {
           counterICCompton ++;
           ICcomptonEvents_vector.push_back(size-1);
         }
       }
-
 
       //set variable for the next entry
       previousEventID = eventID;
