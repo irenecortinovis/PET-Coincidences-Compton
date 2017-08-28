@@ -118,7 +118,8 @@ public :
      std::vector<Float_t>         v_posY;
      //vector Float?
      Float_t                      rotationAngle;
-     Int_t                        ndiffCrystals0;
+     Int_t                        ndiffRSectors;
+     Int_t                       ndiffCrystals0;
      Int_t                        ndiffCrystals1;
      std::vector<Int_t>           v_diffCrystal0;
      std::vector<Int_t>           v_diffCrystal1;

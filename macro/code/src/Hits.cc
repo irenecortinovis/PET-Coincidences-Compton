@@ -34,12 +34,12 @@ bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorI
   bool isDiffCrystal = true;
 
   //find crystalID in diffCrystal in rsector 0 and 1
-  if(rsectorID == 0)
+  if(rsectorID == this_event.v_rsectorID.at(0))
   {
     if(find ((this_event.v_diffCrystal0).begin(), (this_event.v_diffCrystal0).end(), crystalID) != (this_event.v_diffCrystal0).end())
     isDiffCrystal = false;
   }
-  else if(rsectorID == 1)
+  else
   {
     if(find ((this_event.v_diffCrystal1).begin(), (this_event.v_diffCrystal1).end(), crystalID) != (this_event.v_diffCrystal1).end())
     isDiffCrystal = false;
@@ -113,6 +113,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    bool isPhotoelectricProcess0 = false;
    bool isPhotoelectricProcess1 = false;
 
+   Int_t counter_more_rsectors = 0;
+
+
 
    ///////////////////////////////////////////////
    /////////////// LOOP ON ENTRIES ///////////////
@@ -134,6 +137,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
         Event this_event;
         this_event.ndiffCrystals0 = 0;
         this_event.ndiffCrystals1 = 0;
+        this_event.ndiffRSectors = 0;
         events_vector.push_back(this_event);
       }
 
@@ -146,9 +150,14 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
       ((events_vector.at(size)).v_time).push_back(time);
       ((events_vector.at(size)).v_edep).push_back(edep);
       ((events_vector.at(size)).v_crystalID).push_back(crystalID);
+
+      if(std::find(events_vector.at(size).v_rsectorID.begin(), events_vector.at(size).v_rsectorID.end(), rsectorID) == events_vector.at(size).v_rsectorID.end())
+        (events_vector.at(size)).ndiffRSectors++;
       ((events_vector.at(size)).v_rsectorID).push_back(rsectorID);
+
       std::string s_processName(processName);
       ((events_vector.at(size)).v_processName).push_back(s_processName);
+
       ((events_vector.at(size)).v_trackID).push_back(trackID);
       ((events_vector.at(size)).v_nPhantomCompton).push_back(nPhantomCompton);
       ((events_vector.at(size)).v_posX).push_back(posX);
@@ -161,24 +170,27 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
       /////////////// FILTER FOR POSSIBLE INTER CRYSTAL COMPTON ///////////////
       //filter by processName, gamma, energy deposited
-      if(ComptonFilter(processName, edep) == true)
+      if((events_vector.at(size)).ndiffRSectors <= 2)
       {
-         if(rsectorID == 0)
-         {
-           //increase number of different crystals if it is a new crystalID
-           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, energy_threshold))
+        if(ComptonFilter(processName, edep) == true)
+        {
+           if(rsectorID == ((events_vector.at(size)).v_rsectorID).at(0))
            {
-             ((events_vector.at(size)).v_diffCrystal0).push_back(crystalID);
-             ((events_vector.at(size)).ndiffCrystals0) ++;
+             //increase number of different crystals if it is a new crystalID
+             if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, energy_threshold))
+             {
+               ((events_vector.at(size)).v_diffCrystal0).push_back(crystalID);
+               ((events_vector.at(size)).ndiffCrystals0) ++;
+             }
            }
-         }
-         else if(rsectorID == 1)
-         {
-           //increase number of different crystals if it is a new crystalID
-           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, energy_threshold))
+           else
            {
-             ((events_vector.at(size)).v_diffCrystal1).push_back(crystalID);
-             ((events_vector.at(size)).ndiffCrystals1) ++;
+             //increase number of different crystals if it is a new crystalID
+             if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, energy_threshold))
+             {
+               ((events_vector.at(size)).v_diffCrystal1).push_back(crystalID);
+               ((events_vector.at(size)).ndiffCrystals1) ++;
+             }
            }
          }
        }
@@ -189,88 +201,97 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
       {
         counterEvents ++;
 
-        //inter-crystals compton check
-        isInterCrystal0 = false;
-        isInterCrystal1 = false;
+        if((events_vector.at(size)).ndiffRSectors > 2)
+          counter_more_rsectors++;
 
-        if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
-          isInterCrystal0 = true;
-        else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
-          isInterCrystal1 = true;
-        else if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
+        if((events_vector.at(size-1)).ndiffRSectors == 2)
         {
-          isInterCrystal0 = true;
-          isInterCrystal1 = true;
-        }
-        else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
-        {
-          Int_t counter_energy_ok = 0;
-          for(Int_t count=0; count<(events_vector.at(size-1).v_edep.size()); count++)
+
+          //inter-crystals compton check
+          isInterCrystal0 = false;
+          isInterCrystal1 = false;
+
+          if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
+            isInterCrystal0 = true;
+          else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
+            isInterCrystal1 = true;
+          else if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
           {
-            if(events_vector.at(size-1).v_edep.at(count) > 0.35 && events_vector.at(size-1).v_edep.at(count) < 0.65)
-            counter_energy_ok++;
+            isInterCrystal0 = true;
+            isInterCrystal1 = true;
           }
-          if(counter_energy_ok == 2)
-            monoIDsvector->push_back(previousEventID);
-        }
-
-        //processName compton && photoelectric check
-        isComptonProcess0 = false;
-        isPhotoelectricProcess0 = false;
-        isComptonProcess1 = false;
-        isPhotoelectricProcess1 = false;
-
-        if(isInterCrystal0 == true)
-        {
-          for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
+          else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
           {
-            //check in ndiffCrystals0 if there are compton and photoelectric processNames
-            if((events_vector.at(size-1).v_rsectorID.at(k) == 0
-              && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end())))
+            Int_t counter_energy_ok = 0;
+            for(Int_t count=0; count<(events_vector.at(size-1).v_edep.size()); count++)
             {
-              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
-              {isComptonProcess0 = true;}
+              if(events_vector.at(size-1).v_edep.at(count) > 0.35 && events_vector.at(size-1).v_edep.at(count) < 0.65)
+              counter_energy_ok++;
+            }
+            if(counter_energy_ok == 2)
+              monoIDsvector->push_back(previousEventID);
+          }
 
-              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
-              {isPhotoelectricProcess0 = true;}
+          //processName compton && photoelectric check
+          isComptonProcess0 = false;
+          isPhotoelectricProcess0 = false;
+          isComptonProcess1 = false;
+          isPhotoelectricProcess1 = false;
+
+          if(isInterCrystal0 == true)
+          {
+            for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
+            {
+              //check in ndiffCrystals0 if there are compton and photoelectric processNames
+              if(events_vector.at(size-1).v_rsectorID.at(k) == events_vector.at(size-1).v_rsectorID.at(0)
+                && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end()))
+              {
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
+                {isComptonProcess0 = true;}
+
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
+                {isPhotoelectricProcess0 = true;}
+              }
             }
           }
-        }
 
-        if(isInterCrystal1 == true)
-        {
-          for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
+          if(isInterCrystal1 == true)
           {
-            //check in ndiffCrystals0 if there are compton and photoelectric processNames
-            if((events_vector.at(size-1).v_rsectorID.at(k) == 1
-              && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end())))
+            for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
             {
-              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
-              {isComptonProcess1 = true;}
+              //check in ndiffCrystals0 if there are compton and photoelectric processNames
+              if( events_vector.at(size-1).v_rsectorID.at(k) != events_vector.at(size-1).v_rsectorID.at(0)
+                && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end()))
+              {
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
+                {isComptonProcess1 = true;}
 
-              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
-              {isPhotoelectricProcess1 = true;}
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
+                {isPhotoelectricProcess1 = true;}
+              }
             }
           }
-        }
 
-        if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1))
-        {
-          counterICCompton ++;
-          ICcomptonEvents_vector.push_back(size-1);
+          if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1))
+          {
+            counterICCompton ++;
+            ICcomptonEvents_vector.push_back(size-1);
+          }
         }
       }
 
       //set variable for the next entry
       previousEventID = eventID;
 
-      /*int perc = ((100*jentry)/nentries); //should strictly have not decimal part, written like this...
+      /*int perc = ((100*jentry)/nentries);
       if( (perc % 10) == 0 )
       {
         std::cout << "\r";
         std::cout << perc << "% done... ";
       }*/
    }
+
+   std::cout << "Number of events where more than 2 rsectors are hit: " << counter_more_rsectors << std::endl;
 
 
 
@@ -318,12 +339,12 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
      for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
      {
-       if((ICCevent.v_rsectorID).at(j) == 0)
+       if((ICCevent.v_rsectorID).at(j) == (ICCevent.v_rsectorID).at(0))
        {
          this_coincidence.comptonPhantom1 += (ICCevent.v_nPhantomCompton).at(j);
          this_coincidence.totenergy1 += (ICCevent.v_edep).at(j);
        }
-       else if((ICCevent.v_rsectorID).at(j) == 1)
+       else
        {
          this_coincidence.comptonPhantom2 += (ICCevent.v_nPhantomCompton).at(j);
          this_coincidence.totenergy2 += (ICCevent.v_edep).at(j);
@@ -339,7 +360,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
      for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
      {
-       if((ICCevent.v_rsectorID).at(i) == 0)
+       if((ICCevent.v_rsectorID).at(i) == (ICCevent.v_rsectorID).at(0))
        {
          if((ICCevent.v_time).at(i) < minTime1)
          {
@@ -347,7 +368,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
            min_i1 = i;
          }
        }
-       else if((ICCevent.v_rsectorID).at(i) == 1)
+       else
        {
          if((ICCevent.v_time).at(i) < minTime2)
          {
@@ -420,7 +441,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
          {
            for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
            {
-             if((ICCevent.v_rsectorID).at(i) == 0
+             if((ICCevent.v_rsectorID).at(i) == (ICCevent.v_rsectorID).at(0)
              && i != min_i1 && (ICCevent.v_crystalID).at(i) != (ICCevent.v_crystalID).at(min_i1)
              && (ICCevent.v_edep).at(i) > energy_threshold && (ICCevent.v_PDGEncoding).at(i) == 22)
              {
@@ -479,7 +500,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
          {
            for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
            {
-             if((ICCevent.v_rsectorID).at(i) == 1
+             if((ICCevent.v_rsectorID).at(i) != (ICCevent.v_rsectorID).at(0)
              && i != min_i2 && (ICCevent.v_crystalID).at(i) != (ICCevent.v_crystalID).at(min_i2)
              && (ICCevent.v_edep).at(i) > energy_threshold && (ICCevent.v_PDGEncoding).at(i) == 22)
              {
