@@ -3,7 +3,7 @@ compile:
 g++ -o MyAnalysis ../code/MyAnalysis.cc `root-config --cflags --glibs`
 
 run:
-./MyAnalysis path_to_filename.root single_edep_min
+./MyAnalysis path_to_filename.root energy_threshold
 */
 
 #define Hits_cxx
@@ -29,13 +29,11 @@ int main(int argc, char const *argv[])
 {
 
   //std::cout << "First argument: input filename" << std::endl;
-  //std::cout << "Second argument: single_edep_min [MeV]" << std::endl;
-  //std::cout << "Third argument: percentage of correct Compton predictions [%]" << std::endl;
-
+  //std::cout << "Second argument: energy_threshold [MeV]" << std::endl;
   std::string inputfilename = argv[1];
-  Float_t single_edep_min = atof(argv[2]);
+  Float_t energy_threshold = atof(argv[2]);
 
-
+  //useless but otherwise i get strange warnings
   TApplication * MyApp = new TApplication("", 0, NULL);
 
 
@@ -47,14 +45,16 @@ int main(int argc, char const *argv[])
 
   //create vector to store events IDs of the inter-crystals compton realCoincidences
   std::vector<Int_t> ComptonRealCoincidencesIDvector;
+  //create vector to store events IDs of the mono crystals realCoincidences
+  std::vector<Int_t> MonoCoincidencesIDvector;
 
   //Loop to find inter-crystals compton coincidences
   //output a vector of pairs of CoincidenceEvent structs: first one is correct prediction, second one is incorrect prediction
   //fill also the the eventIDs in the just created vector
-  std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = Hits_obj->FindICcoincidences(single_edep_min, &ComptonRealCoincidencesIDvector);
+  std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = Hits_obj->FindICcoincidences(energy_threshold, &ComptonRealCoincidencesIDvector, &MonoCoincidencesIDvector);
 
   //percentage of correct compton predictions vector
-  static const Float_t perc_arr[] = {40,50,60,70,80,90,100};
+  static const Float_t perc_arr[] = {100};
   std::vector<Float_t> percentage_vector (perc_arr, perc_arr + sizeof(perc_arr) / sizeof(perc_arr[0]) );
   Float_t percentage;
 
@@ -77,7 +77,7 @@ int main(int argc, char const *argv[])
     //instantiate finalCoincidences object
     finalCoincidences* finalCoincidences_obj = new finalCoincidences(ICCoincidences_obj->fChain);
     //merge the original realCoincidences TTree and the ICCCoincidences TTree, priority to inter-crystals events
-    finalCoincidences_obj->MergeTTrees(realCoincidences_obj, ComptonRealCoincidencesIDvector, fOut);
+    finalCoincidences_obj->MergeTTrees(realCoincidences_obj, ComptonRealCoincidencesIDvector, MonoCoincidencesIDvector, fOut);
 
     fOut->Close();
 
@@ -93,14 +93,6 @@ int main(int argc, char const *argv[])
   original->Write();
   realfOut->Close();
 
-
-  /*//ONLY DELETE FILE WHEN ALL PERCENTAGES ARE DONE
-  if( remove(inputfilename.c_str()) != 0 )
-    perror( "Error deleting file" );
-  else
-    puts( "File successfully deleted" );
-  */
-
   ComptonRealCoincidencesIDvector.clear();
   coincidences_vector.clear();
   percentage_vector.clear();
@@ -108,6 +100,13 @@ int main(int argc, char const *argv[])
 
   delete Hits_obj;
   delete realCoincidences_obj;
+
+
+  /*//ONLY DELETE INPUT FILE WHEN ALL PERCENTAGES ARE DONE
+  if( remove(inputfilename.c_str()) != 0 )
+    perror( "Error deleting file" );
+  else
+    puts( "File successfully deleted" );*/
 
   return 0;
 }

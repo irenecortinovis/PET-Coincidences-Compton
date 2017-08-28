@@ -5,8 +5,11 @@
 #include <iomanip>
 #include <math.h>
 
-void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, TFile* fOut)
+void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, std::vector<int> v_monoID, TFile* fOut)
 {
+  //counter for events with only one energy deposition in each rsector
+  Long64_t monoCounter = 0;
+
   Long64_t ientry;
   //loop on entries of the original real coincidences, add event if new eventID
   Long64_t nentries = realCoincidences_obj->fChain->GetEntries();
@@ -18,6 +21,12 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
   for(Long64_t jentry=0; jentry < nentries; jentry++)
   {
     ientry = realCoincidences_obj->fChain->GetEntry(jentry);
+
+
+    if(find(v_monoID.begin(), v_monoID.end(), realCoincidences_obj->eventID1) != v_monoID.end())
+      monoCounter++;
+
+
     //if eventID1 is not in the compton coincidences eventsIDs
     if(find(v_comptID.begin(), v_comptID.end(), realCoincidences_obj->eventID1) == v_comptID.end())
     {
@@ -86,6 +95,8 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
 
   fOut->CurrentFile();
   fChain->Write();
+
+  std::cout << "Number of events where only one crystal is hit per rsector: " << monoCounter << std::endl;
 
   //std::cout << "C Number of final ttree entries: " << fChain->GetEntries() << std::endl;
 

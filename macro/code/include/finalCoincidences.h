@@ -74,7 +74,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, TFile* fOut);
+   virtual void     MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, std::vector<int> v_monoID, TFile* fOut);
 
 };
 

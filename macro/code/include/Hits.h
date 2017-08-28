@@ -156,12 +156,12 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual std::vector<std::vector<CoincidenceEvent> > FindICcoincidences(Float_t single_edep_min, std::vector<Int_t>* IDsvector);
+   virtual std::vector<std::vector<CoincidenceEvent> > FindICcoincidences(Float_t energy_threshold, std::vector<Int_t>* comptonIDsvector, std::vector<Int_t>* monoIDsvector);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    virtual void     PrintEvent(Event this_event);
    virtual bool     ComptonFilter(const char* processName, Float_t edep);
-   virtual bool     isDiffCrystal(Event this_event, Int_t crystalID, Int_t rsectorID, Float_t single_edep_min);
+   virtual bool     isDiffCrystal(Event this_event, Int_t crystalID, Int_t rsectorID, Float_t energy_threshold);
 
 
 
