@@ -61,7 +61,8 @@ ANALYSE A SINGLE HIT
     * energy deposited in crystal so far is > threshold
 
     * crystal is not already counted as new crystal
-
+    
+* Save the crystal ID and the rsector ID of the new different crystal (if)
 
 ANALYSE A FINISHED EVENT
 
