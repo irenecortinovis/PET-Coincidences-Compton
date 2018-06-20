@@ -1,0 +1,11 @@
+#  V I S U A L I Z A T I O N
+/vis/open OGLSQt
+/vis/viewer/reset
+/vis/viewer/set/viewpointThetaPhi 0 0
+/vis/viewer/zoom 4
+/vis/viewer/set/style surface
+/vis/drawVolume
+/tracking/storeTrajectory 1
+/vis/scene/endOfEventAction accumulate 1000
+#/vis/scene/add/axes
+/vis/viewer/update

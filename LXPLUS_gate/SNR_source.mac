@@ -1,0 +1,73 @@
+# this is the line
+/gate/source/addSource line1
+/gate/source/line1/setType backtoback
+/gate/source/line1/gps/centre 40. 0. 0. mm
+/gate/source/line1/gps/particle gamma
+/gate/source/line1/gps/energytype Mono
+/gate/source/line1/gps/monoenergy 0.511 MeV
+/gate/source/line1/gps/type Volume
+/gate/source/line1/gps/shape Cylinder
+/gate/source/line1/gps/radius 5 mm
+/gate/source/line1/gps/halfz 6.4 mm
+/gate/source/line1/gps/angtype iso
+
+/gate/source/addSource line2
+/gate/source/line2/setType backtoback
+/gate/source/line2/gps/centre 20. 34.641 0. mm
+/gate/source/line2/gps/particle gamma
+/gate/source/line2/gps/energytype Mono
+/gate/source/line2/gps/monoenergy 0.511 MeV
+/gate/source/line2/gps/type Volume
+/gate/source/line2/gps/shape Cylinder
+/gate/source/line2/gps/radius 5 mm
+/gate/source/line2/gps/halfz 6.4 mm
+/gate/source/line2/gps/angtype iso
+
+/gate/source/addSource line3
+/gate/source/line3/setType backtoback
+/gate/source/line3/gps/centre -20. 34.641 0. mm
+/gate/source/line3/gps/particle gamma
+/gate/source/line3/gps/energytype Mono
+/gate/source/line3/gps/monoenergy 0.511 MeV
+/gate/source/line3/gps/type Volume
+/gate/source/line3/gps/shape Cylinder
+/gate/source/line3/gps/radius 5 mm
+/gate/source/line3/gps/halfz 6.4 mm
+/gate/source/line3/gps/angtype iso
+
+/gate/source/addSource line4
+/gate/source/line4/setType backtoback
+/gate/source/line4/gps/centre -40. 0. 0. mm
+/gate/source/line4/gps/particle gamma
+/gate/source/line4/gps/energytype Mono
+/gate/source/line4/gps/monoenergy 0.511 MeV
+/gate/source/line4/gps/type Volume
+/gate/source/line4/gps/shape Cylinder
+/gate/source/line4/gps/radius 5 mm
+/gate/source/line4/gps/halfz 6.4 mm
+/gate/source/line4/gps/angtype iso
+
+
+/gate/source/addSource line5
+/gate/source/line5/setType backtoback
+/gate/source/line5/gps/centre -20. -34.641 0. mm
+/gate/source/line5/gps/particle gamma
+/gate/source/line5/gps/energytype Mono
+/gate/source/line5/gps/monoenergy 0.511 MeV
+/gate/source/line5/gps/type Volume
+/gate/source/line5/gps/shape Cylinder
+/gate/source/line5/gps/radius 5 mm
+/gate/source/line5/gps/halfz 6.4 mm
+/gate/source/line5/gps/angtype iso
+
+/gate/source/addSource line6
+/gate/source/line6/setType backtoback
+/gate/source/line6/gps/centre 20. -34.641 0. mm
+/gate/source/line6/gps/particle gamma
+/gate/source/line6/gps/energytype Mono
+/gate/source/line6/gps/monoenergy 0.511 MeV
+/gate/source/line6/gps/type Volume
+/gate/source/line6/gps/shape Cylinder
+/gate/source/line6/gps/radius 5 mm
+/gate/source/line6/gps/halfz 6.4 mm
+/gate/source/line6/gps/angtype iso

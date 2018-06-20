@@ -1,0 +1,47 @@
+########################################
+#Small Animal PET simulation program
+# version 1.4 17-06-2015
+# @ Nikos Efthimiou
+########################################
+
+/gate/physics/addPhysicsList QGSP_BERT_EMV
+/gate/physics/addPhysicsList emstandard
+
+
+/gate/physics/processList Enabled e+
+/gate/physics/addProcess Scintillation e+
+/gate/physics/addProcess Bremsstrahlung e+
+/gate/physics/processes/Bremsstrahlung/setModel StandardModel e+
+/gate/physics/addProcess eMultipleScattering e+
+/gate/physics/processes/eMultipleScattering/setModel UrbanModel e+
+/gate/physics/addProcess PositronAnnihilation e+
+#/gate/physics/addProcess SingleScattering e+
+/gate/physics/addProcess ElectronIonisation e+
+/gate/physics/processes/ElectronIonisation/setModel StandardModel e+
+
+/gate/physics/processList Enabled e-
+/gate/physics/addProcess Scintillation e-
+/gate/physics/addProcess Bremsstrahlung e-
+/gate/physics/processes/Bremsstrahlung/setModel StandardModel e-
+/gate/physics/addProcess eMultipleScattering e-
+/gate/physics/processes/eMultipleScattering/setModel UrbanModel e-
+#/gate/physics/addProcess SingleScattering e-
+/gate/physics/addProcess ElectronIonisation e-
+/gate/physics/processes/ElectronIonisation/setModel StandardModel e-
+
+/gate/physics/processList Enabled gamma
+/gate/physics/addProcess GammaConversion gamma
+/gate/physics/processes/GammaConversion/setModel StandardModel gamma
+/gate/physics/addProcess Compton gamma
+/gate/physics/processes/Compton/setModel StandardModel gamma
+/gate/physics/addProcess RayleighScattering gamma
+/gate/physics/processes/RayleighScattering/setModel LivermoreModel gamma
+/gate/physics/addProcess PhotoElectric gamma
+/gate/physics/processes/PhotoElectric/setModel StandardModel gamma
+
+/gate/physics/processList Enabled GenericIon
+/gate/physics/addProcess RadioactiveDecay GenericIon
+#/gate/physics/addProcess SingleScattering GenericIon
+
+
+

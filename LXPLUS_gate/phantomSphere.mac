@@ -1,0 +1,13 @@
+# PHANTOM spheres
+# from center of FOV to the edge
+/gate/world/daughters/name phantom_Z0_X0
+/gate/world/daughters/insert cylinder
+/gate/phantom_Z0_X0/setMaterial PMMA
+/gate/phantom_Z0_X0/geometry/setRmax 12 mm
+/gate/phantom_Z0_X0/geometry/setHeight 5 mm
+/gate/phantom_Z0_X0/vis/setColor red
+/gate/phantom_Z0_X0/vis/forceSolid
+/gate/phantom_Z0_X0/placement/setRotationAxis 0 1 0
+/gate/phantom_Z0_X0/placement/setRotationAngle -90 deg
+
+/gate/phantom_Z0_X0/vis/setVisible 1

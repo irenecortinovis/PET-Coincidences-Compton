@@ -1,0 +1,383 @@
+/control/alias SrcHeight 20 mm
+/control/alias SrcHalfHeight 10 mm
+
+/control/alias SrcActivity0 25000 Bq
+
+#/gate/geometry/disableAutoUpdate
+
+/gate/source/addSource sphere0
+/gate/source/sphere0/setActivity {SrcActivity0}
+/gate/source/sphere0/setType backtoback
+/gate/source/sphere0/gps/particle gamma
+/gate/source/sphere0/gps/energytype Mono
+/gate/source/sphere0/gps/monoenergy 0.511 MeV
+/gate/source/sphere0/gps/type Volume
+/gate/source/sphere0/gps/shape Cylinder
+/gate/source/sphere0/gps/radius 0.5 mm
+/gate/source/sphere0/gps/halfz {SrcHalfHeight}
+/gate/source/sphere0/gps/angtype iso
+/gate/source/sphere0/gps/centre -70 0 0 mm
+
+/gate/source/addSource sphere1
+/gate/source/sphere1/setActivity {SrcActivity0}
+/gate/source/sphere1/setType backtoback
+/gate/source/sphere1/gps/particle gamma
+/gate/source/sphere1/gps/energytype Mono
+/gate/source/sphere1/gps/monoenergy 0.511 MeV
+/gate/source/sphere1/gps/type Volume
+/gate/source/sphere1/gps/shape Cylinder
+/gate/source/sphere1/gps/radius 0.5 mm
+/gate/source/sphere1/gps/halfz {SrcHalfHeight}
+/gate/source/sphere1/gps/angtype iso
+/gate/source/sphere1/gps/centre -65 0 0 mm
+
+/gate/source/addSource sphere2
+/gate/source/sphere2/setActivity {SrcActivity0}
+/gate/source/sphere2/setType backtoback
+/gate/source/sphere2/gps/particle gamma
+/gate/source/sphere2/gps/energytype Mono
+/gate/source/sphere2/gps/monoenergy 0.511 MeV
+/gate/source/sphere2/gps/type Volume
+/gate/source/sphere2/gps/shape Cylinder
+/gate/source/sphere2/gps/radius 0.5 mm
+/gate/source/sphere2/gps/halfz {SrcHalfHeight}
+/gate/source/sphere2/gps/angtype iso
+/gate/source/sphere2/gps/centre -60 0 0 mm
+
+/gate/source/addSource sphere3
+/gate/source/sphere3/setActivity {SrcActivity0}
+/gate/source/sphere3/setType backtoback
+/gate/source/sphere3/gps/particle gamma
+/gate/source/sphere3/gps/energytype Mono
+/gate/source/sphere3/gps/monoenergy 0.511 MeV
+/gate/source/sphere3/gps/type Volume
+/gate/source/sphere3/gps/shape Cylinder
+/gate/source/sphere3/gps/radius 0.5 mm
+/gate/source/sphere3/gps/halfz {SrcHalfHeight}
+/gate/source/sphere3/gps/angtype iso
+/gate/source/sphere3/gps/centre -55 0 0 mm
+
+/gate/source/addSource sphere4
+/gate/source/sphere4/setActivity {SrcActivity0}
+/gate/source/sphere4/setType backtoback
+/gate/source/sphere4/gps/particle gamma
+/gate/source/sphere4/gps/energytype Mono
+/gate/source/sphere4/gps/monoenergy 0.511 MeV
+/gate/source/sphere4/gps/type Volume
+/gate/source/sphere4/gps/shape Cylinder
+/gate/source/sphere4/gps/radius 0.5 mm
+/gate/source/sphere4/gps/halfz {SrcHalfHeight}
+/gate/source/sphere4/gps/angtype iso
+/gate/source/sphere4/gps/centre -50 0 0 mm
+
+/gate/source/addSource sphere5
+/gate/source/sphere5/setActivity {SrcActivity0}
+/gate/source/sphere5/setType backtoback
+/gate/source/sphere5/gps/particle gamma
+/gate/source/sphere5/gps/energytype Mono
+/gate/source/sphere5/gps/monoenergy 0.511 MeV
+/gate/source/sphere5/gps/type Volume
+/gate/source/sphere5/gps/shape Cylinder
+/gate/source/sphere5/gps/radius 0.5 mm
+/gate/source/sphere5/gps/halfz {SrcHalfHeight}
+/gate/source/sphere5/gps/angtype iso
+/gate/source/sphere5/gps/centre -45 0 0 mm
+
+/gate/source/addSource sphere6
+/gate/source/sphere6/setActivity {SrcActivity0}
+/gate/source/sphere6/setType backtoback
+/gate/source/sphere6/gps/particle gamma
+/gate/source/sphere6/gps/energytype Mono
+/gate/source/sphere6/gps/monoenergy 0.511 MeV
+/gate/source/sphere6/gps/type Volume
+/gate/source/sphere6/gps/shape Cylinder
+/gate/source/sphere6/gps/radius 0.5 mm
+/gate/source/sphere6/gps/halfz {SrcHalfHeight}
+/gate/source/sphere6/gps/angtype iso
+/gate/source/sphere6/gps/centre -40 0 0 mm
+
+/gate/source/addSource sphere7
+/gate/source/sphere7/setActivity {SrcActivity0}
+/gate/source/sphere7/setType backtoback
+/gate/source/sphere7/gps/particle gamma
+/gate/source/sphere7/gps/energytype Mono
+/gate/source/sphere7/gps/monoenergy 0.511 MeV
+/gate/source/sphere7/gps/type Volume
+/gate/source/sphere7/gps/shape Cylinder
+/gate/source/sphere7/gps/radius 0.5 mm
+/gate/source/sphere7/gps/halfz {SrcHalfHeight}
+/gate/source/sphere7/gps/angtype iso
+/gate/source/sphere7/gps/centre -35 0 0 mm
+
+/gate/source/addSource sphere8
+/gate/source/sphere8/setActivity {SrcActivity0}
+/gate/source/sphere8/setType backtoback
+/gate/source/sphere8/gps/particle gamma
+/gate/source/sphere8/gps/energytype Mono
+/gate/source/sphere8/gps/monoenergy 0.511 MeV
+/gate/source/sphere8/gps/type Volume
+/gate/source/sphere8/gps/shape Cylinder
+/gate/source/sphere8/gps/radius 0.5 mm
+/gate/source/sphere8/gps/halfz {SrcHalfHeight}
+/gate/source/sphere8/gps/angtype iso
+/gate/source/sphere8/gps/centre -30 0 0 mm
+
+/gate/source/addSource sphere9
+/gate/source/sphere9/setActivity {SrcActivity0}
+/gate/source/sphere9/setType backtoback
+/gate/source/sphere9/gps/particle gamma
+/gate/source/sphere9/gps/energytype Mono
+/gate/source/sphere9/gps/monoenergy 0.511 MeV
+/gate/source/sphere9/gps/type Volume
+/gate/source/sphere9/gps/shape Cylinder
+/gate/source/sphere9/gps/radius 0.5 mm
+/gate/source/sphere9/gps/halfz {SrcHalfHeight}
+/gate/source/sphere9/gps/angtype iso
+/gate/source/sphere9/gps/centre -25 0 0 mm
+
+/gate/source/addSource sphere10
+/gate/source/sphere10/setActivity {SrcActivity0}
+/gate/source/sphere10/setType backtoback
+/gate/source/sphere10/gps/particle gamma
+/gate/source/sphere10/gps/energytype Mono
+/gate/source/sphere10/gps/monoenergy 0.511 MeV
+/gate/source/sphere10/gps/type Volume
+/gate/source/sphere10/gps/shape Cylinder
+/gate/source/sphere10/gps/radius 0.5 mm
+/gate/source/sphere10/gps/halfz {SrcHalfHeight}
+/gate/source/sphere10/gps/angtype iso
+/gate/source/sphere10/gps/centre -20 0 0 mm
+
+/gate/source/addSource sphere11
+/gate/source/sphere11/setActivity {SrcActivity0}
+/gate/source/sphere11/setType backtoback
+/gate/source/sphere11/gps/particle gamma
+/gate/source/sphere11/gps/energytype Mono
+/gate/source/sphere11/gps/monoenergy 0.511 MeV
+/gate/source/sphere11/gps/type Volume
+/gate/source/sphere11/gps/shape Cylinder
+/gate/source/sphere11/gps/radius 0.5 mm
+/gate/source/sphere11/gps/halfz {SrcHalfHeight}
+/gate/source/sphere11/gps/angtype iso
+/gate/source/sphere11/gps/centre -15 0 0 mm
+
+/gate/source/addSource sphere12
+/gate/source/sphere12/setActivity {SrcActivity0}
+/gate/source/sphere12/setType backtoback
+/gate/source/sphere12/gps/particle gamma
+/gate/source/sphere12/gps/energytype Mono
+/gate/source/sphere12/gps/monoenergy 0.511 MeV
+/gate/source/sphere12/gps/type Volume
+/gate/source/sphere12/gps/shape Cylinder
+/gate/source/sphere12/gps/radius 0.5 mm
+/gate/source/sphere12/gps/halfz {SrcHalfHeight}
+/gate/source/sphere12/gps/angtype iso
+/gate/source/sphere12/gps/centre -10 0 0 mm
+
+/gate/source/addSource sphere13
+/gate/source/sphere13/setActivity {SrcActivity0}
+/gate/source/sphere13/setType backtoback
+/gate/source/sphere13/gps/particle gamma
+/gate/source/sphere13/gps/energytype Mono
+/gate/source/sphere13/gps/monoenergy 0.511 MeV
+/gate/source/sphere13/gps/type Volume
+/gate/source/sphere13/gps/shape Cylinder
+/gate/source/sphere13/gps/radius 0.5 mm
+/gate/source/sphere13/gps/halfz {SrcHalfHeight}
+/gate/source/sphere13/gps/angtype iso
+/gate/source/sphere13/gps/centre -5 0 0 mm
+
+/gate/source/addSource sphere14
+/gate/source/sphere14/setActivity {SrcActivity0}
+/gate/source/sphere14/setType backtoback
+/gate/source/sphere14/gps/particle gamma
+/gate/source/sphere14/gps/energytype Mono
+/gate/source/sphere14/gps/monoenergy 0.511 MeV
+/gate/source/sphere14/gps/type Volume
+/gate/source/sphere14/gps/shape Cylinder
+/gate/source/sphere14/gps/radius 0.5 mm
+/gate/source/sphere14/gps/halfz {SrcHalfHeight}
+/gate/source/sphere14/gps/angtype iso
+/gate/source/sphere14/gps/centre 0 0 0 mm
+
+/gate/source/addSource sphere15
+/gate/source/sphere15/setActivity {SrcActivity0}
+/gate/source/sphere15/setType backtoback
+/gate/source/sphere15/gps/particle gamma
+/gate/source/sphere15/gps/energytype Mono
+/gate/source/sphere15/gps/monoenergy 0.511 MeV
+/gate/source/sphere15/gps/type Volume
+/gate/source/sphere15/gps/shape Cylinder
+/gate/source/sphere15/gps/radius 0.5 mm
+/gate/source/sphere15/gps/halfz {SrcHalfHeight}
+/gate/source/sphere15/gps/angtype iso
+/gate/source/sphere15/gps/centre 5 0 0 mm
+
+/gate/source/addSource sphere16
+/gate/source/sphere16/setActivity {SrcActivity0}
+/gate/source/sphere16/setType backtoback
+/gate/source/sphere16/gps/particle gamma
+/gate/source/sphere16/gps/energytype Mono
+/gate/source/sphere16/gps/monoenergy 0.511 MeV
+/gate/source/sphere16/gps/type Volume
+/gate/source/sphere16/gps/shape Cylinder
+/gate/source/sphere16/gps/radius 0.5 mm
+/gate/source/sphere16/gps/halfz {SrcHalfHeight}
+/gate/source/sphere16/gps/angtype iso
+/gate/source/sphere16/gps/centre 10 0 0 mm
+
+/gate/source/addSource sphere17
+/gate/source/sphere17/setActivity {SrcActivity0}
+/gate/source/sphere17/setType backtoback
+/gate/source/sphere17/gps/particle gamma
+/gate/source/sphere17/gps/energytype Mono
+/gate/source/sphere17/gps/monoenergy 0.511 MeV
+/gate/source/sphere17/gps/type Volume
+/gate/source/sphere17/gps/shape Cylinder
+/gate/source/sphere17/gps/radius 0.5 mm
+/gate/source/sphere17/gps/halfz {SrcHalfHeight}
+/gate/source/sphere17/gps/angtype iso
+/gate/source/sphere17/gps/centre 15 0 0 mm
+
+/gate/source/addSource sphere18
+/gate/source/sphere18/setActivity {SrcActivity0}
+/gate/source/sphere18/setType backtoback
+/gate/source/sphere18/gps/particle gamma
+/gate/source/sphere18/gps/energytype Mono
+/gate/source/sphere18/gps/monoenergy 0.511 MeV
+/gate/source/sphere18/gps/type Volume
+/gate/source/sphere18/gps/shape Cylinder
+/gate/source/sphere18/gps/radius 0.5 mm
+/gate/source/sphere18/gps/halfz {SrcHalfHeight}
+/gate/source/sphere18/gps/angtype iso
+/gate/source/sphere18/gps/centre 20 0 0 mm
+
+/gate/source/addSource sphere19
+/gate/source/sphere19/setActivity {SrcActivity0}
+/gate/source/sphere19/setType backtoback
+/gate/source/sphere19/gps/particle gamma
+/gate/source/sphere19/gps/energytype Mono
+/gate/source/sphere19/gps/monoenergy 0.511 MeV
+/gate/source/sphere19/gps/type Volume
+/gate/source/sphere19/gps/shape Cylinder
+/gate/source/sphere19/gps/radius 0.5 mm
+/gate/source/sphere19/gps/halfz {SrcHalfHeight}
+/gate/source/sphere19/gps/angtype iso
+/gate/source/sphere19/gps/centre 25 0 0 mm
+
+/gate/source/addSource sphere20
+/gate/source/sphere20/setActivity {SrcActivity0}
+/gate/source/sphere20/setType backtoback
+/gate/source/sphere20/gps/particle gamma
+/gate/source/sphere20/gps/energytype Mono
+/gate/source/sphere20/gps/monoenergy 0.511 MeV
+/gate/source/sphere20/gps/type Volume
+/gate/source/sphere20/gps/shape Cylinder
+/gate/source/sphere20/gps/radius 0.5 mm
+/gate/source/sphere20/gps/halfz {SrcHalfHeight}
+/gate/source/sphere20/gps/angtype iso
+/gate/source/sphere20/gps/centre 30 0 0 mm
+
+/gate/source/addSource sphere21
+/gate/source/sphere21/setActivity {SrcActivity0}
+/gate/source/sphere21/setType backtoback
+/gate/source/sphere21/gps/particle gamma
+/gate/source/sphere21/gps/energytype Mono
+/gate/source/sphere21/gps/monoenergy 0.511 MeV
+/gate/source/sphere21/gps/type Volume
+/gate/source/sphere21/gps/shape Cylinder
+/gate/source/sphere21/gps/radius 0.5 mm
+/gate/source/sphere21/gps/halfz {SrcHalfHeight}
+/gate/source/sphere21/gps/angtype iso
+/gate/source/sphere21/gps/centre 35 0 0 mm
+
+/gate/source/addSource sphere22
+/gate/source/sphere22/setActivity {SrcActivity0}
+/gate/source/sphere22/setType backtoback
+/gate/source/sphere22/gps/particle gamma
+/gate/source/sphere22/gps/energytype Mono
+/gate/source/sphere22/gps/monoenergy 0.511 MeV
+/gate/source/sphere22/gps/type Volume
+/gate/source/sphere22/gps/shape Cylinder
+/gate/source/sphere22/gps/radius 0.5 mm
+/gate/source/sphere22/gps/halfz {SrcHalfHeight}
+/gate/source/sphere22/gps/angtype iso
+/gate/source/sphere22/gps/centre 40 0 0 mm
+
+/gate/source/addSource sphere23
+/gate/source/sphere23/setActivity {SrcActivity0}
+/gate/source/sphere23/setType backtoback
+/gate/source/sphere23/gps/particle gamma
+/gate/source/sphere23/gps/energytype Mono
+/gate/source/sphere23/gps/monoenergy 0.511 MeV
+/gate/source/sphere23/gps/type Volume
+/gate/source/sphere23/gps/shape Cylinder
+/gate/source/sphere23/gps/radius 0.5 mm
+/gate/source/sphere23/gps/halfz {SrcHalfHeight}
+/gate/source/sphere23/gps/angtype iso
+/gate/source/sphere23/gps/centre 45 0 0 mm
+
+/gate/source/addSource sphere24
+/gate/source/sphere24/setActivity {SrcActivity0}
+/gate/source/sphere24/setType backtoback
+/gate/source/sphere24/gps/particle gamma
+/gate/source/sphere24/gps/energytype Mono
+/gate/source/sphere24/gps/monoenergy 0.511 MeV
+/gate/source/sphere24/gps/type Volume
+/gate/source/sphere24/gps/shape Cylinder
+/gate/source/sphere24/gps/radius 0.5 mm
+/gate/source/sphere24/gps/halfz {SrcHalfHeight}
+/gate/source/sphere24/gps/angtype iso
+/gate/source/sphere24/gps/centre 50 0 0 mm
+
+/gate/source/addSource sphere25
+/gate/source/sphere25/setActivity {SrcActivity0}
+/gate/source/sphere25/setType backtoback
+/gate/source/sphere25/gps/particle gamma
+/gate/source/sphere25/gps/energytype Mono
+/gate/source/sphere25/gps/monoenergy 0.511 MeV
+/gate/source/sphere25/gps/type Volume
+/gate/source/sphere25/gps/shape Cylinder
+/gate/source/sphere25/gps/radius 0.5 mm
+/gate/source/sphere25/gps/halfz {SrcHalfHeight}
+/gate/source/sphere25/gps/angtype iso
+/gate/source/sphere25/gps/centre 55 0 0 mm
+
+/gate/source/addSource sphere26
+/gate/source/sphere26/setActivity {SrcActivity0}
+/gate/source/sphere26/setType backtoback
+/gate/source/sphere26/gps/particle gamma
+/gate/source/sphere26/gps/energytype Mono
+/gate/source/sphere26/gps/monoenergy 0.511 MeV
+/gate/source/sphere26/gps/type Volume
+/gate/source/sphere26/gps/shape Cylinder
+/gate/source/sphere26/gps/radius 0.5 mm
+/gate/source/sphere26/gps/halfz {SrcHalfHeight}
+/gate/source/sphere26/gps/angtype iso
+/gate/source/sphere26/gps/centre 60 0 0 mm
+
+/gate/source/addSource sphere27
+/gate/source/sphere27/setActivity {SrcActivity0}
+/gate/source/sphere27/setType backtoback
+/gate/source/sphere27/gps/particle gamma
+/gate/source/sphere27/gps/energytype Mono
+/gate/source/sphere27/gps/monoenergy 0.511 MeV
+/gate/source/sphere27/gps/type Volume
+/gate/source/sphere27/gps/shape Cylinder
+/gate/source/sphere27/gps/radius 0.5 mm
+/gate/source/sphere27/gps/halfz {SrcHalfHeight}
+/gate/source/sphere27/gps/angtype iso
+/gate/source/sphere27/gps/centre 65 0 0 mm
+
+/gate/source/addSource sphere28
+/gate/source/sphere28/setActivity {SrcActivity0}
+/gate/source/sphere28/setType backtoback
+/gate/source/sphere28/gps/particle gamma
+/gate/source/sphere28/gps/energytype Mono
+/gate/source/sphere28/gps/monoenergy 0.511 MeV
+/gate/source/sphere28/gps/type Volume
+/gate/source/sphere28/gps/shape Cylinder
+/gate/source/sphere28/gps/radius 0.5 mm
+/gate/source/sphere28/gps/halfz {SrcHalfHeight}
+/gate/source/sphere28/gps/angtype iso
+/gate/source/sphere28/gps/centre 70 0 0 mm

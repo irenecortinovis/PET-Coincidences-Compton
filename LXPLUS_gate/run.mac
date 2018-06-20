@@ -1,0 +1,49 @@
+/vis/disable
+#/control/execute ./visu.mac
+#/gate/random/setEngineName JamesRandom
+/gate/random/setEngineSeed auto
+/gate/geometry/setMaterialDatabase ./GateMaterials.db
+/control/execute ./physics.mac
+
+/control/execute ./geometry_close.mac           # one ring new clearpem
+#/control/execute ./geometry-complete.mac  # n plates clearpem
+
+#/control/execute ./phantomSphere.mac
+#/control/execute ./phantomCylinder.mac
+/control/execute ./attachToSystem.mac
+/control/execute ./SNR_source.mac
+
+# INITIALIZE
+/gate/run/initialize
+
+/control/execute ./sourceCylinder.mac
+#/control/execute ./sourceSphere.mac
+/control/execute ./sourceLu.mac
+
+
+/gate/source/sourceNa22/setActivity 20800000 becquerel
+/gate/source/line1/setActivity 25000 becquerel
+/gate/source/line2/setActivity 25000 becquerel
+/gate/source/line3/setActivity 25000 becquerel
+/gate/source/line4/setActivity 25000 becquerel
+/gate/source/line5/setActivity 25000 becquerel
+/gate/source/line6/setActivity 25000 becquerel
+
+#/gate/source/Na22_Z0_X0/setActivity 3000000 becquerel
+
+/gate/geometry/rebuild
+
+/control/execute ./mydigitizer.mac
+
+# ROOT Output format
+/gate/output/root/enable
+/gate/output/root/setFileName test_02
+/gate/output/root/setRootHitFlag 1
+/gate/output/root/setRootSinglesFlag 0
+/gate/output/root/setRootCoincidencesFlag 1
+
+/gate/application/setTimeSlice     0.001  s
+/gate/application/setTimeStart     0. s
+/gate/application/setTimeStop      0.001  s
+# S T A R T  the A C Q U I S I T I O N
+/gate/application/startDAQ

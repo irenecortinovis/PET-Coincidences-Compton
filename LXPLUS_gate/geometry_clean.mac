@@ -1,0 +1,62 @@
+# W O R L D
+
+/gate/world/geometry/setXLength 60. cm
+/gate/world/geometry/setYLength 60. cm
+/gate/world/geometry/setZLength 60. cm
+
+
+# geometry like newclearpem
+/gate/world/daughters/name cylindricalPET
+/gate/world/daughters/insert cylinder
+/gate/cylindricalPET/setMaterial Vacuum
+# crystal z = 15mm, internal radius 130 mm -> ext radius 145 mm
+/gate/cylindricalPET/geometry/setRmax 146 mm
+/gate/cylindricalPET/geometry/setRmin 130 mm
+# crystal 1.53x1.53x15 mm + 0.07 mm vikuiti in between.
+# matrix 8x8 crystals -> size 12.8x12.8 mm
+# 62 matrix per full ring
+/gate/cylindricalPET/geometry/setHeight 14.8 mm
+#/gate/cylindricalPET/geometry/setHeight 208 mm
+
+/gate/cylindricalPET/vis/forceWireframe
+
+# R S E C T O R
+/gate/cylindricalPET/daughters/name rsector
+/gate/cylindricalPET/daughters/insert box
+/gate/rsector/placement/setTranslation 137.5 0 0 mm
+/gate/rsector/geometry/setXLength 15 mm
+/gate/rsector/geometry/setYLength 12.9 mm
+#/gate/rsector/geometry/setZLength 208 mm
+/gate/rsector/geometry/setZLength 12.9 mm
+/gate/rsector/setMaterial Vacuum
+/gate/rsector/vis/forceWireframe
+/gate/rsector/vis/setColor yellow
+
+# C R Y S T A L
+/gate/rsector/daughters/name crystal
+/gate/rsector/daughters/insert box
+/gate/crystal/geometry/setXLength 15. mm
+/gate/crystal/geometry/setYLength 1.53 mm
+/gate/crystal/geometry/setZLength 1.53 mm
+#temp material LSO -> define LYSO
+/gate/crystal/setMaterial LSO
+/gate/crystal/vis/forceWireframe
+/gate/crystal/vis/setColor magenta
+/gate/crystal/repeaters/insert cubicArray
+# R E P E A T C R Y S T A L
+/gate/crystal/cubicArray/setRepeatNumberY 8
+/gate/crystal/cubicArray/setRepeatNumberZ 8
+/gate/crystal/cubicArray/setRepeatVector 0. 1.6 1.6 mm
+
+# R E P E A T R S E C T O R
+/gate/rsector/repeaters/insert ring
+/gate/rsector/ring/setRepeatNumber 60
+
+#this is for the planar normalization
+#/gate/cylindricalPET/placement/setRotationAxis        0 1 0
+#/gate/cylindricalPET/placement/setRotationAngle       90 deg
+
+/gate/cylindricalPET/moves/insert rotation
+/gate/cylindricalPET/rotation/setSpeed 37.5 deg/s
+#/gate/cylindricalPET/rotation/setSpeed 3.75 deg/s
+#/gate/cylindricalPET/orbiting/setSpeed .1875 deg/s

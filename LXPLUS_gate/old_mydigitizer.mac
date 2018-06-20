@@ -1,0 +1,25 @@
+/gate/digitizer/Singles/insert adder
+/gate/digitizer/Singles/insert readout
+/gate/digitizer/Singles/readout/setDepth 3
+
+#/gate/digitizer/Singles/insert thresholder
+#/gate/digitizer/Singles/thresholder/setThreshold 150. keV
+
+/gate/digitizer/Singles/insert blurring
+/gate/digitizer/Singles/blurring/setResolution 0.12
+/gate/digitizer/Singles/blurring/setEnergyOfReference 511. keV
+
+#/gate/digitizer/Singles/insert blurring2
+#/gate/digitizer/Singles/blurring2/setResolution 0.2
+#/gate/digitizer/Singles/blurring2/setEnergyOfReference 200. keV
+
+/gate/digitizer/Singles/insert deadtime
+/gate/digitizer/Singles/deadtime/setDeadTime 1000 ns
+/gate/digitizer/Singles/deadtime/setMode paralysable
+/gate/digitizer/Singles/deadtime/chooseDTVolume rsector
+
+/gate/digitizer/Coincidences/setInputName Singles
+/gate/digitizer/Coincidences/setWindow 6. ns
+/gate/digitizer/Coincidences/minSectorDifference 1
+#/gate/digitizer/Coincidences/MultiplesPolicy killAll
+/gate/digitizer/Coincidences/MultiplesPolicy takeAllGoods
