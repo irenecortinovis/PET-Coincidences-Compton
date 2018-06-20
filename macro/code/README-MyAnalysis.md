@@ -61,16 +61,16 @@ ANALYSE A SINGLE HIT
     * energy deposited in crystal so far is > threshold
 
     * crystal is not already counted as new crystal
-    
+
 * Save the crystal ID and the rsector ID of the new different crystal (if)
 
 ANALYSE A FINISHED EVENT
 
-* When an event is finished, pushback its eventID in the ``ICcomptonEvents_vector`` if the event has
+* When an event is finished, pushback the position in the events_vector in the ``ICcomptonEvents_vector`` if the event has
 
     * Exactly 2 different crystals in one rsector, and 1 or 2 in the other rsector
 
-    * processNames are Compton AND photoelectric in the rsector where the inter-crystal interaction happened
+    * processNames are Compton AND photoelectric, or Compton AND Compton in the rsector where the inter-crystal interaction happened
 
 ****Loop on inter-crystals compton events:****
 

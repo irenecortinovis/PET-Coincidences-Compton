@@ -16,15 +16,20 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
   std::cout << "Number of original realCoincidences: " << nentries << std::endl;
 
   //DEBUGGING
-  std::cout << "Number of added realCoincidences: " << v_comptID.size() << std::endl;
+  std::cout << "Number of added realCoincidences compton: " << v_comptID.size() << std::endl;
+  std::cout << "Number of found realCoincidences single: " << v_monoID.size() << std::endl;
   //std::cout << "C Number of cloned ttree entries: " << fChain->GetEntries() << std::endl;*/
   for(Long64_t jentry=0; jentry < nentries; jentry++)
   {
     ientry = realCoincidences_obj->fChain->GetEntry(jentry);
 
-
+    //check if the single coincidences were already in the original coincidences ttree
     if(find(v_monoID.begin(), v_monoID.end(), realCoincidences_obj->eventID1) != v_monoID.end())
-      monoCounter++;
+      {
+        monoCounter++;
+        //std::cout << "mono-crystal: " << realCoincidences_obj->eventID1 << std::endl;
+      }
+
 
 
     //if eventID1 is not in the compton coincidences eventsIDs
@@ -96,7 +101,8 @@ void finalCoincidences::MergeTTrees(realCoincidences* realCoincidences_obj, std:
   fOut->CurrentFile();
   fChain->Write();
 
-  std::cout << "Number of events where only one crystal is hit per rsector: " << monoCounter << std::endl;
+  //should be ~equal to Number of added realCoincidences single
+  //std::cout << "number of single (events where only one crystal is hit per rsector) found and already present in realCoincidences: " << monoCounter << std::endl;
 
   //std::cout << "C Number of final ttree entries: " << fChain->GetEntries() << std::endl;
 

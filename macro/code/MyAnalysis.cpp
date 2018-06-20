@@ -37,9 +37,9 @@ int main(int argc, char const *argv[])
   TApplication * MyApp = new TApplication("", 0, NULL);
 
 
-  //istansiate Hits object
+  //instantiate Hits object
   Hits* Hits_obj = new Hits(inputfilename);
-  //istansiate realCoincidences object
+  //instantiate realCoincidences object
   realCoincidences* realCoincidences_obj = new realCoincidences(inputfilename);
 
 
@@ -62,7 +62,7 @@ int main(int argc, char const *argv[])
   {
     percentage = percentage_vector.at(i);
 
-    //istansiate ICCoincidences object
+    //instantiate ICCoincidences object
     ICCoincidences* ICCoincidences_obj = new ICCoincidences();
     //Fill realCoincidences-like tree with the inter-crystals compton coincidences
     ICCoincidences_obj->FillICCompton(percentage, coincidences_vector);

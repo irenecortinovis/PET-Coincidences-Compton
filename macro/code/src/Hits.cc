@@ -14,7 +14,7 @@ bool Hits::ComptonFilter(const char* processName, Float_t edep)
 {
   bool isComptonOrPhotoelectric = false;
 
-  if(strcmp(processName,"Compton")==0 || strcmp(processName,"PhotoElectric")==0)
+  if(strcmp(processName,"Compton")==0 || strcmp(processName,"compt")==0 || strcmp(processName,"PhotoElectric")==0 || strcmp(processName,"phot")==0)
     {isComptonOrPhotoelectric = true;}
 
   //filter gamma rays, compton and photoelectric
@@ -45,7 +45,7 @@ bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorI
     isDiffCrystal = false;
   }
 
-  //if sum energy in crystal so far is < energy_threshold
+  //if sum energy in crystal so far is < energy_threshold, false
   Float_t edep_in_crystal = 0;
   for(int i=0; i<(this_event.v_edep).size(); i++)
   {
@@ -112,9 +112,8 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    bool isComptonProcess1 = false;
    bool isPhotoelectricProcess0 = false;
    bool isPhotoelectricProcess1 = false;
-
+   Int_t multicompton = 0;
    Int_t counter_more_rsectors = 0;
-
 
 
    ///////////////////////////////////////////////
@@ -201,8 +200,10 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
       {
         counterEvents ++;
 
-        if((events_vector.at(size)).ndiffRSectors > 2)
+        if((events_vector.at(size-1)).ndiffRSectors > 2)
+        {
           counter_more_rsectors++;
+        }
 
         if((events_vector.at(size-1)).ndiffRSectors == 2)
         {
@@ -210,6 +211,12 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
           //inter-crystals compton check
           isInterCrystal0 = false;
           isInterCrystal1 = false;
+
+          if(((events_vector.at(size-1)).ndiffCrystals0 > 2) || ((events_vector.at(size-1)).ndiffCrystals1 > 2))
+          {
+            multicompton++;
+            //std::cout << "multi compton: " << previousEventID << std::endl;
+          }
 
           if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
             isInterCrystal0 = true;
@@ -220,15 +227,23 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
             isInterCrystal0 = true;
             isInterCrystal1 = true;
           }
+          //mono-crystal events
           else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
           {
-            Int_t counter_energy_ok = 0;
-            for(Int_t count=0; count<(events_vector.at(size-1).v_edep.size()); count++)
+            //check in both rsectors the energy deposited is 0.511 +-sigma
+            //total energy deposited for each rsector
+            double totenergy1 = 0;
+            double totenergy2 = 0;
+
+            for(int count=0; count<((events_vector.at(size-1)).v_edep.size()); count++)
             {
-              if(events_vector.at(size-1).v_edep.at(count) > 0.35 && events_vector.at(size-1).v_edep.at(count) < 0.65)
-              counter_energy_ok++;
+              if((events_vector.at(size-1).v_rsectorID).at(count) == (events_vector.at(size-1).v_rsectorID).at(0))
+                totenergy1 += (events_vector.at(size-1).v_edep).at(count);
+              else
+                totenergy2 += (events_vector.at(size-1).v_edep).at(count);
             }
-            if(counter_energy_ok == 2)
+
+            if(totenergy1 > minTotEnergy && totenergy2 > minTotEnergy && totenergy1 < maxTotEnergy && totenergy2 < maxTotEnergy)
               monoIDsvector->push_back(previousEventID);
           }
 
@@ -246,10 +261,10 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
               if(events_vector.at(size-1).v_rsectorID.at(k) == events_vector.at(size-1).v_rsectorID.at(0)
                 && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end()))
               {
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"compt")==0)
                 {isComptonProcess0 = true;}
 
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"phot")==0)
                 {isPhotoelectricProcess0 = true;}
               }
             }
@@ -263,18 +278,20 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
               if( events_vector.at(size-1).v_rsectorID.at(k) != events_vector.at(size-1).v_rsectorID.at(0)
                 && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end()))
               {
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0)
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"compt")==0)
                 {isComptonProcess1 = true;}
 
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0)
+                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"phot")==0)
                 {isPhotoelectricProcess1 = true;}
               }
             }
           }
 
-          if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1))
+          if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1) || (isComptonProcess0 && isComptonProcess1))
           {
             counterICCompton ++;
+            //save in the vector the position of the interesting eventID
+            //the event will be retrieved in the next loop from events_vector
             ICcomptonEvents_vector.push_back(size-1);
           }
         }
@@ -292,7 +309,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    }
 
    std::cout << "Number of events where more than 2 rsectors are hit: " << counter_more_rsectors << std::endl;
-
+   std::cout << "Number of multicompton: " << multicompton << std::endl;
 
 
 
@@ -316,7 +333,6 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
      //////////////////////////////////////////////////////////////////////
      //   PREPARE THE CORRECT COINCIDENCE (I.E. FIRST INTERACTION)       //
      //////////////////////////////////////////////////////////////////////
-
 
      //eventID
      this_coincidence.eventID1 = ICCevent.eventID;
@@ -396,19 +412,14 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
        this_coincidence.globalPosX1 = (ICCevent.v_posX).at(min_i1);
        this_coincidence.globalPosY1 = (ICCevent.v_posY).at(min_i1);
        this_coincidence.globalPosX2 = (ICCevent.v_posX).at(min_i2);
-       this_coincidence.globalPosY2 = (ICCevent.v_posY).at(min_i2);
-
-
-
-
-       /////////////// FILTER AND FILL COINCIDENCE VECTOR ///////////////
-       if((minTime1 != maxTime && minTime2 != maxTime)
+      if((minTime1 != maxTime && minTime2 != maxTime)
          && (fabs(minTime2 - minTime1) <= timeWindow)
          && (this_coincidence.totenergy1 < maxTotEnergy && this_coincidence.totenergy1 > minTotEnergy)
          && (this_coincidence.totenergy2 < maxTotEnergy && this_coincidence.totenergy2 > minTotEnergy)
          && ((ICCevent.v_edep).at(min_i1) > energy_threshold) && ((ICCevent.v_edep).at(min_i2) > energy_threshold)
          && ((ICCevent.v_PDGEncoding).at(min_i1) == 22) && ((ICCevent.v_PDGEncoding).at(min_i2) == 22))
        {
+
 
          //////////////////////////////////////////////////////////////////////
          //   PREPARE THE INCORRECT COINCIDENCE (I.E. SECOND INTERACTION)    //
@@ -462,6 +473,8 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
              //crystal IDs
              this_coincidence_incorrect.crystalID1 = (ICCevent.v_crystalID).at(t2_min_i1);
              this_coincidence_incorrect.crystalID2 = (ICCevent.v_crystalID).at(min_i2);
+             this_coincidence_incorrect.rsectorID1 = (ICCevent.v_rsectorID).at(t2_min_i1);
+             this_coincidence_incorrect.rsectorID2 = (ICCevent.v_rsectorID).at(min_i2);
 
              //positions
              this_coincidence_incorrect.globalPosX1 = (ICCevent.v_posX).at(t2_min_i1);
@@ -490,6 +503,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
                //fill IDs vector with eventID
                IDsvector->push_back(this_coincidence.eventID1);
+               //std::cout << "compton: " << this_coincidence.eventID1 << std::endl;
              }
            }
          }
@@ -522,6 +536,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
              //crystal IDs
              this_coincidence_incorrect.crystalID1 = (ICCevent.v_crystalID).at(min_i1);
              this_coincidence_incorrect.crystalID2 = (ICCevent.v_crystalID).at(t2_min_i2);
+             this_coincidence_incorrect.rsectorID1 = (ICCevent.v_rsectorID).at(min_i1);
+             this_coincidence_incorrect.rsectorID2 = (ICCevent.v_rsectorID).at(t2_min_i2);
+
 
              //positions
              this_coincidence_incorrect.globalPosX1 = (ICCevent.v_posX).at(min_i1);
@@ -550,6 +567,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
                //fill IDs vector with eventID
                IDsvector->push_back(this_coincidence.eventID1);
+               //std::cout << "compton: " << this_coincidence.eventID1 << std::endl;
              }
            }
          }
@@ -562,7 +580,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    /////////////////////////////////////////////////////
 
 
-   //std::cout << "Number of Hits events: " << counterEvents << std::endl;
+   std::cout << "Number of Hits events: " << counterEvents << std::endl;
    //std::cout << "Number of inter-crystals Compton events: " << counterICCompton << std::endl;
 
    return coincidences_vector;

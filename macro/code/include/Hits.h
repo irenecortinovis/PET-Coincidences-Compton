@@ -140,6 +140,8 @@ public :
      Float_t                       totenergy2;
      Int_t                         crystalID1;
      Int_t                         crystalID2;
+     Int_t                         rsectorID1;
+     Int_t                         rsectorID2;     
      Double_t                      time1;
      Double_t                      time2;
      Float_t                       globalPosX1;
