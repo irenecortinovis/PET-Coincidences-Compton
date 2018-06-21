@@ -29,12 +29,12 @@ bool Hits::ComptonFilter(const char* processName, Float_t edep)
 //compare crystalID with ones in the same event
 //to see if the gamma hits a new crystal
 //only executed if ComptonFilter is true (be careful: no energy threshold on ComptonFilter)
-bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorID, Float_t energy_threshold)
+bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorID, Int_t primaryID, Float_t energy_threshold)
 {
   bool isDiffCrystal = true;
 
-  //find crystalID in diffCrystal in rsector 0 and 1
-  if(rsectorID == this_event.v_rsectorID.at(0))
+  //find crystalID in diffCrystal for each gamma
+  if(primaryID == this_event.v_primaryID.at(0))
   {
     if(find ((this_event.v_diffCrystal0).begin(), (this_event.v_diffCrystal0).end(), crystalID) != (this_event.v_diffCrystal0).end())
     isDiffCrystal = false;
@@ -49,7 +49,7 @@ bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorI
   Float_t edep_in_crystal = 0;
   for(int i=0; i<(this_event.v_edep).size(); i++)
   {
-    if((this_event.v_rsectorID).at(i) == rsectorID && (this_event.v_crystalID).at(i) == crystalID)
+    if((this_event.v_primaryID).at(i) == primaryID && (this_event.v_rsectorID).at(i) == rsectorID && (this_event.v_crystalID).at(i) == crystalID)
       edep_in_crystal +=  (this_event.v_edep).at(i);
   }
   if(edep_in_crystal < energy_threshold)
@@ -101,7 +101,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
    //set max time
    //HARDCODING but way out the range of possible times of arrival
    Double_t maxTime = 1000; //seconds
-   //energy cuts for total energy deposited in one rsector
+   //energy cuts for total energy deposited from each gamma
    Float_t minTotEnergy = 0.35; //MeV
    Float_t maxTotEnergy = 0.65; //MeV
 
@@ -152,7 +152,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
       if(std::find(events_vector.at(size).v_rsectorID.begin(), events_vector.at(size).v_rsectorID.end(), rsectorID) == events_vector.at(size).v_rsectorID.end())
         (events_vector.at(size)).ndiffRSectors++;
+
       ((events_vector.at(size)).v_rsectorID).push_back(rsectorID);
+      ((events_vector.at(size)).v_primaryID).push_back(primaryID);
 
       std::string s_processName(processName);
       ((events_vector.at(size)).v_processName).push_back(s_processName);
@@ -169,27 +171,24 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
       /////////////// FILTER FOR POSSIBLE INTER CRYSTAL COMPTON ///////////////
       //filter by processName, gamma, energy deposited
-      if((events_vector.at(size)).ndiffRSectors <= 2)
+      if(ComptonFilter(processName, edep) == true)
       {
-        if(ComptonFilter(processName, edep) == true)
-        {
-           if(rsectorID == ((events_vector.at(size)).v_rsectorID).at(0))
+         if(primaryID == ((events_vector.at(size)).v_primaryID).at(0))
+         {
+           //increase number of different crystals if it is a new crystalID
+           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, primaryID, energy_threshold))
            {
-             //increase number of different crystals if it is a new crystalID
-             if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, energy_threshold))
-             {
-               ((events_vector.at(size)).v_diffCrystal0).push_back(crystalID);
-               ((events_vector.at(size)).ndiffCrystals0) ++;
-             }
+             ((events_vector.at(size)).v_diffCrystal0).push_back(crystalID);
+             ((events_vector.at(size)).ndiffCrystals0) ++;
            }
-           else
+         }
+         else
+         {
+           //increase number of different crystals if it is a new crystalID
+           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, primaryID, energy_threshold))
            {
-             //increase number of different crystals if it is a new crystalID
-             if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, energy_threshold))
-             {
-               ((events_vector.at(size)).v_diffCrystal1).push_back(crystalID);
-               ((events_vector.at(size)).ndiffCrystals1) ++;
-             }
+             ((events_vector.at(size)).v_diffCrystal1).push_back(crystalID);
+             ((events_vector.at(size)).ndiffCrystals1) ++;
            }
          }
        }
@@ -203,98 +202,96 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
         if((events_vector.at(size-1)).ndiffRSectors > 2)
         {
           counter_more_rsectors++;
+          //std::cout << "more than 2 rsectors: " << previousEventID << std::endl;
         }
 
-        if((events_vector.at(size-1)).ndiffRSectors == 2)
+        //inter-crystals compton check
+        isInterCrystal0 = false;
+        isInterCrystal1 = false;
+
+        if(((events_vector.at(size-1)).ndiffCrystals0 > 2) || ((events_vector.at(size-1)).ndiffCrystals1 > 2))
         {
+          multicompton++;
+          //std::cout << "multi compton: " << previousEventID << std::endl;
+        }
 
-          //inter-crystals compton check
-          isInterCrystal0 = false;
-          isInterCrystal1 = false;
+        if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
+          isInterCrystal0 = true;
+        else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
+          isInterCrystal1 = true;
+        else if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
+        {
+          isInterCrystal0 = true;
+          isInterCrystal1 = true;
+        }
+        //mono-crystal events
+        else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
+        {
+          //check in both gammas the energy deposited is 0.511 +-sigma
+          //total energy deposited by each gamma
+          double totenergy1 = 0;
+          double totenergy2 = 0;
 
-          if(((events_vector.at(size-1)).ndiffCrystals0 > 2) || ((events_vector.at(size-1)).ndiffCrystals1 > 2))
+          for(int count=0; count<((events_vector.at(size-1)).v_edep.size()); count++)
           {
-            multicompton++;
-            //std::cout << "multi compton: " << previousEventID << std::endl;
+            if((events_vector.at(size-1).v_primaryID).at(count) == (events_vector.at(size-1).v_primaryID).at(0))
+              totenergy1 += (events_vector.at(size-1).v_edep).at(count);
+            else
+              totenergy2 += (events_vector.at(size-1).v_edep).at(count);
           }
 
-          if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
-            isInterCrystal0 = true;
-          else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
-            isInterCrystal1 = true;
-          else if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
-          {
-            isInterCrystal0 = true;
-            isInterCrystal1 = true;
-          }
-          //mono-crystal events
-          else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
-          {
-            //check in both rsectors the energy deposited is 0.511 +-sigma
-            //total energy deposited for each rsector
-            double totenergy1 = 0;
-            double totenergy2 = 0;
+          if(totenergy1 > minTotEnergy && totenergy2 > minTotEnergy && totenergy1 < maxTotEnergy && totenergy2 < maxTotEnergy)
+            monoIDsvector->push_back(previousEventID);
+        }
 
-            for(int count=0; count<((events_vector.at(size-1)).v_edep.size()); count++)
+        //processName compton && photoelectric check
+        isComptonProcess0 = false;
+        isPhotoelectricProcess0 = false;
+        isComptonProcess1 = false;
+        isPhotoelectricProcess1 = false;
+
+        if(isInterCrystal0 == true)
+        {
+          for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
+          {
+            //check in ndiffCrystals0 if there are compton and photoelectric processNames
+            if(events_vector.at(size-1).v_primaryID.at(k) == events_vector.at(size-1).v_primaryID.at(0)
+              && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end()))
             {
-              if((events_vector.at(size-1).v_rsectorID).at(count) == (events_vector.at(size-1).v_rsectorID).at(0))
-                totenergy1 += (events_vector.at(size-1).v_edep).at(count);
-              else
-                totenergy2 += (events_vector.at(size-1).v_edep).at(count);
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"compt")==0)
+              {isComptonProcess0 = true;}
+
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"phot")==0)
+              {isPhotoelectricProcess0 = true;}
             }
-
-            if(totenergy1 > minTotEnergy && totenergy2 > minTotEnergy && totenergy1 < maxTotEnergy && totenergy2 < maxTotEnergy)
-              monoIDsvector->push_back(previousEventID);
-          }
-
-          //processName compton && photoelectric check
-          isComptonProcess0 = false;
-          isPhotoelectricProcess0 = false;
-          isComptonProcess1 = false;
-          isPhotoelectricProcess1 = false;
-
-          if(isInterCrystal0 == true)
-          {
-            for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
-            {
-              //check in ndiffCrystals0 if there are compton and photoelectric processNames
-              if(events_vector.at(size-1).v_rsectorID.at(k) == events_vector.at(size-1).v_rsectorID.at(0)
-                && (std::find((events_vector.at(size-1)).v_diffCrystal0.begin(), (events_vector.at(size-1)).v_diffCrystal0.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal0.end()))
-              {
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"compt")==0)
-                {isComptonProcess0 = true;}
-
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"phot")==0)
-                {isPhotoelectricProcess0 = true;}
-              }
-            }
-          }
-
-          if(isInterCrystal1 == true)
-          {
-            for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
-            {
-              //check in ndiffCrystals0 if there are compton and photoelectric processNames
-              if( events_vector.at(size-1).v_rsectorID.at(k) != events_vector.at(size-1).v_rsectorID.at(0)
-                && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end()))
-              {
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"compt")==0)
-                {isComptonProcess1 = true;}
-
-                if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"phot")==0)
-                {isPhotoelectricProcess1 = true;}
-              }
-            }
-          }
-
-          if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1) || (isComptonProcess0 && isComptonProcess1))
-          {
-            counterICCompton ++;
-            //save in the vector the position of the interesting eventID
-            //the event will be retrieved in the next loop from events_vector
-            ICcomptonEvents_vector.push_back(size-1);
           }
         }
+
+        if(isInterCrystal1 == true)
+        {
+          for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
+          {
+            //check in ndiffCrystals0 if there are compton and photoelectric processNames
+            if( events_vector.at(size-1).v_primaryID.at(k) != events_vector.at(size-1).v_primaryID.at(0)
+              && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end()))
+            {
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"Compton")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"compt")==0)
+              {isComptonProcess1 = true;}
+
+              if(strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"PhotoElectric")==0 || strcmp((events_vector.at(size-1)).v_processName.at(k).c_str(),"phot")==0)
+              {isPhotoelectricProcess1 = true;}
+            }
+          }
+        }
+
+        if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1) || (isComptonProcess0 && isComptonProcess1))
+        {
+          counterICCompton ++;
+          //save in the vector the position of the interesting eventID
+          //the event will be retrieved in the next loop from events_vector
+          ICcomptonEvents_vector.push_back(size-1);
+        }
+
       }
 
       //set variable for the next entry
@@ -347,7 +344,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
 
 
-     //compton Phantom and total energy deposited for each rsector
+     //compton Phantom and total energy deposited by each gamma
      this_coincidence.comptonPhantom1 = 0;
      this_coincidence.comptonPhantom2 = 0;
      this_coincidence.totenergy1 = 0;
@@ -355,7 +352,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
      for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
      {
-       if((ICCevent.v_rsectorID).at(j) == (ICCevent.v_rsectorID).at(0))
+       if((ICCevent.v_primaryID).at(j) == (ICCevent.v_primaryID).at(0))
        {
          this_coincidence.comptonPhantom1 += (ICCevent.v_nPhantomCompton).at(j);
          this_coincidence.totenergy1 += (ICCevent.v_edep).at(j);
@@ -374,9 +371,9 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
      Int_t min_i1 = -1;
      Int_t min_i2 = -1;
 
-     for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
+     for(int i=0; i<(ICCevent.v_primaryID).size(); i++)
      {
-       if((ICCevent.v_rsectorID).at(i) == (ICCevent.v_rsectorID).at(0))
+       if((ICCevent.v_primaryID).at(i) == (ICCevent.v_primaryID).at(0))
        {
          if((ICCevent.v_time).at(i) < minTime1)
          {
@@ -398,12 +395,12 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
      if(min_i1 != -1 && min_i2 != -1)
      {
 
-       //time of first interaction per rsector
+       //time of first interaction per gamma
        this_coincidence.time1 = minTime1;
        this_coincidence.time2 = minTime2;
 
 
-       //crystal ID and positions of the first interaction in the rsector
+       //crystal ID and positions of the first interaction in the gamma
        //crystal IDs
        this_coincidence.crystalID1 = (ICCevent.v_crystalID).at(min_i1);
        this_coincidence.crystalID2 = (ICCevent.v_crystalID).at(min_i2);
@@ -440,19 +437,19 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
          this_coincidence_incorrect.totenergy2 = this_coincidence.totenergy2;
 
 
-         //find second interaction per rsector, where ndiffCrystals is > 1
+         //find second interaction per gamma, where ndiffCrystals is > 1
          Double_t t2_minTime1 = maxTime;
          Double_t t2_minTime2 = maxTime;
          Int_t t2_min_i1 = -1;
          Int_t t2_min_i2 = -1;
 
 
-         //if there are 2 interactions in 2 different crystals in rsector 0
+         //if there are 2 interactions in 2 different crystals from first gamma
          if(ICCevent.ndiffCrystals0 == 2)
          {
-           for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
+           for(int i=0; i<(ICCevent.v_primaryID).size(); i++)
            {
-             if((ICCevent.v_rsectorID).at(i) == (ICCevent.v_rsectorID).at(0)
+             if((ICCevent.v_primaryID).at(i) == (ICCevent.v_primaryID).at(0)
              && i != min_i1 && (ICCevent.v_crystalID).at(i) != (ICCevent.v_crystalID).at(min_i1)
              && (ICCevent.v_edep).at(i) > energy_threshold && (ICCevent.v_PDGEncoding).at(i) == 22)
              {
@@ -465,11 +462,11 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
            }
            if(t2_min_i1 != -1)
            {
-             //time of second interaction per rsector
+             //time of second interaction per gamma photon
              this_coincidence_incorrect.time1 = t2_minTime1;
              this_coincidence_incorrect.time2 = minTime2;
 
-             //crystal ID and positions of the first and second interaction in the rsector
+             //crystal ID and positions of the first and second interaction
              //crystal IDs
              this_coincidence_incorrect.crystalID1 = (ICCevent.v_crystalID).at(t2_min_i1);
              this_coincidence_incorrect.crystalID2 = (ICCevent.v_crystalID).at(min_i2);
@@ -508,13 +505,13 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
            }
          }
 
-         //if there is only 1 different crystal in rsector 0
-         //which means that there are 2 interactions in 2 different crystals in rsector 1
+         //if there is only 1 different crystal from the first gamma
+         //which means that there are 2 interactions in 2 different crystals from second gamma
          else if(ICCevent.ndiffCrystals0 == 1)
          {
-           for(int i=0; i<(ICCevent.v_rsectorID).size(); i++)
+           for(int i=0; i<(ICCevent.v_primaryID).size(); i++)
            {
-             if((ICCevent.v_rsectorID).at(i) != (ICCevent.v_rsectorID).at(0)
+             if((ICCevent.v_primaryID).at(i) != (ICCevent.v_primaryID).at(0)
              && i != min_i2 && (ICCevent.v_crystalID).at(i) != (ICCevent.v_crystalID).at(min_i2)
              && (ICCevent.v_edep).at(i) > energy_threshold && (ICCevent.v_PDGEncoding).at(i) == 22)
              {
@@ -528,11 +525,11 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
 
            if(t2_min_i2 != -1)
            {
-             //time of second interaction per rsector
+             //time of second interaction per gamma
              this_coincidence_incorrect.time1 = minTime1;
              this_coincidence_incorrect.time2 = t2_minTime2;
 
-             //crystal ID and positions of the first and second interaction in the rsector
+             //crystal ID and positions of the first and second interaction in the gamma
              //crystal IDs
              this_coincidence_incorrect.crystalID1 = (ICCevent.v_crystalID).at(min_i1);
              this_coincidence_incorrect.crystalID2 = (ICCevent.v_crystalID).at(t2_min_i2);

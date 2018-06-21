@@ -113,6 +113,7 @@ public :
      std::vector<Int_t>           v_rsectorID;
      std::vector<std::string>     v_processName;
      std::vector<Int_t>           v_trackID;
+     std::vector<Int_t>           v_primaryID;
      std::vector<Int_t>           v_nPhantomCompton;
      std::vector<Float_t>         v_posX;
      std::vector<Float_t>         v_posY;
@@ -141,7 +142,7 @@ public :
      Int_t                         crystalID1;
      Int_t                         crystalID2;
      Int_t                         rsectorID1;
-     Int_t                         rsectorID2;     
+     Int_t                         rsectorID2;
      Double_t                      time1;
      Double_t                      time2;
      Float_t                       globalPosX1;
@@ -164,7 +165,7 @@ public :
    virtual void     Show(Long64_t entry = -1);
    virtual void     PrintEvent(Event this_event);
    virtual bool     ComptonFilter(const char* processName, Float_t edep);
-   virtual bool     isDiffCrystal(Event this_event, Int_t crystalID, Int_t rsectorID, Float_t energy_threshold);
+   virtual bool     isDiffCrystal(Event this_event, Int_t crystalID, Int_t rsectorID, Int_t primaryID, Float_t energy_threshold);
 
 
 
@@ -290,6 +291,7 @@ void Hits::Init(TTree *tree)
    fChain->SetBranchStatus("posY", 1);
    fChain->SetBranchStatus("rsectorID", 1);
    fChain->SetBranchStatus("crystalID", 1);
+   fChain->SetBranchStatus("primaryID",1);
    fChain->SetBranchStatus("nPhantomCompton", 1);
    fChain->SetBranchStatus("eventID", 1);
    fChain->SetBranchStatus("rotationAngle", 1);
