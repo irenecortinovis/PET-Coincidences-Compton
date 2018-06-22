@@ -1,8 +1,8 @@
-#to run: python3 ../code/scriptCompton.py "../../gate_40x40/setTimeStart1.root"
+#to run: python3 ../code/scriptCompton.py path_to_root_file
 
 #--------------------------------------------------------------------------------------#
 #                                                                                      #
-#            Simple script to run MyAnalysis with different single_edep_min            #
+#            Simple script to run MyAnalysis with different energy_threshold           #
 #            to see max % added realCoincidences                                       #
 #                                                                                      #
 #--------------------------------------------------------------------------------------#
@@ -17,22 +17,22 @@ print("Starting the code")
 
 
 #array for minimum single energy deposition
-single_edep_min = []
-#ærray for percentage of added realCoincidences
+energy_threshold = []
+#array for percentage of added realCoincidences
 perc_added_realCoincidences = []
 
-minenergy = 0.06
-maxenergy = 0.072
-step = 0.002
+minenergy = 0.035
+maxenergy = 0.2
+step = 0.02
 
 
 
 for x in np.arange(minenergy, maxenergy, step):
 
-    #print single_edep_min
+    #print energy_threshold
     print(x)
 
-    #execute c++ program with single_edep_min parameter
+    #execute c++ program with energy_threshold parameter
     executable = "./MyAnalysis"
     rootfile = str(sys.argv[1])
     output = subprocess.check_output([executable, rootfile, str(x)])
@@ -40,14 +40,20 @@ for x in np.arange(minenergy, maxenergy, step):
     #extract numbers from output
     outputnumbers = [int(s) for s in output.split() if s.isdigit()]
 
+    #number of compton coincidences
+    print(outputnumbers[3])
+    #number of original coincidences
+    print(outputnumbers[4])
+    #percentage of number of compton coincidences / number of original coincidences
+    print(outputnumbers[4]/outputnumbers[3]*100)
 
     #fill the arrays
-    single_edep_min.append(x)
-    perc_added_realCoincidences.append(outputnumbers[3]/outputnumbers[4]*100)
+    energy_threshold.append(x)
+    perc_added_realCoincidences.append(outputnumbers[4]/outputnumbers[3]*100)
 
 
-#plot %added realCoincidences vs energy
-plt.plot(single_edep_min, perc_added_realCoincidences)
+#plot % added compton coincidences vs energy threshold
+plt.plot(energy_threshold, perc_added_realCoincidences)
 plt.show()
 
 #find maximum perc_added_realCoincidences

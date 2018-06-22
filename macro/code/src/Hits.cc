@@ -305,7 +305,7 @@ std::vector<std::vector<Hits::CoincidenceEvent> > Hits::FindICcoincidences(Float
       }*/
    }
 
-   std::cout << "Number of events where more than 2 rsectors are hit: " << counter_more_rsectors << std::endl;
+   std::cout << "Number of events where more than two rsectors are hit: " << counter_more_rsectors << std::endl;
    std::cout << "Number of multicompton: " << multicompton << std::endl;
 
 

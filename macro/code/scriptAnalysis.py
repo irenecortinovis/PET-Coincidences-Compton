@@ -18,7 +18,7 @@ import sys
 
 
 #threshold for minimum single energy deposited
-single_edep_min = 0.065
+energy_threshold = 0.05
 #path to out.root files
 path = sys.argv[1]
 #name of program
@@ -29,7 +29,7 @@ def thread_func():
  while not queue.empty():
     parameter = queue.get()
     print(parameter)
-    subprocess.call([executable, parameter, str(single_edep_min)]) # chiamo il subprocess
+    subprocess.call([executable, parameter, str(energy_threshold)]) # chiamo il subprocess
     print("finished process " + parameter)
 
 
@@ -40,9 +40,9 @@ for filename in os.listdir(path):
         queue.put(filename) #add filename in queue
 
 
-NUM_THREADS = 10
+NUM_THREADS = 2
 threads = []
-for i in range(NUM_THREADS): # create 4 threads
+for i in range(NUM_THREADS)
     new_thread = Thread(target=thread_func) # each thread executes thread_func
     new_thread.start()
     threads.append(new_thread)

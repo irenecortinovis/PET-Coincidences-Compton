@@ -1,6 +1,6 @@
 /*
 compile:
-g++ -o MyAnalysis ../code/MyAnalysis.cc `root-config --cflags --glibs`
+g++ -o MyAnalysis ../code/MyAnalysis.cpp `root-config --cflags --glibs`
 
 run:
 ./MyAnalysis path_to_filename.root energy_threshold
