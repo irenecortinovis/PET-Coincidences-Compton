@@ -21,6 +21,7 @@ run:
 #include <algorithm>
 #include <iomanip>
 #include <math.h>
+#include <string>
 
 #include <TApplication.h>
 
@@ -71,7 +72,10 @@ int main(int argc, char const *argv[])
     std::ostringstream ss;
     ss << percentage;
     std::string percentage_string(ss.str());
-    std::string outFile = "compt_" + percentage_string + inputfilename;
+    //std::string outFile = "compt_" + percentage_string + inputfilename;
+    int find = inputfilename.find("out");
+    std::string outFile = inputfilename.substr(find);
+    outFile.insert(0,"compt_" + percentage_string + "_");
     TFile* fOut = new TFile(outFile.c_str(),"recreate");
 
     //instantiate finalCoincidences object
@@ -85,8 +89,13 @@ int main(int argc, char const *argv[])
     delete finalCoincidences_obj;
   }
 
+
+
   //save only realCoincidences TTree from original file
-  std::string realoutFile = "original_" + inputfilename;
+  //std::string realoutFile = "original_" + inputfilename;
+  int find = inputfilename.find("out");
+  std::string realoutFile = inputfilename.substr(find);
+  realoutFile.insert(0,"original_");
   TFile* realfOut = new TFile(realoutFile.c_str(),"recreate");
   realfOut->CurrentFile();
   TTree* original = realCoincidences_obj->fChain->CloneTree();
