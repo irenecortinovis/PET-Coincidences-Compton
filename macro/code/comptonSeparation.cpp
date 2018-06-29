@@ -105,6 +105,11 @@ long double MeasureProb(Float_t Em,Float_t Et,Float_t sigma)
 }
 
 
+Float_t RatioMeasureProb(Float_t Em1,Float_t Et1,Float_t sigma1, Float_t Em2,Float_t Et2,Float_t sigma2)
+{
+  return ((sigma2/sigma1)*exp( pow((Em2-Et2),2) / (2.0*pow(sigma2,2)) - pow((Em1-Et1),2) / (2.0*pow(sigma1,2)) ));
+}
+
 
 
 int main (int argc, char** argv)
@@ -393,7 +398,6 @@ int main (int argc, char** argv)
   long int zCheckWinCounter=0;
   long int zCheckLoseCounter=0;
   long int oneGoodCrystalHitCounter=0;
-  long int counterzero = 0;
 
   Float_t energy_threshold = 0.05; //MeV
 
@@ -680,7 +684,7 @@ int main (int argc, char** argv)
     Float_t comptonAngle0;
     Float_t comptonAngle1;
     Float_t comptonPhotoelDistance;
-    Float_t sourceZ = -1008.2;
+    Float_t sourceZ = -200;
     Float_t crystalxEsr = 1.53+0.07; //x length in mm
     Float_t crystalyEsr = 1.53+0.07; //y length in mm
 
@@ -693,7 +697,7 @@ int main (int argc, char** argv)
       //goodCounter++;
 
       //X, Y coordinates as center of the crystal
-      /*
+
       goodInteractionsX[0] = ((Short_t) (pComptX[ComptCrystal]->at(0) / crystalxEsr)) * crystalxEsr + sgn(pComptX[ComptCrystal]->at(0))*crystalxEsr/2;
       goodInteractionsX[1] = ((Short_t) (pPhotX[PhotCrystal]->at(0) / crystalxEsr)) * crystalxEsr + sgn(pPhotX[PhotCrystal]->at(0))*crystalxEsr/2;
       goodInteractionsY[0] = ((Short_t) (pComptY[ComptCrystal]->at(0) / crystalyEsr)) * crystalyEsr + sgn(pComptY[ComptCrystal]->at(0))*crystalyEsr/2;
@@ -704,7 +708,7 @@ int main (int argc, char** argv)
       TRandom *smearingZ = new TRandom();
       goodInteractionsZ[0] = smearingZ->Gaus(pComptZ[ComptCrystal]->at(0),ZResFWHM/ 2.355);
       goodInteractionsZ[1] = smearingZ->Gaus(pPhotZ[PhotCrystal]->at(0),ZResFWHM/ 2.355);
-      */
+
 
       /*
       std::cout << "center x: " << goodInteractionsX[0] << "\t exact:" << pComptX[ComptCrystal]->at(0) << std::endl;
@@ -717,13 +721,14 @@ int main (int argc, char** argv)
 
       //exact X,Y,Z coordinates
 
-
+/*
       goodInteractionsX[0] = pComptX[ComptCrystal]->at(0);
       goodInteractionsX[1] = pPhotX[PhotCrystal]->at(0);
       goodInteractionsY[0] = pComptY[ComptCrystal]->at(0);
       goodInteractionsY[1] = pPhotY[PhotCrystal]->at(0);
       goodInteractionsZ[0] = pComptZ[ComptCrystal]->at(0);
       goodInteractionsZ[1] = pPhotZ[PhotCrystal]->at(0);
+*/
 
 
       //take the energy deposited in the two crystals
@@ -747,8 +752,8 @@ int main (int argc, char** argv)
       //std::cout << disTravel1_1 << "\t" << fabs(-7.5-goodInteractionsZ[1]) << std::endl;
 */
       //approx z, photons are incoming almost in the z direction
-      Float_t disTravel1_0 = 7.5 - goodInteractionsZ[0];
-      Float_t disTravel1_1 = 7.5 - goodInteractionsZ[1];
+      Float_t disTravel1_0 = 7.5 + goodInteractionsZ[0];
+      Float_t disTravel1_1 = 7.5 + goodInteractionsZ[1];
       //std::cout << disTravel1_0 << "\t" << disTravel1_1 << std::endl;
 
 
@@ -774,10 +779,13 @@ int main (int argc, char** argv)
       TheoreticEnergyDepositedSecond[1] = (0.511/(2-cos(comptonAngle1)));
 
       //smear the reading of the detector
-      Float_t enResFWHM = 0.1;
+      Float_t enResFWHM = 0.12;
       TRandom *smearing = new TRandom();
-      smearedEnergyDeposited[0] = smearing->Gaus(goodIEnergyDeposited[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355);
-      smearedEnergyDeposited[1] = smearing->Gaus(goodIEnergyDeposited[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
+      //smearedEnergyDeposited[0] = smearing->Gaus(goodIEnergyDeposited[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355);
+      //smearedEnergyDeposited[1] = smearing->Gaus(goodIEnergyDeposited[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
+
+      smearedEnergyDeposited[0] = goodIEnergyDeposited[0];
+      smearedEnergyDeposited[1] = goodIEnergyDeposited[1];
 
       if(smearedEnergyDeposited[0] < energy_threshold || smearedEnergyDeposited[0] < energy_threshold)
         continue;
@@ -786,7 +794,7 @@ int main (int argc, char** argv)
 
 
 
-      //probabiliy coorect event
+/*      //probabiliy coorect event
       Float_t totalProbability0 = simTravel1(disTravel1_0, lambdaLYSO->Eval(0.511))*
                                   simCompton(comptonAngle0)*
                                   simTravel2(comptonPhotoelDistance, lambdaLYSO->Eval((0.511/(2-cos(comptonAngle0)))))*
@@ -798,8 +806,24 @@ int main (int argc, char** argv)
                                   simTravel2(comptonPhotoelDistance, lambdaLYSO->Eval((0.511/(2-cos(comptonAngle1)))))*
                                   simPhotoelectric(photoelectricCrossSectionLYSO->Eval((0.511/(2-cos(comptonAngle1)))))*
                                   MeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedSecond[1],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355)*MeasureProb(smearedEnergyDeposited[1],TheoreticEnergyDepositedFirst[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
+*/
 
-      if(totalProbability0>totalProbability1)
+      //probabiliy coorect event
+      Float_t totalProbability0 = simTravel1(disTravel1_0, lambdaLYSO->Eval(0.511))*
+                                  simCompton(comptonAngle0)*
+                                  simTravel2(comptonPhotoelDistance, lambdaLYSO->Eval((0.511/(2-cos(comptonAngle0)))))*
+                                  simPhotoelectric(photoelectricCrossSectionLYSO->Eval((0.511/(2-cos(comptonAngle0)))));
+      //probability incorrect event
+      Float_t totalProbability1 = simTravel1(disTravel1_1, lambdaLYSO->Eval(0.511))*
+                                  simCompton(comptonAngle1)*
+                                  simTravel2(comptonPhotoelDistance, lambdaLYSO->Eval((0.511/(2-cos(comptonAngle1)))))*
+                                  simPhotoelectric(photoelectricCrossSectionLYSO->Eval((0.511/(2-cos(comptonAngle1)))));
+
+      Float_t ratio = totalProbability0 / totalProbability1 *
+      RatioMeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedFirst[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355, smearedEnergyDeposited[0],TheoreticEnergyDepositedSecond[1],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355) *
+      RatioMeasureProb(smearedEnergyDeposited[1],TheoreticEnergyDepositedSecond[0],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355, smearedEnergyDeposited[1],TheoreticEnergyDepositedFirst[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
+
+      if(ratio > 1)
       {
         winCounter++;
       }
@@ -807,9 +831,8 @@ int main (int argc, char** argv)
 
 
       //DEBUGGING: print everything
-      if(totalProbability0==0 || totalProbability1==0)
-      {
-        counterzero ++;
+      //if(totalProbability0==0 || totalProbability1==0)
+      //{
         /*std::cout << "prob0 = " << totalProbability0 << std::endl;
         std::cout << "simTravel1 = " << simTravel1(disTravel1_0, lambdaLYSO->Eval(0.511)) << std::endl;
         std::cout << "simCompton = " << simCompton(comptonAngle0) << std::endl;
@@ -830,18 +853,18 @@ int main (int argc, char** argv)
 
         std::cout << "\n" <<std::endl;
 
-        std::cout << "ratio = " << totalProbability0/totalProbability1 << "\n" << std::endl;
+        std::cout << "ratio = " << ratio << "\n" << std::endl;
         std::cout << "------------------" << std::endl;*/
-      }
+      //}
 
 
 
       //plot po/p1
-      ProbRatio->Fill(totalProbability0/totalProbability1);
+      ProbRatio->Fill(ratio);
 
       //plot the z coordinates of the compton and the photoelectric event
       //OPTION 1: if probability is near 1
-      if(totalProbability0/totalProbability1 > 0.9 && totalProbability0/totalProbability1 < 2)
+      if(ratio > 0.9 && ratio < 2)
       {
         //fill histogram with exact z coordinates of compton vs photoelectric crystals
         //as the probability is near 1, i expect them to be similar, so points should be close to the bisector
@@ -855,7 +878,7 @@ int main (int argc, char** argv)
 
       //OPTION 3: if probability is not near 1
       /*
-      if(totalProbability0/totalProbability1 < 0.9 || totalProbability0/totalProbability1 > 2)
+      if(ratio < 0.9 || ratio > 2)
       {
         //fill histogram with exact z coordinates of compton vs photoelectric crystals
         //as the probability is not near 1, i expect them not to be similar, so points should not be close to the bisector
@@ -868,7 +891,7 @@ int main (int argc, char** argv)
       //they will be used to calculate the percentage of correct predictions, given that the z coordinates are not (too) similar
       if(fabs(pComptZ[ComptCrystal]->at(0) - pPhotZ[PhotCrystal]->at(0))>2)
       {
-        if (totalProbability0/totalProbability1>1 && (totalProbability1 != 0 || totalProbability0 != 0))
+        if (ratio>1 && (totalProbability1 != 0 || totalProbability0 != 0))
         {
           zCheckWinCounter++;
         }
@@ -922,8 +945,6 @@ int main (int argc, char** argv)
   std::cout << "number of correct predictions with compton events with not too similar z coordinates: " << zCheckWinCounter << std::endl;
   std::cout << "percentage correct predictions with not too similar z coordinates: " << (Float_t) (zCheckWinCounter)/ (Float_t) (zCheckLoseCounter+zCheckWinCounter)*100 << std::endl;
   std::cout << "gain (correct predictions/one crystal events): " << (Float_t) (zCheckWinCounter)/ (Float_t) (oneGoodCrystalHitCounter)*100 << "\n------------" << std::endl;
-
-  std::cout << "number of zeros: " << counterzero << std::endl;
 
 
   std::string outFile = "Tree_OUT.root";
