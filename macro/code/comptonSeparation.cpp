@@ -105,9 +105,35 @@ long double MeasureProb(Float_t Em,Float_t Et,Float_t sigma)
 }
 
 
-Float_t RatioMeasureProb(Float_t Em1,Float_t Et1,Float_t sigma1, Float_t Em2,Float_t Et2,Float_t sigma2)
+long double RatioMeasureProb(Float_t Em1,Float_t Et1,Float_t sigma1, Float_t Em2,Float_t Et2,Float_t sigma2)
 {
-  return ((sigma2/sigma1)*exp( pow((Em2-Et2),2) / (2.0*pow(sigma2,2)) - pow((Em1-Et1),2) / (2.0*pow(sigma1,2)) ));
+  long double result = ((sigma2/sigma1)*exp( pow((Em2-Et2),2) / (2.0*pow(sigma2,2)) - pow((Em1-Et1),2) / (2.0*pow(sigma1,2)) ));
+  //std::cout << result << std::endl;
+  return result;
+}
+
+long double RatioTotMeasureProb(Float_t Em1,Float_t Et1,Float_t sigma1, Float_t Em2,Float_t Et2,Float_t sigma2, Float_t Em3,Float_t Et3,Float_t sigma3, Float_t Em4,Float_t Et4,Float_t sigma4)
+{
+  long double result = ((sigma2*sigma4/(sigma1*sigma3))*exp( pow((Em2-Et2),2) / (2.0*pow(sigma2,2)) - pow((Em1-Et1),2) / (2.0*pow(sigma1,2)) + pow((Em4-Et4),2) / (2.0*pow(sigma4,2)) - pow((Em3-Et3),2) / (2.0*pow(sigma3,2)) ));
+  //std::cout << result << std::endl;
+  return result;
+}
+
+
+
+static void show_usage(std::string name)
+{
+    std::cerr << "Usage: " << " <option(s)> INPUT"
+              << "Options:\n"
+              << "\t-h,--help\t\tShow this help message\n"
+              << "\t-x,--crystalx-esr (mm)"
+              << "\t-y,--crystaly-esr (mm)"
+              << "\t-s,--smearedXYZ (0 no, 1 yes)"
+              << "\t-z,--ZresFWHM (mm)"
+              << "\t-e,--enresFWHM (% from 0 to 1)"
+              << "\t-t,--CTR_FWHM, will be divided by sqrt(2) (ps)"
+              << "\t-o,--outputfilename"
+              << std::endl;
 }
 
 
@@ -117,11 +143,159 @@ int main (int argc, char** argv)
   gROOT->ProcessLine("#include <vector>");
 
   TChain *tree =  new TChain("tree");
-  for (int i = 1 ; i < argc ; i++)
+
+  //default values
+  Float_t crystalxEsr = 0.5+0.033333; //x length in mm
+  Float_t crystalyEsr = 0.5+0.033333; //y length in mm
+  bool smearedXYZ = 1;
+  Float_t timeResFWHM = 100/sqrt(2); //ps
+  Float_t enResFWHM = 0.12; //
+  Float_t ZResFWHM = 1  ; //mm
+  const char* outputfilename;
+
+
+
+
+
+  if (argc < 1)
+  {
+        show_usage(argv[0]);
+        return 1;
+  }
+  std::vector <std::string> input;
+  for (int i = 1; i < argc; ++i)
+  {
+    std::string arg = argv[i];
+    if ((arg == "-h") || (arg == "--help"))
+    {
+        show_usage(argv[0]);
+        return 0;
+    }
+
+    else if ((arg == "-x") || (arg == "--crystalx-esr"))
+    {
+      if (i + 1 < argc)
+      { // Make sure we aren't at the end of argv!
+        crystalxEsr = atof(argv[++i]); // Increment 'i' so we don't get the argument as the next argv[i].
+      }
+      else
+      { // Uh-oh, there was no argument to the destination option.
+        std::cerr << "--crystalx-esr option requires one argument." << std::endl;
+        return 1;
+      }
+    }
+
+    else if ((arg == "-y") || (arg == "--crystaly-esr"))
+    {
+      if (i + 1 < argc)
+      { // Make sure we aren't at the end of argv!
+        crystalyEsr = atof(argv[++i]); // Increment 'i' so we don't get the argument as the next argv[i].
+      }
+      else
+      { // Uh-oh, there was no argument to the destination option.
+        std::cerr << "--crystaly-esr option requires one argument." << std::endl;
+        return 1;
+      }
+    }
+
+    else if ((arg == "-s") || (arg == "--smearedXYZ"))
+    {
+      if (i + 1 < argc)
+      { // Make sure we aren't at the end of argv!
+        smearedXYZ = atoi(argv[++i]); // Increment 'i' so we don't get the argument as the next argv[i].
+      }
+      else
+      { // Uh-oh, there was no argument to the destination option.
+        std::cerr << "--smearedXYZ option requires one argument." << std::endl;
+        return 1;
+      }
+    }
+
+    else if ((arg == "-z") || (arg == "--ZresFWHM"))
+    {
+      if (i + 1 < argc)
+      { // Make sure we aren't at the end of argv!
+        ZResFWHM = atof(argv[++i]); // Increment 'i' so we don't get the argument as the next argv[i].
+      }
+      else
+      { // Uh-oh, there was no argument to the destination option.
+        std::cerr << "--ZresFWHM option requires one argument." << std::endl;
+        return 1;
+      }
+    }
+
+    else if ((arg == "-e") || (arg == "--enresFWHM"))
+    {
+      if (i + 1 < argc)
+      { // Make sure we aren't at the end of argv!
+        enResFWHM = atof(argv[++i]); // Increment 'i' so we don't get the argument as the next argv[i].
+      }
+      else
+      { // Uh-oh, there was no argument to the destination option.
+        std::cerr << "--enresFWHM option requires one argument." << std::endl;
+        return 1;
+      }
+    }
+
+    else if ((arg == "-t") || (arg == "--timeresFWHM"))
+    {
+      if (i + 1 < argc)
+      { // Make sure we aren't at the end of argv!
+        timeResFWHM = atof(argv[++i])/sqrt(2); // Increment 'i' so we don't get the argument as the next argv[i].
+      }
+      else
+      { // Uh-oh, there was no argument to the destination option.
+        std::cerr << "--timeresFWHM option requires one argument." << std::endl;
+        return 1;
+      }
+    }
+
+    else if ((arg == "-o") || (arg == "--outputfilename"))
+    {
+      if (i + 1 < argc)
+      { // Make sure we aren't at the end of argv!
+      outputfilename = argv[++i];
+      }
+      else
+      { // Uh-oh, there was no argument to the destination option.
+        std::cerr << "--outputfilename option requires one argument." << std::endl;
+        return 1;
+      }
+    }
+
+    else
+    {
+      std::cout << "Adding file " << argv[i] << std::endl;
+      tree->Add(argv[i]);
+    }
+  }
+
+  std::ofstream outputfile (outputfilename);
+
+
+
+
+  //write input values
+  outputfile << "\ncrystal x esr (mm):" << crystalxEsr << "\n";
+  outputfile << "crystal y esr (mm):" << crystalyEsr << "\n";
+  outputfile << "smearedXYZ (bool):" << smearedXYZ << "\n";
+  outputfile << "timeResFWHM of CTR, will be divided by sqrt2 (ps):" << timeResFWHM*sqrt(2) << "\n";
+  outputfile << "enResFWHM (%):" << enResFWHM << "\n";
+  outputfile << "ZResFWHM (mm):" << ZResFWHM << "\n";
+  outputfile << "\n";
+
+
+
+
+
+
+
+
+  /*for (int i = 1 ; i < argc ; i++)
   {
     std::cout << "Adding file " << argv[i] << std::endl;
     tree->Add(argv[i]);
-  }
+  }*/
 
 
   //find the number of channels directly from the tchain file
@@ -166,30 +340,30 @@ int main (int argc, char** argv)
 
   std::vector<float> *CryEnergyDeposited;
   std::vector<float> **pCryEnergyDeposited;
-  std::vector<float> *CryGlobalTime;
-  std::vector<float> **pCryGlobalTime;
-  std::vector<float> *PosXEnDep;
-  std::vector<float> **pPosXEnDep;
-  std::vector<float> *PosYEnDep;
-  std::vector<float> **pPosYEnDep;
-  std::vector<float> *PosZEnDep;
-  std::vector<float> **pPosZEnDep;
-  std::vector<float> *PosComptX;
-  std::vector<float> **pPosComptX;
-  std::vector<float> *PosComptY;
-  std::vector<float> **pPosComptY;
-  std::vector<float> *PosComptZ;
-  std::vector<float> **pPosComptZ;
-  std::vector<float> *PosPhotX;
-  std::vector<float> **pPosPhotX;
-  std::vector<float> *PosPhotY;
-  std::vector<float> **pPosPhotY;
-  std::vector<float> *PosPhotZ;
-  std::vector<float> **pPosPhotZ;
-  std::vector<float> *TimeCompt;
-  std::vector<float> **pTimeCompt;
-  std::vector<float> *TimePhot;
-  std::vector<float> **pTimePhot;
+  std::vector<float> *CryGlobalTime; //ns
+  std::vector<float> **pCryGlobalTime; //ns
+  std::vector<float> *PosXEnDep; //mm
+  std::vector<float> **pPosXEnDep; //mm
+  std::vector<float> *PosYEnDep; //mm
+  std::vector<float> **pPosYEnDep; //mm
+  std::vector<float> *PosZEnDep; //mm
+  std::vector<float> **pPosZEnDep; //mm
+  std::vector<float> *PosComptX; //mm
+  std::vector<float> **pPosComptX; //mm
+  std::vector<float> *PosComptY; //mm
+  std::vector<float> **pPosComptY; //mm
+  std::vector<float> *PosComptZ; //mm
+  std::vector<float> **pPosComptZ; //mm
+  std::vector<float> *PosPhotX; //mm
+  std::vector<float> **pPosPhotX; //mm
+  std::vector<float> *PosPhotY; //mm
+  std::vector<float> **pPosPhotY; //mm
+  std::vector<float> *PosPhotZ; //mm
+  std::vector<float> **pPosPhotZ; //mm
+  std::vector<float> *TimeCompt; //ns
+  std::vector<float> **pTimeCompt; //ns
+  std::vector<float> *TimePhot; //ns
+  std::vector<float> **pTimePhot; //ns
 
 
   CryEnergyDeposited  = new std::vector<float>  [numOfCry];
@@ -630,13 +804,20 @@ int main (int argc, char** argv)
     goodInteractionsZ = new Float_t [nCompt+nPhot];
     Float_t  *goodIEnergyDeposited;
     goodIEnergyDeposited = new Float_t [nCompt+nPhot];
+    Float_t  *smearedEnergyDeposited;
+    smearedEnergyDeposited = new Float_t [nCompt+nPhot];
     Float_t  *TheoreticEnergyDepositedFirst;
     TheoreticEnergyDepositedFirst = new Float_t [nCompt+nPhot];
     Float_t  *TheoreticEnergyDepositedSecond;
     TheoreticEnergyDepositedSecond = new Float_t [nCompt+nPhot];
 
-    Float_t  *smearedEnergyDeposited;
-    smearedEnergyDeposited = new Float_t [nCompt+nPhot];
+    Float_t  *timeDetection;
+    timeDetection = new Float_t [nCompt+nPhot];
+    Float_t  *timeDetectionSmeared;
+    timeDetectionSmeared = new Float_t [nCompt+nPhot];
+
+
+
 
     std::vector<float> comptCrystals;
     std::vector<float> photCrystals;
@@ -684,9 +865,14 @@ int main (int argc, char** argv)
     Float_t comptonAngle0;
     Float_t comptonAngle1;
     Float_t comptonPhotoelDistance;
-    Float_t sourceZ = -200;
-    Float_t crystalxEsr = 1.53+0.07; //x length in mm
-    Float_t crystalyEsr = 1.53+0.07; //y length in mm
+    Float_t sourceZ = -400;
+
+    Float_t z_crystal = 20; //z length in mm
+    long double lightspeed = 3e8;
+    Float_t n_LYSO = 1.81; //refraction index
+
+    bool timeinprob = 1;
+
 
 
 
@@ -694,66 +880,93 @@ int main (int argc, char** argv)
 
     if(diffcomptCrystals.size() == 1 && diffphotCrystals.size() == 1 && ComptCrystal != -1 && PhotCrystal != -1 && (ComptCrystal != PhotCrystal))
     {
-      //goodCounter++;
 
-      //X, Y coordinates as center of the crystal
+      //X, Y, Z coordinates
 
-      goodInteractionsX[0] = ((Short_t) (pComptX[ComptCrystal]->at(0) / crystalxEsr)) * crystalxEsr + sgn(pComptX[ComptCrystal]->at(0))*crystalxEsr/2;
-      goodInteractionsX[1] = ((Short_t) (pPhotX[PhotCrystal]->at(0) / crystalxEsr)) * crystalxEsr + sgn(pPhotX[PhotCrystal]->at(0))*crystalxEsr/2;
-      goodInteractionsY[0] = ((Short_t) (pComptY[ComptCrystal]->at(0) / crystalyEsr)) * crystalyEsr + sgn(pComptY[ComptCrystal]->at(0))*crystalyEsr/2;
-      goodInteractionsY[1] = ((Short_t) (pPhotY[PhotCrystal]->at(0) / crystalyEsr)) * crystalyEsr + sgn(pPhotY[PhotCrystal]->at(0))*crystalyEsr/2;
+      if(smearedXYZ == 1)
+      {
+        //X, Y coordinates as center of the crystal
+        goodInteractionsX[0] = ((Short_t) (pComptX[ComptCrystal]->at(0) / crystalxEsr)) * crystalxEsr + sgn(pComptX[ComptCrystal]->at(0))*crystalxEsr/2;
+        goodInteractionsX[1] = ((Short_t) (pPhotX[PhotCrystal]->at(0) / crystalxEsr)) * crystalxEsr + sgn(pPhotX[PhotCrystal]->at(0))*crystalxEsr/2;
+        goodInteractionsY[0] = ((Short_t) (pComptY[ComptCrystal]->at(0) / crystalyEsr)) * crystalyEsr + sgn(pComptY[ComptCrystal]->at(0))*crystalyEsr/2;
+        goodInteractionsY[1] = ((Short_t) (pPhotY[PhotCrystal]->at(0) / crystalyEsr)) * crystalyEsr + sgn(pPhotY[PhotCrystal]->at(0))*crystalyEsr/2;
 
-      //smeared Z coordinate
-      Float_t ZResFWHM = 2  ; //mm
-      TRandom *smearingZ = new TRandom();
-      goodInteractionsZ[0] = smearingZ->Gaus(pComptZ[ComptCrystal]->at(0),ZResFWHM/ 2.355);
-      goodInteractionsZ[1] = smearingZ->Gaus(pPhotZ[PhotCrystal]->at(0),ZResFWHM/ 2.355);
+        //smeared Z coordinate
+        TRandom *smearingZ = new TRandom();
+        goodInteractionsZ[0] = smearingZ->Gaus(pComptZ[ComptCrystal]->at(0),ZResFWHM/ 2.355);
+        goodInteractionsZ[1] = smearingZ->Gaus(pPhotZ[PhotCrystal]->at(0),ZResFWHM/ 2.355);
+
+        /*std::cout << "center x: " << goodInteractionsX[0] << "\t exact:" << pComptX[ComptCrystal]->at(0) << std::endl;
+        std::cout << "center x: " << goodInteractionsX[1] << "\t exact:" << pPhotX[PhotCrystal]->at(0) << std::endl;
+        std::cout << "center y: " << goodInteractionsY[0] << "\t exact:" << pComptY[ComptCrystal]->at(0) << std::endl;
+        std::cout << "center y: " << goodInteractionsY[1] << "\t exact:" << pPhotY[PhotCrystal]->at(0) << std::endl;
+        std::cout << "smeared z: " << goodInteractionsZ[0] << "\t exact:" << pComptZ[ComptCrystal]->at(0) << std::endl;
+        std::cout << "smeared z: " << goodInteractionsZ[1] << "\t exact:" << pPhotZ[PhotCrystal]->at(0) << "\n" << std::endl;
+        */
+      }
+      else if(smearedXYZ == 0)
+      {
+        //exact X,Y,Z coordinates
+        goodInteractionsX[0] = pComptX[ComptCrystal]->at(0);
+        goodInteractionsX[1] = pPhotX[PhotCrystal]->at(0);
+        goodInteractionsY[0] = pComptY[ComptCrystal]->at(0);
+        goodInteractionsY[1] = pPhotY[PhotCrystal]->at(0);
+        goodInteractionsZ[0] = pComptZ[ComptCrystal]->at(0);
+        goodInteractionsZ[1] = pPhotZ[PhotCrystal]->at(0);
+      }
 
 
-      /*
-      std::cout << "center x: " << goodInteractionsX[0] << "\t exact:" << pComptX[ComptCrystal]->at(0) << std::endl;
-      std::cout << "center x: " << goodInteractionsX[1] << "\t exact:" << pPhotX[PhotCrystal]->at(0) << std::endl;
-      std::cout << "center y: " << goodInteractionsY[0] << "\t exact:" << pComptY[ComptCrystal]->at(0) << std::endl;
-      std::cout << "center y: " << goodInteractionsY[1] << "\t exact:" << pPhotY[PhotCrystal]->at(0) << std::endl;
-      std::cout << "smeared z: " << goodInteractionsZ[0] << "\t exact:" << pComptZ[ComptCrystal]->at(0) << std::endl;
-      std::cout << "smeared z: " << goodInteractionsZ[1] << "\t exact:" << pPhotZ[PhotCrystal]->at(0) << "\n" << std::endl;
+
+      //TIME
+
+      //check on time: ok
+      /*std::cout << (-pTCompt[ComptCrystal]->at(0) + pTPhot[PhotCrystal]->at(0))*1e3 << "\t" <<
+      (distance3D(goodInteractionsX[0], goodInteractionsY[0], goodInteractionsZ[0],
+                  goodInteractionsX[1], goodInteractionsY[1], goodInteractionsZ[1])) / (lightspeed* 1e-9) << std::endl;*/
+
+      //compute distances of interaction points from front and back matrix
+      //and calculate time of detection at MPCCs
+
+      timeDetection[0] = pTCompt[ComptCrystal]->at(0) * 1e3 +(7.5 - fabs(goodInteractionsZ[0]))*n_LYSO/(lightspeed * 1e-9); //ps
+      timeDetection[1] = pTPhot[PhotCrystal]->at(0) * 1e3 + (7.5 - fabs(goodInteractionsZ[1]))*n_LYSO/(lightspeed * 1e-9); //ps
+
+      /*std::cout << "\nglobal times compton and photoelectric [ps]" << pTCompt[ComptCrystal]->at(0)*1e3 << "\t" << pTPhot[PhotCrystal]->at(0)*1e3
+                << "\ntime difference compton and photoelectric [ps]: " << (-pTCompt[ComptCrystal]->at(0) + pTPhot[PhotCrystal]->at(0))*1e3
+                << "\ntime difference from compton interaction to detection [ps]" << timedetectionCompt - pTCompt[ComptCrystal]->at(0) *1e3
+                << "\ntime difference from photoelectric interaction to detection [ps]" << timedetectionPhot - pTPhot[PhotCrystal]->at(0) *1e3
+                << "\ntime difference of detection [ps]:" << timedetectionPhot - timedetectionCompt << std::endl;
       */
 
-      //exact X,Y,Z coordinates
+      //smear the reading of the detector
+      TRandom *smearing_time = new TRandom();
+      timeDetectionSmeared[0] = smearing_time->Gaus(timeDetection[0],timeResFWHM/ 2.355);
+      timeDetectionSmeared[1] = smearing_time->Gaus(timeDetection[1],timeResFWHM/ 2.355);
 
-/*
-      goodInteractionsX[0] = pComptX[ComptCrystal]->at(0);
-      goodInteractionsX[1] = pPhotX[PhotCrystal]->at(0);
-      goodInteractionsY[0] = pComptY[ComptCrystal]->at(0);
-      goodInteractionsY[1] = pPhotY[PhotCrystal]->at(0);
-      goodInteractionsZ[0] = pComptZ[ComptCrystal]->at(0);
-      goodInteractionsZ[1] = pPhotZ[PhotCrystal]->at(0);
-*/
 
+
+      //ENERGY
 
       //take the energy deposited in the two crystals
       goodIEnergyDeposited[0] = TotalCryEnergy[ComptCrystal];
       goodIEnergyDeposited[1] = TotalCryEnergy[PhotCrystal];
 
+      //std::cout << goodIEnergyDeposited[0] << "\t" << goodIEnergyDeposited[1] << std::endl;
+
+      //smear the reading of the detector
+      TRandom *smearing = new TRandom();
+      smearedEnergyDeposited[0] = smearing->Gaus(goodIEnergyDeposited[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355);
+      smearedEnergyDeposited[1] = smearing->Gaus(goodIEnergyDeposited[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
 
 
+      if(smearedEnergyDeposited[0] < energy_threshold || smearedEnergyDeposited[1] < energy_threshold)
+        continue;
+      else
+        goodCounter++;
 
 
-/*
-      //properly calculate the travel lenght of path 1
-      //distance3D with interesection line origin to compton vertex and plane on the back of the crystal (z= +7.5 in this scenario
-      Float_t paramT0 = (-7.5 + sourceZ)/(goodInteractionsZ[0] - sourceZ);
-      //Float_t Inters0[3] = {0 + paramT0*(goodInteractionsX[0] - 0),0 + paramT0*(goodInteractionsY[0] - 0),-7.5};
-      Float_t disTravel1_0 = distance3D(0 + paramT0*(goodInteractionsX[0] - 0),0 + paramT0*(goodInteractionsY[0] - 0),-7.5, goodInteractionsX[0], goodInteractionsY[0], goodInteractionsZ[0]);
-      //std::cout << disTravel1_0 << "\t" << fabs(-7.5-goodInteractionsZ[0]) << std::endl;
-      Float_t paramT1 = (-7.5 - sourceZ)/(goodInteractionsZ[1] - sourceZ);
-      //Float_t Inters1[3] = {0 + paramT1*(goodInteractionsX[1] - 0),0 + paramT1*(goodInteractionsY[1] - 0),-7.5};
-      Float_t disTravel1_1 = distance3D(0 + paramT1*(goodInteractionsX[1] - 0),0 + paramT1*(goodInteractionsY[1] - 0),-7.5, goodInteractionsX[1], goodInteractionsY[1], goodInteractionsZ[1]);
-      //std::cout << disTravel1_1 << "\t" << fabs(-7.5-goodInteractionsZ[1]) << std::endl;
-*/
       //approx z, photons are incoming almost in the z direction
-      Float_t disTravel1_0 = 7.5 + goodInteractionsZ[0];
-      Float_t disTravel1_1 = 7.5 + goodInteractionsZ[1];
+      Float_t disTravel1_0 = z_crystal/2 + goodInteractionsZ[0];
+      Float_t disTravel1_1 = z_crystal/2 + goodInteractionsZ[1];
       //std::cout << disTravel1_0 << "\t" << disTravel1_1 << std::endl;
 
 
@@ -772,41 +985,15 @@ int main (int argc, char** argv)
       //in photoelectric crystal
       TheoreticEnergyDepositedSecond[0] = (0.511/(2-cos(comptonAngle0)));
 
+      //std::cout << TheoreticEnergyDepositedFirst[0] << "\t" << TheoreticEnergyDepositedSecond[0] << "\n" << std::endl;
+
       // if 1 -> 0 (incorrect), compton angle is 1 and energy dep is
       //in compton crystal
       TheoreticEnergyDepositedFirst[1] = 0.511 - (0.511/(2-cos(comptonAngle1)));
       //in photoelectric crystal
       TheoreticEnergyDepositedSecond[1] = (0.511/(2-cos(comptonAngle1)));
 
-      //smear the reading of the detector
-      Float_t enResFWHM = 0.12;
-      TRandom *smearing = new TRandom();
-      //smearedEnergyDeposited[0] = smearing->Gaus(goodIEnergyDeposited[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355);
-      //smearedEnergyDeposited[1] = smearing->Gaus(goodIEnergyDeposited[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
 
-      smearedEnergyDeposited[0] = goodIEnergyDeposited[0];
-      smearedEnergyDeposited[1] = goodIEnergyDeposited[1];
-
-      if(smearedEnergyDeposited[0] < energy_threshold || smearedEnergyDeposited[0] < energy_threshold)
-        continue;
-      else
-        goodCounter++;
-
-
-
-/*      //probabiliy coorect event
-      Float_t totalProbability0 = simTravel1(disTravel1_0, lambdaLYSO->Eval(0.511))*
-                                  simCompton(comptonAngle0)*
-                                  simTravel2(comptonPhotoelDistance, lambdaLYSO->Eval((0.511/(2-cos(comptonAngle0)))))*
-                                  simPhotoelectric(photoelectricCrossSectionLYSO->Eval((0.511/(2-cos(comptonAngle0)))))*
-                                  MeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedFirst[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355)*MeasureProb(smearedEnergyDeposited[1],TheoreticEnergyDepositedSecond[0],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
-      //probability incorrect event
-      Float_t totalProbability1 = simTravel1(disTravel1_1, lambdaLYSO->Eval(0.511))*
-                                  simCompton(comptonAngle1)*
-                                  simTravel2(comptonPhotoelDistance, lambdaLYSO->Eval((0.511/(2-cos(comptonAngle1)))))*
-                                  simPhotoelectric(photoelectricCrossSectionLYSO->Eval((0.511/(2-cos(comptonAngle1)))))*
-                                  MeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedSecond[1],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355)*MeasureProb(smearedEnergyDeposited[1],TheoreticEnergyDepositedFirst[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
-*/
 
       //probabiliy coorect event
       Float_t totalProbability0 = simTravel1(disTravel1_0, lambdaLYSO->Eval(0.511))*
@@ -820,8 +1007,17 @@ int main (int argc, char** argv)
                                   simPhotoelectric(photoelectricCrossSectionLYSO->Eval((0.511/(2-cos(comptonAngle1)))));
 
       Float_t ratio = totalProbability0 / totalProbability1 *
-      RatioMeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedFirst[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355, smearedEnergyDeposited[0],TheoreticEnergyDepositedSecond[1],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355) *
-      RatioMeasureProb(smearedEnergyDeposited[1],TheoreticEnergyDepositedSecond[0],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355, smearedEnergyDeposited[1],TheoreticEnergyDepositedFirst[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355);
+      //RatioMeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedFirst[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355, smearedEnergyDeposited[0],TheoreticEnergyDepositedSecond[1],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355) *
+      //RatioMeasureProb(smearedEnergyDeposited[1],TheoreticEnergyDepositedSecond[0],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355, smearedEnergyDeposited[1],TheoreticEnergyDepositedFirst[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355) ;
+      //RatioMeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedFirst[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355, smearedEnergyDeposited[1],TheoreticEnergyDepositedFirst[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355) *
+      //RatioMeasureProb(smearedEnergyDeposited[1],TheoreticEnergyDepositedSecond[0],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355, smearedEnergyDeposited[0],TheoreticEnergyDepositedSecond[1],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355) ;
+      RatioTotMeasureProb(smearedEnergyDeposited[0],TheoreticEnergyDepositedFirst[0],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355, smearedEnergyDeposited[1],TheoreticEnergyDepositedFirst[1],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355, smearedEnergyDeposited[1],TheoreticEnergyDepositedSecond[0],(enResFWHM*goodIEnergyDeposited[1] )/ 2.355, smearedEnergyDeposited[0],TheoreticEnergyDepositedSecond[1],(enResFWHM*goodIEnergyDeposited[0] )/ 2.355);
+
+      if(timeinprob == 1)
+      {
+        ratio *=   RatioMeasureProb(timeDetectionSmeared[0], timeDetection[0], timeResFWHM/2.355, timeDetectionSmeared[0], timeDetection[1], timeResFWHM/2.355)*
+          RatioMeasureProb(timeDetectionSmeared[1], timeDetection[1], timeResFWHM/2.355, timeDetectionSmeared[1], timeDetection[0], timeResFWHM/2.355);
+      }
 
       if(ratio > 1)
       {
@@ -932,19 +1128,19 @@ int main (int argc, char** argv)
 
   }
 
-  std::cout << std::endl;
-  std::cout << "------------\nnumber of events where only one crystal is hit: " << oneGoodCrystalHitCounter << std::endl;
 
-  std::cout << "\nnumber of good compton events: " << goodCounter << std::endl;
-  std::cout << "number of correct predictions: " << winCounter << std::endl;
-  std::cout << "(exactly two events in two different crystals: " << twoeventsCounter << "; \tmore events in two different crystals: " << moreeventsCounter << ")" << std::endl;
-  std::cout << "percentage correct predictions: " << (Float_t) (winCounter)/ (Float_t) (goodCounter)*100 << std::endl;
-  std::cout << "gain (correct predictions/one crystal events): " << (Float_t) (winCounter)/ (Float_t) (oneGoodCrystalHitCounter)*100 << std::endl;
+  outputfile << "------------\nnumber of events where only one crystal is hit: " << oneGoodCrystalHitCounter << "\n";
 
-  std::cout << "\nnumber of compton events with not too similar z coordinates: " << zCheckWinCounter+zCheckLoseCounter << std::endl;
-  std::cout << "number of correct predictions with compton events with not too similar z coordinates: " << zCheckWinCounter << std::endl;
-  std::cout << "percentage correct predictions with not too similar z coordinates: " << (Float_t) (zCheckWinCounter)/ (Float_t) (zCheckLoseCounter+zCheckWinCounter)*100 << std::endl;
-  std::cout << "gain (correct predictions/one crystal events): " << (Float_t) (zCheckWinCounter)/ (Float_t) (oneGoodCrystalHitCounter)*100 << "\n------------" << std::endl;
+  outputfile << "\nnumber of good compton events: " << goodCounter << "\n";
+  //outputfile << "number of correct predictions: " << winCounter << "\n";
+  //outputfile << "(exactly two events in two different crystals: " << twoeventsCounter << "; \tmore events in two different crystals: " << moreeventsCounter << ")" << "\n";
+  outputfile << "percentage correct predictions: " << (Float_t) (winCounter)/ (Float_t) (goodCounter)*100 << "\n";
+  outputfile << "gain (correct predictions/one crystal events): " << (Float_t) (winCounter)/ (Float_t) (oneGoodCrystalHitCounter)*100 << "\n";
+
+  //outputfile << "number of correct predictions with compton events with not too similar z coordinates: " << zCheckWinCounter << "\n";
+  outputfile << "\npercentage correct predictions with not too similar z coordinates: " << (Float_t) (zCheckWinCounter)/ (Float_t) (zCheckLoseCounter+zCheckWinCounter)*100 << "\n";
+  outputfile << "percentage of compton events with not too similar z coordinates, wrt compton: " << (Float_t) (zCheckWinCounter+zCheckLoseCounter)/((Float_t) goodCounter)*100 << "\n";
+  outputfile << "gain (correct predictions/one crystal events): " << (Float_t) (zCheckWinCounter)/ (Float_t) (oneGoodCrystalHitCounter)*100 << "\n------------" << "\n";
 
 
   std::string outFile = "Tree_OUT.root";
@@ -984,6 +1180,8 @@ int main (int argc, char** argv)
   t1->Write();
 
   fOut->Close();
+  outputfile.close();
+
 
   return 0;
 }
