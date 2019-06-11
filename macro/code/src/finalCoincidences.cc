@@ -56,7 +56,7 @@ void finalCoincidences::MergeTTrees(singleCoincidences* singleCoincidences_obj, 
         c_energy1 = singleCoincidences_obj->energy1;
         c_globalPosX1 = singleCoincidences_obj->globalPosX1;
         c_globalPosY1 = singleCoincidences_obj->globalPosY1;
-        c_globalPosZ1 = 0;
+        c_globalPosZ1 = singleCoincidences_obj->globalPosZ1;
         c_gantryID1 = 0;
         c_rsectorID1 = 0;
         c_moduleID1 = 0;
@@ -76,7 +76,7 @@ void finalCoincidences::MergeTTrees(singleCoincidences* singleCoincidences_obj, 
         c_energy2 = singleCoincidences_obj->energy2;
         c_globalPosX2 = singleCoincidences_obj->globalPosX2;
         c_globalPosY2 = singleCoincidences_obj->globalPosY2;
-        c_globalPosZ2 = 0;
+        c_globalPosZ2 = singleCoincidences_obj->globalPosZ2;;
         c_gantryID2 = 0;
         c_rsectorID2 = 0;
         c_moduleID2 = 0;

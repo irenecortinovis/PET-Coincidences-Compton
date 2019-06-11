@@ -168,6 +168,7 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
       ((events_vector.at(size)).v_nPhantomCompton).push_back(nPhantomCompton);
       ((events_vector.at(size)).v_posX).push_back(posX);
       ((events_vector.at(size)).v_posY).push_back(posY);
+      ((events_vector.at(size)).v_posZ).push_back(posZ);
       ((events_vector.at(size)).rotationAngle) = rotationAngle;
 
       sizeEvent = ((events_vector.at(size)).v_edep).size();
@@ -405,7 +406,10 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
        //positions
        this_coincidence.globalPosX1 = (singleEvent.v_posX).at(min_i1);
        this_coincidence.globalPosY1 = (singleEvent.v_posY).at(min_i1);
+       this_coincidence.globalPosZ1 = (singleEvent.v_posZ).at(min_i1);
        this_coincidence.globalPosX2 = (singleEvent.v_posX).at(min_i2);
+       this_coincidence.globalPosY2 = (singleEvent.v_posY).at(min_i2);
+       this_coincidence.globalPosZ2 = (singleEvent.v_posZ).at(min_i2);
 
        this_coincidence.energy1=0;
        this_coincidence.energy2=0;
@@ -549,7 +553,10 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
        //positions
        this_coincidence.globalPosX1 = (ICCevent.v_posX).at(min_i1);
        this_coincidence.globalPosY1 = (ICCevent.v_posY).at(min_i1);
+       this_coincidence.globalPosZ1 = (ICCevent.v_posZ).at(min_i1);
        this_coincidence.globalPosX2 = (ICCevent.v_posX).at(min_i2);
+       this_coincidence.globalPosY2 = (ICCevent.v_posY).at(min_i2);
+       this_coincidence.globalPosZ2 = (ICCevent.v_posZ).at(min_i2);
 
        this_coincidence.energy1=0;
        this_coincidence.energy2=0;
@@ -638,8 +645,10 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
              //positions
              this_coincidence_incorrect.globalPosX1 = (ICCevent.v_posX).at(t2_min_i1);
              this_coincidence_incorrect.globalPosY1 = (ICCevent.v_posY).at(t2_min_i1);
+             this_coincidence_incorrect.globalPosZ1 = (ICCevent.v_posZ).at(t2_min_i1);
              this_coincidence_incorrect.globalPosX2 = (ICCevent.v_posX).at(min_i2);
              this_coincidence_incorrect.globalPosY2 = (ICCevent.v_posY).at(min_i2);
+             this_coincidence_incorrect.globalPosZ2 = (ICCevent.v_posZ).at(min_i2);
 
              this_coincidence_incorrect.energy1=0;
              this_coincidence_incorrect.energy2=0;
@@ -721,8 +730,11 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
              //positions
              this_coincidence_incorrect.globalPosX1 = (ICCevent.v_posX).at(min_i1);
              this_coincidence_incorrect.globalPosY1 = (ICCevent.v_posY).at(min_i1);
+             this_coincidence_incorrect.globalPosZ1 = (ICCevent.v_posZ).at(min_i1);
              this_coincidence_incorrect.globalPosX2 = (ICCevent.v_posX).at(t2_min_i2);
              this_coincidence_incorrect.globalPosY2 = (ICCevent.v_posY).at(t2_min_i2);
+             this_coincidence_incorrect.globalPosZ2 = (ICCevent.v_posZ).at(t2_min_i2);
+
 
              this_coincidence_incorrect.energy1=0;
              this_coincidence_incorrect.energy2=0;

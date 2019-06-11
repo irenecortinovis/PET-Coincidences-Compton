@@ -22,6 +22,7 @@ void singleCoincidences::FillSingle(std::vector<Hits::CoincidenceEvent> cvector)
     energy1 = (cvector.at(i)).energy1;
     globalPosX1 = (cvector.at(i)).globalPosX1;
     globalPosY1 = (cvector.at(i)).globalPosY1;
+    globalPosZ1 = (cvector.at(i)).globalPosZ1;
     crystalID1 = (cvector.at(i)).crystalID1;
     rsectorID1 = (cvector.at(i)).rsectorID1;
     comptonPhantom1 = (cvector.at(i)).comptonPhantom1;
@@ -29,6 +30,7 @@ void singleCoincidences::FillSingle(std::vector<Hits::CoincidenceEvent> cvector)
     energy2 = (cvector.at(i)).energy2;
     globalPosX2 = (cvector.at(i)).globalPosX2;
     globalPosY2 = (cvector.at(i)).globalPosY2;
+    globalPosZ2 = (cvector.at(i)).globalPosZ2;
     crystalID2 = (cvector.at(i)).crystalID2;
     rsectorID2 = (cvector.at(i)).rsectorID2;
     comptonPhantom2 = (cvector.at(i)).comptonPhantom2;

@@ -120,6 +120,7 @@ public :
      std::vector<Int_t>           v_nPhantomCompton;
      std::vector<Float_t>         v_posX;
      std::vector<Float_t>         v_posY;
+     std::vector<Float_t>         v_posZ;
      //vector Float?
      Float_t                      rotationAngle;
      Int_t                        ndiffRSectors;
@@ -152,6 +153,8 @@ public :
      Float_t                       globalPosX2;
      Float_t                       globalPosY1;
      Float_t                       globalPosY2;
+     Float_t                       globalPosZ1;
+     Float_t                       globalPosZ2;
    };
 
 
@@ -294,6 +297,7 @@ void Hits::Init(TTree *tree)
    fChain->SetBranchStatus("edep", 1);
    fChain->SetBranchStatus("posX", 1);
    fChain->SetBranchStatus("posY", 1);
+   fChain->SetBranchStatus("posZ", 1);
    fChain->SetBranchStatus("rsectorID", 1);
    fChain->SetBranchStatus("crystalID", 1);
    fChain->SetBranchStatus("primaryID",1);

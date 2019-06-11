@@ -31,6 +31,7 @@ void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<H
     energy1 = (cvector.at(i)).at(index).energy1;
     globalPosX1 = (cvector.at(i)).at(index).globalPosX1;
     globalPosY1 = (cvector.at(i)).at(index).globalPosY1;
+    globalPosZ1 = (cvector.at(i)).at(index).globalPosZ1;
     crystalID1 = (cvector.at(i)).at(index).crystalID1;
     rsectorID1 = (cvector.at(i)).at(index).rsectorID1;
     comptonPhantom1 = (cvector.at(i)).at(index).comptonPhantom1;
@@ -38,6 +39,7 @@ void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<H
     energy2 = (cvector.at(i)).at(index).energy2;
     globalPosX2 = (cvector.at(i)).at(index).globalPosX2;
     globalPosY2 = (cvector.at(i)).at(index).globalPosY2;
+    globalPosZ2 = (cvector.at(i)).at(index).globalPosZ2;
     crystalID2 = (cvector.at(i)).at(index).crystalID2;
     rsectorID2 = (cvector.at(i)).at(index).rsectorID2;
     comptonPhantom2 = (cvector.at(i)).at(index).comptonPhantom2;
