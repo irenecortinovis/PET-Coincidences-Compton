@@ -105,15 +105,15 @@ int main(int argc, char const *argv[])
 
 
 
-  //save only realCoincidences TTree from original file
-  //std::string realoutFile = "original_" + inputfilename;
+  //save only mono-crystal coincidences TTree from Hits
+  //std::string single_coinc_outFile = "singles_" + inputfilename;
   int find = inputfilename.find("out");
-  std::string realoutFile = inputfilename.substr(find);
-  realoutFile.insert(0,"original_");
-  TFile* realfOut = new TFile(realoutFile.c_str(),"recreate");
+  std::string single_coinc_outFile = inputfilename.substr(find);
+  single_coinc_outFile.insert(0,"singles_");
+  TFile* realfOut = new TFile(single_coinc_outFile.c_str(),"recreate");
   realfOut->CurrentFile();
-  TTree* original = realCoincidences_obj->fChain->CloneTree();
-  original->Write();
+  TTree* singles = singleCoincidences_obj->fChain->CloneTree();
+  singles->Write();
   realfOut->Close();
 
   ComptonRealCoincidencesIDvector.clear();
