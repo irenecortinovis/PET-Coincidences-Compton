@@ -10,10 +10,13 @@ run:
 #include "./src/Hits.cc"
 #define ICCoincidences_cxx
 #include "./src/ICCoincidences.cc"
+#define singleCoincidences_cxx
+#include "./src/singleCoincidences.cc"
 #define realCoincidences_cxx
 #include "./include/realCoincidences.h"
 #define finalCoincidences_cxx
 #include "./src/finalCoincidences.cc"
+
 
 
 #include <cstdio>
@@ -22,6 +25,8 @@ run:
 #include <iomanip>
 #include <math.h>
 #include <string>
+#include <tuple>
+
 
 #include <TApplication.h>
 
@@ -50,9 +55,18 @@ int main(int argc, char const *argv[])
   std::vector<Int_t> MonoCoincidencesIDvector;
 
   //Loop to find inter-crystals compton coincidences
-  //output a vector of pairs of CoincidenceEvent structs: first one is correct prediction, second one is incorrect prediction
+  //output a vector of pairs of CoincidenceEvent Hits: first one is correct prediction, second one is incorrect prediction
   //fill also the the eventIDs in the just created vector
-  std::vector<std::vector<Hits::CoincidenceEvent> > coincidences_vector = Hits_obj->FindICcoincidences(energy_threshold, &ComptonRealCoincidencesIDvector, &MonoCoincidencesIDvector);
+  std::vector<std::vector<Hits::CoincidenceEvent> > ic_coincidences_vector;
+  std::vector<Hits::CoincidenceEvent> s_coincidences_vector;
+  std::tie(ic_coincidences_vector,s_coincidences_vector)= Hits_obj->FindICcoincidences(energy_threshold, &ComptonRealCoincidencesIDvector, &MonoCoincidencesIDvector);
+
+
+  //instantiate singleCoincidences object
+  singleCoincidences* singleCoincidences_obj = new singleCoincidences();
+  //Fill realCoincidences-like tree with the single coincidences
+  singleCoincidences_obj->FillSingle(s_coincidences_vector);
+
 
   //percentage of correct compton predictions vector
   static const Float_t perc_arr[] = {100};
@@ -66,7 +80,7 @@ int main(int argc, char const *argv[])
     //instantiate ICCoincidences object
     ICCoincidences* ICCoincidences_obj = new ICCoincidences();
     //Fill realCoincidences-like tree with the inter-crystals compton coincidences
-    ICCoincidences_obj->FillICCompton(percentage, coincidences_vector);
+    ICCoincidences_obj->FillICCompton(percentage, ic_coincidences_vector);
 
     //create TFile for final output file
     std::ostringstream ss;
@@ -78,10 +92,10 @@ int main(int argc, char const *argv[])
     outFile.insert(0,"compt_" + percentage_string + "_");
     TFile* fOut = new TFile(outFile.c_str(),"recreate");
 
-    //instantiate finalCoincidences object
+    //instantiate finalCoincidences object (intercrystals coincidences ttree which is constructed above)
     finalCoincidences* finalCoincidences_obj = new finalCoincidences(ICCoincidences_obj->fChain);
     //merge the original realCoincidences TTree and the ICCCoincidences TTree, priority to inter-crystals events
-    finalCoincidences_obj->MergeTTrees(realCoincidences_obj, ComptonRealCoincidencesIDvector, MonoCoincidencesIDvector, fOut);
+    finalCoincidences_obj->MergeTTrees(singleCoincidences_obj, ComptonRealCoincidencesIDvector, MonoCoincidencesIDvector, fOut);
 
     fOut->Close();
 
@@ -103,12 +117,15 @@ int main(int argc, char const *argv[])
   realfOut->Close();
 
   ComptonRealCoincidencesIDvector.clear();
-  coincidences_vector.clear();
+  ic_coincidences_vector.clear();
+  s_coincidences_vector.clear();
   percentage_vector.clear();
 
 
   delete Hits_obj;
   delete realCoincidences_obj;
+  delete singleCoincidences_obj;
+
 
 
   /*//ONLY DELETE INPUT FILE WHEN ALL PERCENTAGES ARE DONE

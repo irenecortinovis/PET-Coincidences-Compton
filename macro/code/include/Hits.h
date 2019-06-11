@@ -13,6 +13,9 @@
 #include <TFile.h>
 #include <iostream>
 #include <iomanip>
+#include <tuple>
+
+
 
 // Header file for the classes stored in the TTree if any.
 
@@ -160,7 +163,9 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual std::vector<std::vector<CoincidenceEvent> > FindICcoincidences(Float_t energy_threshold, std::vector<Int_t>* comptonIDsvector, std::vector<Int_t>* monoIDsvector);
+   //virtual std::vector<std::vector<CoincidenceEvent> > FindICcoincidences(Float_t energy_threshold, std::vector<Int_t>* comptonIDsvector, std::vector<Int_t>* monoIDsvector);
+   virtual std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::CoincidenceEvent>> FindICcoincidences(Float_t energy_threshold, std::vector<Int_t>* IDsvector, std::vector<Int_t>* monoIDsvector);
+
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    virtual void     PrintEvent(Event this_event);

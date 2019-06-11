@@ -7,6 +7,7 @@
 #include <TChain.h>
 #include <TFile.h>
 
+
 // Header file for the classes stored in the TTree if any.
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -69,12 +70,13 @@ public :
    Char_t          c_RayleighVolName2[30];
 
 
+
    finalCoincidences(TTree *tree_to_clone);
    virtual ~finalCoincidences();
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     MergeTTrees(realCoincidences* realCoincidences_obj, std::vector<int> v_comptID, std::vector<int> v_monoID, TFile* fOut);
+   virtual void     MergeTTrees(singleCoincidences* singleCoincidences_obj, std::vector<int> v_comptID, std::vector<int> v_monoID, TFile* fOut);
 
 };
 

@@ -149,13 +149,15 @@ realCoincidences::realCoincidences(std::string filename, TTree *tree) : fChain(0
       if (!f || !f->IsOpen()) {
          f = new TFile("Memory Directory");
       }
-      f->GetObject("realCoincidences",tree);
+      //change to realCoincidences
+      f->GetObject("Coincidences",tree);
 
 #else // SINGLE_TREE
 
       // The following code should be used if you want this class to access a chain
       // of trees.
-      TChain * chain = new TChain("realCoincidences");
+      //change to realCoincidences
+      TChain * chain = new TChain("Coincidences");
       chain->Add(filename.c_str()) ;
       tree = chain;
 #endif // SINGLE_TREE
