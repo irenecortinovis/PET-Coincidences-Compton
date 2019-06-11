@@ -30,7 +30,7 @@ bool Hits::ComptonFilter(const char* processName, Float_t edep)
 //compare crystalID with ones in the same event
 //to see if the gamma hits a new crystal
 //only executed if ComptonFilter is true (be careful: no energy threshold on ComptonFilter)
-bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorID, Int_t primaryID, Float_t energy_threshold)
+bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorID, Int_t submoduleID, Int_t primaryID, Float_t energy_threshold)
 {
   bool isDiffCrystal = true;
 
@@ -50,7 +50,7 @@ bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorI
   Float_t edep_in_crystal = 0;
   for(int i=0; i<(this_event.v_edep).size(); i++)
   {
-    if((this_event.v_primaryID).at(i) == primaryID && (this_event.v_rsectorID).at(i) == rsectorID && (this_event.v_crystalID).at(i) == crystalID)
+    if((this_event.v_primaryID).at(i) == primaryID && (this_event.v_rsectorID).at(i) == rsectorID && (this_event.v_crystalID).at(i) == crystalID && (this_event.v_submoduleID).at(i) == submoduleID)
       edep_in_crystal +=  (this_event.v_edep).at(i);
   }
   if(edep_in_crystal < energy_threshold)
@@ -160,6 +160,7 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
 
       ((events_vector.at(size)).v_rsectorID).push_back(rsectorID);
       ((events_vector.at(size)).v_primaryID).push_back(primaryID);
+      ((events_vector.at(size)).v_submoduleID).push_back(submoduleID);
 
       std::string s_processName(processName);
       ((events_vector.at(size)).v_processName).push_back(s_processName);
@@ -182,7 +183,7 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
          if(primaryID == ((events_vector.at(size)).v_primaryID).at(0))
          {
            //increase number of different crystals if it is a new crystalID
-           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, primaryID, energy_threshold))
+           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, submoduleID, primaryID, energy_threshold))
            {
              ((events_vector.at(size)).v_diffCrystal0).push_back(crystalID);
              ((events_vector.at(size)).ndiffCrystals0) ++;
@@ -191,7 +192,7 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
          else
          {
            //increase number of different crystals if it is a new crystalID
-           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, primaryID, energy_threshold))
+           if(isDiffCrystal(events_vector.at(size), crystalID, rsectorID, submoduleID, primaryID, energy_threshold))
            {
              ((events_vector.at(size)).v_diffCrystal1).push_back(crystalID);
              ((events_vector.at(size)).ndiffCrystals1) ++;
@@ -403,6 +404,10 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
        //rsector IDs
        this_coincidence.rsectorID1 = (singleEvent.v_rsectorID).at(min_i1);
        this_coincidence.rsectorID2 = (singleEvent.v_rsectorID).at(min_i2);
+       //submodule IDs
+       this_coincidence.submoduleID1 = (singleEvent.v_submoduleID).at(min_i1);
+       this_coincidence.submoduleID2 = (singleEvent.v_submoduleID).at(min_i2);
+
        //positions
        this_coincidence.globalPosX1 = (singleEvent.v_posX).at(min_i1);
        this_coincidence.globalPosY1 = (singleEvent.v_posY).at(min_i1);
@@ -418,12 +423,14 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
        for(int j=0; j<singleEvent.v_nPhantomCompton.size(); j++)
        {
          if((singleEvent.v_crystalID).at(j) == this_coincidence.crystalID1
-         && singleEvent.v_rsectorID.at(j) == this_coincidence.rsectorID1)
+         && singleEvent.v_rsectorID.at(j) == this_coincidence.rsectorID1
+       && singleEvent.v_submoduleID.at(j) == this_coincidence.submoduleID1)
          {
            this_coincidence.energy1 += (singleEvent.v_edep).at(j);
          }
          else if((singleEvent.v_crystalID).at(j) == this_coincidence.crystalID2
-         && singleEvent.v_rsectorID.at(j) == this_coincidence.rsectorID2)
+         && singleEvent.v_rsectorID.at(j) == this_coincidence.rsectorID2
+       && singleEvent.v_submoduleID.at(j) == this_coincidence.submoduleID2)
          {
            this_coincidence.energy2 += (singleEvent.v_edep).at(j);
          }
@@ -548,6 +555,8 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
        this_coincidence.crystalID2 = (ICCevent.v_crystalID).at(min_i2);
        this_coincidence.rsectorID1 = (ICCevent.v_rsectorID).at(min_i1);
        this_coincidence.rsectorID2 = (ICCevent.v_rsectorID).at(min_i2);
+       this_coincidence.submoduleID1 = (ICCevent.v_submoduleID).at(min_i1);
+       this_coincidence.submoduleID2 = (ICCevent.v_submoduleID).at(min_i2);
 
 
        //positions
@@ -565,13 +574,15 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
        for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
        {
          if((ICCevent.v_crystalID).at(j) == this_coincidence.crystalID1
-          && (ICCevent.v_rsectorID).at(j) == this_coincidence.rsectorID1)
+          && (ICCevent.v_rsectorID).at(j) == this_coincidence.rsectorID1
+        && (ICCevent.v_submoduleID).at(j) == this_coincidence.submoduleID1)
          {
 
            this_coincidence.energy1 += (ICCevent.v_edep).at(j);
          }
          else if((ICCevent.v_crystalID).at(j) == this_coincidence.crystalID2
-          && (ICCevent.v_rsectorID).at(j) == this_coincidence.rsectorID2)
+          && (ICCevent.v_rsectorID).at(j) == this_coincidence.rsectorID2
+        && (ICCevent.v_submoduleID).at(j) == this_coincidence.submoduleID2)
          {
            this_coincidence.energy2 += (ICCevent.v_edep).at(j);
          }
@@ -641,6 +652,8 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
              this_coincidence_incorrect.crystalID2 = (ICCevent.v_crystalID).at(min_i2);
              this_coincidence_incorrect.rsectorID1 = (ICCevent.v_rsectorID).at(t2_min_i1);
              this_coincidence_incorrect.rsectorID2 = (ICCevent.v_rsectorID).at(min_i2);
+             this_coincidence_incorrect.submoduleID1 = (ICCevent.v_submoduleID).at(t2_min_i1);
+             this_coincidence_incorrect.submoduleID2 = (ICCevent.v_submoduleID).at(min_i2);
 
              //positions
              this_coincidence_incorrect.globalPosX1 = (ICCevent.v_posX).at(t2_min_i1);
@@ -657,12 +670,14 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
              for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
              {
                if((ICCevent.v_crystalID).at(j) == this_coincidence_incorrect.crystalID1
-                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID1)
+                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID1
+                && (ICCevent.v_submoduleID).at(j) == this_coincidence_incorrect.submoduleID1)
                {
                  this_coincidence_incorrect.energy1 += (ICCevent.v_edep).at(j);
                }
                else if((ICCevent.v_crystalID).at(j) == this_coincidence_incorrect.crystalID2
-                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID2)
+                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID2
+                && (ICCevent.v_submoduleID).at(j) == this_coincidence_incorrect.submoduleID2)
                {
                  this_coincidence_incorrect.energy2 += (ICCevent.v_edep).at(j);
                }
@@ -725,6 +740,8 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
              this_coincidence_incorrect.crystalID2 = (ICCevent.v_crystalID).at(t2_min_i2);
              this_coincidence_incorrect.rsectorID1 = (ICCevent.v_rsectorID).at(min_i1);
              this_coincidence_incorrect.rsectorID2 = (ICCevent.v_rsectorID).at(t2_min_i2);
+             this_coincidence_incorrect.submoduleID1 = (ICCevent.v_submoduleID).at(min_i1);
+             this_coincidence_incorrect.submoduleID2 = (ICCevent.v_submoduleID).at(t2_min_i2);
 
 
              //positions
@@ -743,12 +760,14 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
              for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
              {
                if((ICCevent.v_crystalID).at(j) == this_coincidence_incorrect.crystalID1
-                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID1)
+                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID1
+                && (ICCevent.v_submoduleID).at(j) == this_coincidence_incorrect.submoduleID1)
                {
                  this_coincidence_incorrect.energy1 += (ICCevent.v_edep).at(j);
                }
                else if((ICCevent.v_crystalID).at(j) == this_coincidence_incorrect.crystalID2
-                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID2)
+                  && (ICCevent.v_rsectorID).at(j) == this_coincidence_incorrect.rsectorID2
+                && (ICCevent.v_submoduleID).at(j) == this_coincidence_incorrect.submoduleID2)
                {
                  this_coincidence_incorrect.energy2 += (ICCevent.v_edep).at(j);
                }
