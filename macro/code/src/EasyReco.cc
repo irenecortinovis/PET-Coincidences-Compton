@@ -40,4 +40,15 @@ void EasyReco::Loop()
 
    hist->Draw("iso");
    c1->SaveAs("test.png");
+
+
+   TCanvas *c2 = new TCanvas("c2","",0,0,600,600);
+   c2->cd();
+   TH2D* hist_yz = (TH2D*) hist->Project3D("yz");
+
+   hist_yz->Draw("COLZ");
+   c2->SaveAs("test2.png");
+
+
+
 }
