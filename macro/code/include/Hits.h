@@ -109,6 +109,9 @@ public :
    struct Event
    {
      Int_t                        eventID;
+     Float_t                        sourcePosX;
+     Float_t                        sourcePosY;
+     Float_t                        sourcePosZ;
      std::vector<Int_t>           v_PDGEncoding;
      std::vector<Float_t>         v_edep;
      std::vector<Double_t>        v_time;
@@ -158,6 +161,9 @@ public :
      Float_t                       globalPosY2; //useful
      Float_t                       globalPosZ1; //useful
      Float_t                       globalPosZ2; //useful
+     Float_t                       sourcePosX; //useful
+     Float_t                       sourcePosY; //useful
+     Float_t                       sourcePosZ; //useful
    };
 
 
@@ -311,6 +317,9 @@ void Hits::Init(TTree *tree)
    fChain->SetBranchStatus("eventID", 1);
    fChain->SetBranchStatus("rotationAngle", 1);
    fChain->SetBranchStatus("processName", 1);
+   fChain->SetBranchStatus("sourcePosX", 1);
+   fChain->SetBranchStatus("sourcePosY", 1);
+   fChain->SetBranchStatus("sourcePosZ", 1);
 
 
 }

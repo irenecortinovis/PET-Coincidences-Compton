@@ -29,22 +29,14 @@ void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<H
     runID = 0;
     axialPos = 0;
     sourceID1 = 0;
-    sourcePosX1 = 0;
-    sourcePosY1 = 0;
-    sourcePosZ1 = 0;
     gantryID1 = 0;
-    rsectorID1 = 0;
     moduleID1 = 0;
     layerID1 = 0;
     comptonCrystal1 = 0;
     RayleighPhantom1 = 0;
     RayleighCrystal1 = 0;
     sourceID2 = 0;
-    sourcePosX2 = 0;
-    sourcePosY2 = 0;
-    sourcePosZ2 = 0;
     gantryID2 = 0;
-    rsectorID2 = 0;
     moduleID2 = 0;
     layerID2 = 0;
     comptonCrystal2 = 0;
@@ -79,6 +71,12 @@ void ICCoincidences::FillICCompton(Float_t percentage, std::vector<std::vector<H
     comptonPhantom2 = (cvector.at(i)).at(index).comptonPhantom2;
     time1 = (cvector.at(i)).at(index).time1;
     time2 = (cvector.at(i)).at(index).time2;
+    sourcePosX2 = (cvector.at(i)).at(index).sourcePosX;
+    sourcePosY2 = (cvector.at(i)).at(index).sourcePosY;
+    sourcePosZ2 = (cvector.at(i)).at(index).sourcePosZ;
+    sourcePosX1 = (cvector.at(i)).at(index).sourcePosX;
+    sourcePosY1 = (cvector.at(i)).at(index).sourcePosY;
+    sourcePosZ1 = (cvector.at(i)).at(index).sourcePosZ;
 
 
 

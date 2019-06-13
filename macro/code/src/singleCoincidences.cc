@@ -20,9 +20,6 @@ void singleCoincidences::FillSingle(std::vector<Hits::CoincidenceEvent> cvector)
     runID = 0;
     axialPos = 0;
     sourceID1 = 0;
-    sourcePosX1 = 0;
-    sourcePosY1 = 0;
-    sourcePosZ1 = 0;
     gantryID1 = 0;
     moduleID1 = 0;
     layerID1 = 0;
@@ -30,9 +27,6 @@ void singleCoincidences::FillSingle(std::vector<Hits::CoincidenceEvent> cvector)
     RayleighPhantom1 = 0;
     RayleighCrystal1 = 0;
     sourceID2 = 0;
-    sourcePosX2 = 0;
-    sourcePosY2 = 0;
-    sourcePosZ2 = 0;
     gantryID2 = 0;
     moduleID2 = 0;
     layerID2 = 0;
@@ -45,7 +39,7 @@ void singleCoincidences::FillSingle(std::vector<Hits::CoincidenceEvent> cvector)
     comptVolName2[30] = '0';
     RayleighVolName1[30] = '0';
     RayleighVolName2[30] = '0';
-    
+
     //fill the thing using default values for useless, and cvector values for useful
     rotationAngle = (cvector.at(i)).rotationAngle;
     eventID1 = (cvector.at(i)).eventID1;
@@ -68,6 +62,14 @@ void singleCoincidences::FillSingle(std::vector<Hits::CoincidenceEvent> cvector)
     comptonPhantom2 = (cvector.at(i)).comptonPhantom2;
     time1 = (cvector.at(i)).time1;
     time2 = (cvector.at(i)).time2;
+    sourcePosX2 = (cvector.at(i)).sourcePosX;
+    sourcePosY2 = (cvector.at(i)).sourcePosY;
+    sourcePosZ2 = (cvector.at(i)).sourcePosZ;
+    sourcePosX1 = (cvector.at(i)).sourcePosX;
+    sourcePosY1 = (cvector.at(i)).sourcePosY;
+    sourcePosZ1 = (cvector.at(i)).sourcePosZ;
+
+    std::cout << sourcePosX2 << std::endl;
 
 
 
