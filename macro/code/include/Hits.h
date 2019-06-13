@@ -138,8 +138,8 @@ public :
      Int_t                         eventID1;
      Int_t                         eventID2;
      Float_t                       rotationAngle;
-     Float_t                       energy1;
-     Float_t                       energy2;
+     Float_t                       energy1; //useful
+     Float_t                       energy2; //useful
      Int_t                         comptonPhantom1;
      Int_t                         comptonPhantom2;
      Float_t                       totenergy1;
@@ -150,14 +150,14 @@ public :
      Int_t                         rsectorID2;
      Int_t                         submoduleID1;
      Int_t                         submoduleID2;
-     Double_t                      time1;
-     Double_t                      time2;
-     Float_t                       globalPosX1;
-     Float_t                       globalPosX2;
-     Float_t                       globalPosY1;
-     Float_t                       globalPosY2;
-     Float_t                       globalPosZ1;
-     Float_t                       globalPosZ2;
+     Double_t                      time1; //useful
+     Double_t                      time2; //useful
+     Float_t                       globalPosX1; //useful
+     Float_t                       globalPosX2; //useful
+     Float_t                       globalPosY1; //useful
+     Float_t                       globalPosY2; //useful
+     Float_t                       globalPosZ1; //useful
+     Float_t                       globalPosZ2; //useful
    };
 
 
@@ -177,7 +177,9 @@ public :
    virtual void     PrintEvent(Event this_event);
    virtual bool     ComptonFilter(const char* processName, Float_t edep);
    virtual bool     isDiffCrystal(Event this_event, Int_t crystalID, Int_t rsectorID, Int_t submoduleID, Int_t primaryID, Float_t energy_threshold);
-
+   virtual void     print_nocompton(std::string fname, std::vector<Hits::CoincidenceEvent> coinc_vector);
+   virtual void     print_compton(std::string fname, std::vector<std::vector<Hits::CoincidenceEvent> > coinc_vector);
+   virtual Int_t    find_single_compton(std::vector<Hits::CoincidenceEvent> coinc_pair);
 
 
 };

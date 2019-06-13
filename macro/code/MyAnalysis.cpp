@@ -61,7 +61,8 @@ int main(int argc, char const *argv[])
   std::vector<Hits::CoincidenceEvent> s_coincidences_vector;
   std::tie(ic_coincidences_vector,s_coincidences_vector)= Hits_obj->FindICcoincidences(energy_threshold, &ComptonRealCoincidencesIDvector, &MonoCoincidencesIDvector);
 
-
+  Hits_obj->print_nocompton("test_singles.txt", s_coincidences_vector);
+  Hits_obj->print_compton("test_compton.txt", ic_coincidences_vector);
   //instantiate singleCoincidences object
   singleCoincidences* singleCoincidences_obj = new singleCoincidences();
   //Fill realCoincidences-like tree with the single coincidences
