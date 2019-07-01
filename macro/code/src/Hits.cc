@@ -65,7 +65,6 @@ bool Hits::isDiffCrystal(Hits::Event this_event, Int_t crystalID, Int_t rsectorI
 
 
 
-
 //loop on all the Hit entries to find the Coincidences with inter-crystal compton effect
 std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::CoincidenceEvent>> Hits::FindICcoincidences(Float_t energy_threshold, std::vector<Int_t>* IDsvector, std::vector<Int_t>* monoIDsvector)
 {
@@ -233,11 +232,12 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
           isInterCrystal0 = true;
         else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
           isInterCrystal1 = true;
-        else if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
-        {
-          isInterCrystal0 = true;
-          isInterCrystal1 = true;
-        }
+        // for now comment out the intercrystals with 4 different crystals
+        //else if(((events_vector.at(size-1)).ndiffCrystals0 == 2) && ((events_vector.at(size-1)).ndiffCrystals1 == 2))
+        //{
+          //isInterCrystal0 = true;
+          //isInterCrystal1 = true;
+        //}
         //mono-crystal events
         else if(((events_vector.at(size-1)).ndiffCrystals0 == 1) && ((events_vector.at(size-1)).ndiffCrystals1 == 1))
         {
@@ -285,7 +285,7 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
         {
           for(int k=0; k<events_vector.at(size-1).v_processName.size(); k++)
           {
-            //check in ndiffCrystals0 if there are compton and photoelectric processNames
+            //check in ndiffCrystals1 if there are compton and photoelectric processNames
             if( events_vector.at(size-1).v_primaryID.at(k) != events_vector.at(size-1).v_primaryID.at(0)
               && (std::find((events_vector.at(size-1)).v_diffCrystal1.begin(), (events_vector.at(size-1)).v_diffCrystal1.end(), (events_vector.at(size-1).v_crystalID.at(k))) != (events_vector.at(size-1)).v_diffCrystal1.end()))
             {
@@ -299,15 +299,12 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
         }
 
 
-        if((isInterCrystal0 == true && isInterCrystal1 == false) || (isInterCrystal1 == true && isInterCrystal0 == false))
+        if((isInterCrystal0 == true && isInterCrystal1 == false && isComptonProcess0) || (isInterCrystal1 == true && isInterCrystal0 == false && isComptonProcess1))
         {
-          if((isComptonProcess0 && isPhotoelectricProcess0) || (isComptonProcess1 && isPhotoelectricProcess1) || (isComptonProcess0 && isComptonProcess1))
-          {
-            counterICCompton ++;
-            //save in the vector the position of the interesting eventID
-            //the event will be retrieved in the next loop from events_vector
-            ICcomptonEvents_vector.push_back(size-1);
-          }
+          counterICCompton ++;
+          //save in the vector the position of the interesting eventID
+          //the event will be retrieved in the next loop from events_vector
+          ICcomptonEvents_vector.push_back(size-1);
         }
 
       }
@@ -315,12 +312,12 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
       //set variable for the next entry
       previousEventID = eventID;
 
-      /*int perc = ((100*jentry)/nentries);
+      int perc = ((100*jentry)/nentries);
       if( (perc % 10) == 0 )
       {
         std::cout << "\r";
         std::cout << perc << "% done... ";
-      }*/
+      }
    }
 
    //std::cout << "Number of events where more than two rsectors are hit: " << counter_more_rsectors << std::endl;
@@ -451,6 +448,25 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
          }
        }
 
+       this_coincidence.weighted_globalPosX1 = 0;
+       this_coincidence.weighted_globalPosX2 = 0;
+
+       //weighted doi in crystal
+       for(int j=0; j<singleEvent.v_nPhantomCompton.size(); j++)
+       {
+         if((singleEvent.v_crystalID).at(j) == this_coincidence.crystalID1
+         && singleEvent.v_rsectorID.at(j) == this_coincidence.rsectorID1
+         && singleEvent.v_submoduleID.at(j) == this_coincidence.submoduleID1)
+         {
+           this_coincidence.weighted_globalPosX1 +=  (singleEvent.v_edep).at(j)*(singleEvent.v_posX).at(j)/this_coincidence.energy1;
+         }
+         else if((singleEvent.v_crystalID).at(j) == this_coincidence.crystalID2
+         && singleEvent.v_rsectorID.at(j) == this_coincidence.rsectorID2
+         && singleEvent.v_submoduleID.at(j) == this_coincidence.submoduleID2)
+         {
+           this_coincidence.weighted_globalPosX2 +=  (singleEvent.v_edep).at(j)*(singleEvent.v_posX).at(j)/this_coincidence.energy2;
+         }
+       }
      }
 
 
@@ -602,6 +618,26 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
          }
        }
 
+       this_coincidence.weighted_globalPosX1 = 0;
+       this_coincidence.weighted_globalPosX2 = 0;
+
+       //weighted doi in crystal
+       for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
+       {
+         if((ICCevent.v_crystalID).at(j) == this_coincidence.crystalID1
+         && ICCevent.v_rsectorID.at(j) == this_coincidence.rsectorID1
+         && ICCevent.v_submoduleID.at(j) == this_coincidence.submoduleID1)
+         {
+           this_coincidence.weighted_globalPosX1 +=  (ICCevent.v_edep).at(j)*(ICCevent.v_posX).at(j)/this_coincidence.energy1;
+         }
+         else if((ICCevent.v_crystalID).at(j) == this_coincidence.crystalID2
+         && ICCevent.v_rsectorID.at(j) == this_coincidence.rsectorID2
+         && ICCevent.v_submoduleID.at(j) == this_coincidence.submoduleID2)
+         {
+           this_coincidence.weighted_globalPosX2 +=  (ICCevent.v_edep).at(j)*(ICCevent.v_posX).at(j)/this_coincidence.energy2;
+         }
+       }
+
 
       if((minTime1 != maxTime && minTime2 != maxTime)
          && (fabs(minTime2 - minTime1) <= timeWindow)
@@ -700,6 +736,26 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
                }
              }
 
+             this_coincidence_incorrect.weighted_globalPosX1 = 0;
+             this_coincidence_incorrect.weighted_globalPosX2 = 0;
+
+             //weighted doi in crystal
+             for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
+             {
+               if((ICCevent.v_crystalID).at(j) == this_coincidence_incorrect.crystalID1
+               && ICCevent.v_rsectorID.at(j) == this_coincidence_incorrect.rsectorID1
+               && ICCevent.v_submoduleID.at(j) == this_coincidence_incorrect.submoduleID1)
+               {
+                 this_coincidence_incorrect.weighted_globalPosX1 +=  (ICCevent.v_edep).at(j)*(ICCevent.v_posX).at(j)/this_coincidence_incorrect.energy1;
+               }
+               else if((ICCevent.v_crystalID).at(j) == this_coincidence_incorrect.crystalID2
+               && ICCevent.v_rsectorID.at(j) == this_coincidence_incorrect.rsectorID2
+               && ICCevent.v_submoduleID.at(j) == this_coincidence_incorrect.submoduleID2)
+               {
+                 this_coincidence_incorrect.weighted_globalPosX2 +=  (ICCevent.v_edep).at(j)*(ICCevent.v_posX).at(j)/this_coincidence_incorrect.energy2;
+               }
+             }
+
 
              //check if time difference is < time window
              //check if the crystals are in diffCrystal vectors
@@ -790,6 +846,26 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
                }
              }
 
+             this_coincidence.weighted_globalPosX1 = 0;
+             this_coincidence.weighted_globalPosX2 = 0;
+
+             //weighted doi in crystal
+             for(int j=0; j<ICCevent.v_nPhantomCompton.size(); j++)
+             {
+               if((ICCevent.v_crystalID).at(j) == this_coincidence.crystalID1
+               && ICCevent.v_rsectorID.at(j) == this_coincidence.rsectorID1
+               && ICCevent.v_submoduleID.at(j) == this_coincidence.submoduleID1)
+               {
+                 this_coincidence.weighted_globalPosX1 +=  (ICCevent.v_edep).at(j)*(ICCevent.v_posX).at(j)/this_coincidence.energy1;
+               }
+               else if((ICCevent.v_crystalID).at(j) == this_coincidence.crystalID2
+               && ICCevent.v_rsectorID.at(j) == this_coincidence.rsectorID2
+               && ICCevent.v_submoduleID.at(j) == this_coincidence.submoduleID2)
+               {
+                 this_coincidence.weighted_globalPosX2 +=  (ICCevent.v_edep).at(j)*(ICCevent.v_posX).at(j)/this_coincidence.energy2;
+               }
+             }
+
              //check if time difference is < time window
              //check if the crystals are in diffCrystal vector
              if((minTime1 != maxTime && t2_minTime2 != maxTime)
@@ -843,14 +919,19 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
                 << "x1" << "\t" << "y1" << "\t" << "z1" << "\t"
                 << "x2" << "\t" << "y2" << "\t" << "z2" << "\t"
                 << "x3" << "\t" << "y3" << "\t" << "z3" << "\t"
+                << "x3" << "\t" << "y3" << "\t" << "z3" << "\t"
                 << "time1" << "\t" << "time2" << "\t" << "time3" << "\t"
                 << "energy1" << "\t" << "energy2" << "\t" << "energy3" << "\t"
                 << std::endl;
+
+
+
+
      for(int i=0; i<coinc_vector.size(); i++)
      {
-       outputfile << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).sourcePosX << "\t"
-                  << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).sourcePosY << "\t"
-                  << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).sourcePosZ << "\t"
+       outputfile << std::fixed << std::setprecision(2) << (coinc_vector.at(i)).sourcePosX << "\t"
+                  << std::fixed << std::setprecision(2) << (coinc_vector.at(i)).sourcePosY << "\t"
+                  << std::fixed << std::setprecision(2) << (coinc_vector.at(i)).sourcePosZ << "\t"
                   << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).globalPosX1 << "\t"
                   << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).globalPosY1 << "\t"
                   << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).globalPosZ1 << "\t"
@@ -858,8 +939,8 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
                   << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).globalPosY2 << "\t"
                   << std::fixed << std::setprecision(1) << (coinc_vector.at(i)).globalPosZ2 << "\t"
                   << 0 << "\t" << 0 << "\t" << 0 << "\t"
-                  <<  std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).time1)*1e9 << "\t"
-                  <<  std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).time2)*1e9 << "\t"
+                  <<  std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).time1)*1e9 << "\t"
+                  <<  std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).time2)*1e9 << "\t"
                   << 0 << "\t"
                   <<  std::fixed << std::setprecision(3) << (coinc_vector.at(i)).energy1 << "\t"
                   <<  std::fixed << std::setprecision(3) << (coinc_vector.at(i)).energy2 << "\t"
@@ -902,21 +983,21 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
        Int_t single = Hits::find_single_compton(coinc_vector.at(i));
        if(single == 11)
        {
-         outputfile << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
-                    << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
-                    << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
+         outputfile << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
+                    << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
+                    << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX1 << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY1 << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ1 << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX2 << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY2 << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ2 << "\t"
-                    << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX2 << "\t"
+                    << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosX2 << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosY2 << "\t"
                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosZ2 << "\t"
-                    << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
-                    << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
-                    << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(1)).time2)*1e9 << "\t"
+                    << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
+                    << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
+                    << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(1)).time2)*1e9 << "\t"
                     << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy1 << "\t"
                     << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy2 << "\t"
                     << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(1)).energy2
@@ -924,21 +1005,21 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
         }
         if(single == 12)
         {
-          outputfile << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
-                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
-                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
+          outputfile << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
+                     << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
+                     << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX1 << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY1 << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ1 << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX2 << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY2 << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ2 << "\t"
-                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX1 << "\t"
+                     << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosX1 << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosY1 << "\t"
                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosZ1 << "\t"
-                     << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
-                     << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
-                     << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(1)).time1)*1e9 << "\t"
+                     << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
+                     << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
+                     << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(1)).time1)*1e9 << "\t"
                      << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy1 << "\t"
                      << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy2 << "\t"
                      << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(1)).energy1
@@ -946,21 +1027,21 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
          }
          if(single == 21)
          {
-           outputfile << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
-                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
-                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
+           outputfile << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
+                      << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
+                      << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX2 << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY2 << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ2 << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX1 << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY1 << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ1 << "\t"
-                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX2 << "\t"
+                      << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosX2 << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosY2 << "\t"
                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosZ2 << "\t"
-                      << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
-                      << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
-                      << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(1)).time2)*1e9 << "\t"
+                      << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
+                      << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
+                      << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(1)).time2)*1e9 << "\t"
                       << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy2 << "\t"
                       << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy1 << "\t"
                       << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(1)).energy2
@@ -968,21 +1049,21 @@ std::tuple<std::vector<std::vector<Hits::CoincidenceEvent>>,std::vector<Hits::Co
           }
           if(single == 22)
           {
-            outputfile << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
-                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
-                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
+            outputfile << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosX << "\t"
+                       << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosY << "\t"
+                       << std::fixed << std::setprecision(2) << ((coinc_vector.at(i)).at(0)).sourcePosZ << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX2 << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY2 << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ2 << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX1 << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosY1 << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosZ1 << "\t"
-                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(0)).globalPosX1 << "\t"
+                       << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosX1 << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosY1 << "\t"
                        << std::fixed << std::setprecision(1) << ((coinc_vector.at(i)).at(1)).globalPosZ1 << "\t"
-                       << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
-                       << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
-                       << std::fixed << std::setprecision(2) << (((coinc_vector.at(i)).at(1)).time1)*1e9 << "\t"
+                       << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time2)*1e9 << "\t"
+                       << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(0)).time1)*1e9 << "\t"
+                       << std::fixed << std::setprecision(3) << (((coinc_vector.at(i)).at(1)).time1)*1e9 << "\t"
                        << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy2 << "\t"
                        << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(0)).energy1 << "\t"
                        << std::fixed << std::setprecision(3) << ((coinc_vector.at(i)).at(1)).energy1

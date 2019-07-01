@@ -69,8 +69,6 @@ void singleCoincidences::FillSingle(std::vector<Hits::CoincidenceEvent> cvector)
     sourcePosY1 = (cvector.at(i)).sourcePosY;
     sourcePosZ1 = (cvector.at(i)).sourcePosZ;
 
-    std::cout << sourcePosX2 << std::endl;
-
 
 
     //fill entry
