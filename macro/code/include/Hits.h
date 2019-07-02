@@ -164,8 +164,6 @@ public :
      Float_t                       sourcePosX; //useful
      Float_t                       sourcePosY; //useful
      Float_t                       sourcePosZ; //useful
-     Float_t                       weighted_globalPosX1; //useful
-     Float_t                       weighted_globalPosX2; //useful
    };
 
 
